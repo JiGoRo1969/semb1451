@@ -44,7 +44,7 @@
 /* Set to 1 to print out debug messages.  If ipconfigHAS_DEBUG_PRINTF is set to
  * 1 then FreeRTOS_debug_printf should be defined to the function used to print
  * out the debugging messages. */
-#define ipconfigHAS_DEBUG_PRINTF    1
+#define ipconfigHAS_DEBUG_PRINTF    0
 #if ( ipconfigHAS_DEBUG_PRINTF == 1 )
     //#define FreeRTOS_debug_printf( X )    vLoggingPrintf( X )
     #define FreeRTOS_debug_printf( X )    configPRINTF( X )
@@ -138,7 +138,7 @@ uint32_t ulRand(void);
  * set to 1 if a valid configuration cannot be obtained from a DHCP server for any
  * reason.  The static configuration used is that passed into the stack by the
  * FreeRTOS_IPInit() function call. */
-#define ipconfigUSE_DHCP                         0
+#define ipconfigUSE_DHCP                         1
 #define ipconfigDHCP_REGISTER_HOSTNAME           1
 #define ipconfigDHCP_USES_UNICAST                1
 #define ipconfigDHCP_SEND_DISCOVER_AFTER_AUTO_IP 0

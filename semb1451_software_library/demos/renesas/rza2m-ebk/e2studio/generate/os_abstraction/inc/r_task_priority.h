@@ -45,6 +45,9 @@ Enumerated Types
 /* Normal tasks - share priority 0..15*/
 #define R_OS_TASK_MAIN_TASK_PRI     (6) /* Application main priority */
 #define TASK_CONSOLE_TASK_PRI       (6) /* Console Application priority */
+#define	TASK_SERVO_TASK_PRI			(6)
+#define	TASK_SPI_TASK_PRI			(6)
+#define	TASK_ADC_TASK_PRI			(6)
 
 /* This is designed to soak CPU time but because it is low priority
    responsiveness of the system is not lost */

@@ -1,0 +1,3 @@
+RZ_A2M_sflash_boot_sample_gcc.elf: ../generate/compiler/linker_script.ld
+
+# vim:noexpandtab:

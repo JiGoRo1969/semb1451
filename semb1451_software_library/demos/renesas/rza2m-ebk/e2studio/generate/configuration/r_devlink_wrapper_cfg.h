@@ -35,6 +35,7 @@
 #include "r_gpio_drv_api.h"
 /* This code is auto-generated. Do not edit manually */
 #include "r_adc_drv_api.h"
+#include "r_dmac_drv_api.h"
 #include "r_scifa_drv_api.h"
 #include "r_riic_drv_api.h"
 #include "r_ostm_drv_api.h"
@@ -53,30 +54,40 @@ static st_mount_table_t gs_mount_table[] =
         /* "cpg" and "gpio" are fixed entry.
          * users can not use these name as configuration name.
          */
-        {"cpg",    (st_r_driver_t *)&g_cpg_driver,   R_SC0},
-        {"gpio",   (st_r_driver_t *)&g_gpio_driver,  R_SC0},
+        {"cpg",      (st_r_driver_t *)&g_cpg_driver,   R_SC0},
+        {"gpio",     (st_r_driver_t *)&g_gpio_driver,  R_SC0},
         /* This code is auto-generated. Do not edit manually */
-        { "adc", (st_r_driver_t *)&g_adc_driver, R_SC0 },
-        { "scifa4", (st_r_driver_t *)&g_scifa_driver, R_SC0 },
+        { "adc0", (st_r_driver_t *)&g_adc_driver, R_SC0 },
+        { "dmac0_rs_rxi0", (st_r_driver_t *)&g_dmac_driver, R_SC0 },
+        { "dmac1_rs_txi0", (st_r_driver_t *)&g_dmac_driver, R_SC1 },
+        { "dmac2_rs_rxi1", (st_r_driver_t *)&g_dmac_driver, R_SC2 },
+        { "dmac3_rs_txi1", (st_r_driver_t *)&g_dmac_driver, R_SC3 },
+        { "dmac4_rs_rxi2", (st_r_driver_t *)&g_dmac_driver, R_SC4 },
+        { "dmac5_rs_txi2", (st_r_driver_t *)&g_dmac_driver, R_SC5 },
+        { "dmac6_rs_rxi3", (st_r_driver_t *)&g_dmac_driver, R_SC6 },
+        { "dmac7_rs_txi3", (st_r_driver_t *)&g_dmac_driver, R_SC7 },
+        { "dmac8_rs_rxi4", (st_r_driver_t *)&g_dmac_driver, R_SC8 },
+        { "dmac9_rs_txi4", (st_r_driver_t *)&g_dmac_driver, R_SC9 },
+        { "scifa0", (st_r_driver_t *)&g_scifa_driver, R_SC0 },
         { "scifa1", (st_r_driver_t *)&g_scifa_driver, R_SC1 },
         { "scifa2", (st_r_driver_t *)&g_scifa_driver, R_SC2 },
         { "scifa3", (st_r_driver_t *)&g_scifa_driver, R_SC3 },
-        { "scifa0", (st_r_driver_t *)&g_scifa_driver, R_SC4 },
-        { "riic3", (st_r_driver_t *)&g_riic_driver, R_SC0 },
-        { "riic0", (st_r_driver_t *)&g_riic_driver, R_SC1 },
-        { "riic1", (st_r_driver_t *)&g_riic_driver, R_SC2 },
-        { "ostm_reserved", (st_r_driver_t *)&g_ostm_driver, R_SC0 },
+        { "scifa4", (st_r_driver_t *)&g_scifa_driver, R_SC4 },
+        { "riic0", (st_r_driver_t *)&g_riic_driver, R_SC0 },
+        { "riic1", (st_r_driver_t *)&g_riic_driver, R_SC1 },
+        { "riic2", (st_r_driver_t *)&g_riic_driver, R_SC2 },
+        { "riic3", (st_r_driver_t *)&g_riic_driver, R_SC3 },
+        { "ostm1", (st_r_driver_t *)&g_ostm_driver, R_SC0 },
+        { "ostm0", (st_r_driver_t *)&g_ostm_driver, R_SC1 },
         /* End of modification */
 
  /* Modified by user, drivers that are not under the control of sc added here */
-        /** SCIFA Channel 4 Driver added by USER */
-           {"stdin", (st_r_driver_t *)&g_scifa_driver, R_SC0},
-
-        /** SCIFA Channel 4 Driver added by USER */
-           {"stdout", (st_r_driver_t *)&g_scifa_driver, R_SC0},
-
-        /** SCIFA Channel 4 Driver added by USER */
-           {"stderr", (st_r_driver_t *)&g_scifa_driver, R_SC0},
+		/** SCI Channel 4 Driver added by USER */
+		   {"stdin", (st_r_driver_t *)&g_scifa_driver, R_SC4},
+		/** SCI Channel 4 Driver added by USER */
+		   {"stdout", (st_r_driver_t *)&g_scifa_driver, R_SC4},
+		/** SCI Channel 4 Driver added by USER */
+		   {"stderr", (st_r_driver_t *)&g_scifa_driver, R_SC4},
  /* End of user modification */
 
 };

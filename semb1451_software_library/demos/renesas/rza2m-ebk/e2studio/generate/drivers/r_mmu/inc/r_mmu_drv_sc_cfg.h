@@ -22,7 +22,7 @@
 *******************************************************************************/
 /******************************************************************************
 * File Name    : r_mmu_drv_sc_cfg.h
-* Date         : 2019-10-14
+* Date         : 2019-11-03
 * version      : 1.0.0
 * Description  : MMU configuration table updated by Smart Configurator
 ******************************************************************************/
@@ -66,7 +66,7 @@ const static st_r_mmu_sc_config_t MMU_SC_TABLE[] =
     {0x50000000uL, 0x50000000uL, 256, MMU_ATTR_NORMAL_L1L2CACHE | MMU_ATTR_DOMAIN(15)},
     {0x60000000uL, 0x60000000uL, 256, MMU_ATTR_NORMAL_L1L2CACHE | MMU_ATTR_DOMAIN(15)},
     {0x70000000uL, 0x20000000uL, 256, MMU_ATTR_STRONGLY_NS_EXECUTABLE | MMU_ATTR_DOMAIN(15)},
-    {0x80000000uL, 0x80000000uL, 4, MMU_ATTR_NORMAL_L1CACHE | MMU_ATTR_DOMAIN(15)},
+    {0x80000000uL, 0x80000000uL, 4, MMU_ATTR_NORMAL | MMU_ATTR_DOMAIN(15)},
     {0x80400000uL, 0x80400000uL, 28, MMU_ATTR_RESERVED | MMU_ATTR_DOMAIN(15)},
     {0x82000000uL, 0x80000000uL, 4, MMU_ATTR_NORMAL | MMU_ATTR_DOMAIN(15)},
     {0x82400000uL, 0x82400000uL, 92, MMU_ATTR_RESERVED | MMU_ATTR_DOMAIN(15)},

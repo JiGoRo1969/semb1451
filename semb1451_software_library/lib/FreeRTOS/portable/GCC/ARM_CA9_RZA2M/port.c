@@ -33,7 +33,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "compiler_settings.h"
-#include "r_intc_lld_rza2m.h"
+#include "r_intc_drv_api.h"
 
 #ifndef configINTERRUPT_CONTROLLER_BASE_ADDRESS
 	#error configINTERRUPT_CONTROLLER_BASE_ADDRESS must be defined.  See http://www.freertos.org/Using-FreeRTOS-on-Cortex-A-Embedded-Processors.html

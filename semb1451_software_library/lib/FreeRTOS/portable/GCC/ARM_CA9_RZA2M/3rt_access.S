@@ -19,19 +19,20 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name     : access.S
-* Device(s)     : RZ/A1H (R7S721001)
+* Device(s)     : RZ/A2M
 * Tool-Chain    : GNUARM-RZv13.01-EABI
-* H/W Platform  : RSK+RZA1H CPU Board
+* H/W Platform  : RZ/A2M EBK CPU Board
 * Description   : This is the code provides access to the co-processors
 *******************************************************************************/
 /*******************************************************************************
 * History       : DD.MM.YYYY Version Description
 *               : 18.06.2013 1.00
 *               : 21.03.2014 2.00
+*               : 08.04.2019 3.00 RZA2M version 
 *******************************************************************************/
 
     .text

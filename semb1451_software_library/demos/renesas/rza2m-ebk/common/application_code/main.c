@@ -1,178 +1,362 @@
-/*
-Amazon FreeRTOS
-Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+/**********************************************************************************************************************
+ * File Name	 : main.c
+ * Version		 : 1.0.0
+ * Creation Date : 2019-11-01
+ * Device(s)	 : RZ/A2M
+ * Tool-Chain	 : e2Studio Ver 7.4.0
+ *				 : GCC ARM Embedded 6.3.1.20170620
+ * OS			 : None
+ * H/W Platform  : SEMB1451/1452
+ * Description	 : RZ/A2M Sample Program - Main
+ * Operation	 :
+ * Limitations	 :
+ *********************************************************************************************************************/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
+/******************************************************************************
+ * Includes
+ *****************************************************************************/
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://aws.amazon.com/freertos
- http://www.FreeRTOS.org
-*/
-
-/* FreeRTOS includes. */
-#include "FreeRTOS.h"
-#include "task.h"
-
-/* Version includes. */
-#include "aws_application_version.h"
-
-/* System init includes. */
-#include "aws_system_init.h"
-
-/* Logging includes. */
-#include "aws_logging_task.h"
-
-/* Key provisioning includes. */
-#include "aws_dev_mode_key_provisioning.h"
-
-/* FreeRTOS+TCP includes. */
-#include "FreeRTOS_IP.h"
-
-/* Demo includes */
-#include "aws_demo_runner.h"
-#include "aws_clientcredential.h"
-
-
-//190325 modified for RZ/A2M. It is for RZ/A2M. -->
-/*from app.c*/
-#include "queue.h"
 #include <stdio.h>
 #include <string.h>
-
-#include "r_devlink_wrapper.h"
-#include "r_ether_rza2_if.h"
-#include "FreeRTOS_IP_Private.h"
-
-/* Aws Library Includes includes. */
-#include "aws_system_init.h"
-#include "aws_logging_task.h"
-#include "aws_application_version.h"
-#include "aws_dev_mode_key_provisioning.h"
-
-/*from main.c*/
 #include <fcntl.h>
 #include <unistd.h>
+
 #include "r_typedefs.h"
 #include "iodefine.h"
+#include "compiler_settings.h"
+#include "main.h"
 #include "r_cpg_drv_api.h"
 #include "r_ostm_drv_api.h"
 #include "r_scifa_drv_api.h"
 #include "r_gpio_drv_api.h"
 #include "r_startup_config.h"
-#include "compiler_settings.h"
-#include "main.h"
 #include "r_os_abstraction_api.h"
 #include "r_task_priority.h"
-#include "version.h"
-//190325 modified for RZ/A2M. It is for RZ/A2M. <--
+#include "r_riic.h"
+#include "r_rspi.h"
+#include "scifa.h"
+#include "command.h"
 
-#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
-#define mainTEST_RUNNER_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
+/******************************************************************************
+ * Definition for Function Selection
+ *****************************************************************************/
 
-// Modify 2018.08.31 -->
-#define IGMP_TEST1  0
-#define IGMP_TEST3  0
-// Modify 2018.08.31 <--
+/******************************************************************************
+ * Macro definitions (Register bit)
+ *****************************************************************************/
 
-#if 0    //190325 modified for RZ/A2M. It is for RX. -->
-/* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-   .u.x.ucMajor = APP_VERSION_MAJOR,
-   .u.x.ucMinor = APP_VERSION_MINOR,
-   .u.x.usBuild = APP_VERSION_BUILD,
-};
-#endif    //190325 modified for RZ/A2M. It is for RX.  <--
+/******************************************************************************
+ * Macro definitions
+ *****************************************************************************/
 
-/* The MAC address array is not declared const as the MAC address will
-normally be read from an EEPROM and not hard coded (in real deployed
-applications).*/
-static uint8_t ucMACAddress[ 6 ] =
+/******************************************************************************
+ * Typedef definitions
+ *****************************************************************************/
+
+/******************************************************************************
+ * Global functions (Prototype definition)
+ *****************************************************************************/
+
+int_t	os_console_task_t(void);
+int_t	os_servo_task_t(void);
+int_t	os_spi_task_t(void);
+int_t	os_adc_task_t(void);
+int_t	os_main_task_t(void);
+int_t	main(void);
+
+/******************************************************************************
+ * Global values
+ *****************************************************************************/
+
+int_t	g_handle_gpio;
+
+/******************************************************************************
+ * Local functions
+ *****************************************************************************/
+
+/******************************************************************************
+ * Local values
+ *****************************************************************************/
+
+st_r_drv_gpio_pin_rw_t	gs_p76[2] = {{GPIO_PORT_7_PIN_6, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
+									 {GPIO_PORT_7_PIN_6, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
+						gs_pA6[2] = {{GPIO_PORT_A_PIN_6, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
+									 {GPIO_PORT_A_PIN_6, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
+						gs_p23[2] = {{GPIO_PORT_2_PIN_3, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
+									 {GPIO_PORT_2_PIN_3, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
+						gs_p60[2] = {{GPIO_PORT_6_PIN_0, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
+									 {GPIO_PORT_6_PIN_0, GPIO_LEVEL_HIGH, GPIO_SUCCESS}};
+
+/******************************************************************************
+ * Imported global functions
+ *****************************************************************************/
+
+//extern	void	r_scifa_init(void);
+extern	void	r_sample_servo_init(void);
+extern	void	r_sample_servo_goto_home_position(void);
+extern	void	r_adc_gets(void);
+
+/******************************************************************************
+ * Imported global variables
+ *****************************************************************************/
+#include "scifa.h"
+#include "r_riic.h"
+
+
+
+
+
+
+/******************************************************************************
+* Function Name: os_console_task_t
+* Description  : console task
+* Arguments	   : none
+* Return Value : 0
+******************************************************************************/
+int_t	os_console_task_t(void)
 {
-    configMAC_ADDR0,
-    configMAC_ADDR1,
-    configMAC_ADDR2,
-    configMAC_ADDR3,
-    configMAC_ADDR4,
-    configMAC_ADDR5
-}; //XXX
+	//
+	//	initialization for each devices
+	//
+	r_eeprom_init();
+	r_bmx055_init();
+	//
+	//
+	//
+	printf("\r\nCommand list:\r\n");
+	printf("--- OTHERS ----------------------------------\r\n");
+	printf("help       - show the command description\r\n");
+	printf("ver	       - show the version information\r\n");
+	printf("exit       - shut down the sample program\r\n");
+	printf("--- EEPROM ----------------------------------\r\n");
+	printf("we         - write data to EEPROM\r\n");
+	printf("re         - read data from EEPROM\r\n");
+	printf("--- BMX055 ----------------------------------\r\n");
+	printf("wa, wg, wm - write data to BMX055\r\n");
+	printf("rb, rg, rm - read data from BMX055\r\n");
+	printf("\r\n");
+	while(1)
+	{
+		/* ==== Receive command, activate sample software ==== */
+		cmd_console(stdin, stdout, "$ ");
+		R_OS_TaskSleep(500);
+	}
+	return 0;
+}
+/*******************************************************************************
+ * End of function os_console_task_t
+ ******************************************************************************/
 
-/* Define the network addressing.  These parameters will be used if either
-ipconfigUDE_DHCP is 0 or if ipconfigUSE_DHCP is 1 but DHCP auto configuration
-failed. */
-static const uint8_t ucIPAddress[ 4 ] =
+/******************************************************************************
+* Function Name: os_servo_task_t
+* Description  : servo control task
+* Arguments    : none
+* Return Value : 0
+******************************************************************************/
+int_t	os_servo_task_t(void)
 {
-    configIP_ADDR0,
-    configIP_ADDR1,
-    configIP_ADDR2,
-    configIP_ADDR3
-};
-static const uint8_t ucNetMask[ 4 ] =
+    //
+    // Initialization for ServoMotor
+    //
+	r_scifa_init();
+	R_OS_TaskSleep(500);
+    r_sample_servo_init();
+	R_OS_TaskSleep(500);
+    r_sample_servo_goto_home_position();
+    //
+	while(1)
+	{
+        R_OS_TaskSleep(1000);
+	}
+	return 0;
+}
+/*******************************************************************************
+ * End of function os_servo_task_t
+ ******************************************************************************/
+
+/******************************************************************************
+* Function Name: os_spi_task_t
+* Description  : SPI control task
+* Arguments    : none
+* Return Value : 0
+******************************************************************************/
+int_t	os_spi_task_t(void)
 {
-    configNET_MASK0,
-    configNET_MASK1,
-    configNET_MASK2,
-    configNET_MASK3
-};
-static const uint8_t ucGatewayAddress[ 4 ] =
+    //
+    // Initialization for RSPI I/F
+    //
+	r_rspi0_create();
+	r_rspi1_create();
+    //
+	r_rspi0_start();
+	r_rspi1_start();
+	//
+	while(1)
+	{
+		static uint8_t	gs_spi0_txbuf[BUF_SIZE];
+		static uint8_t	gs_spi0_rxbuf[BUF_SIZE];
+		static uint8_t	gs_spi1_txbuf[BUF_SIZE];
+		static uint8_t	gs_spi1_rxbuf[BUF_SIZE];
+		static uint16_t	cnt = 0;
+
+		sprintf(gs_spi0_txbuf, "RSPI0 : test messages %d", cnt);
+		r_rspi0_send_receive(gs_spi0_txbuf, gs_spi0_rxbuf, BUF_SIZE);
+		while(0 == r_rspi0_completed_translation())
+		{
+			r_nop();
+		}
+		sprintf(gs_spi1_txbuf, "RSPI1 : test messages %d", cnt);
+		r_rspi1_send_receive(gs_spi1_txbuf, gs_spi1_rxbuf, BUF_SIZE);
+		while(0 == r_rspi1_completed_translation())
+		{
+			r_nop();
+		}
+		cnt++;
+        R_OS_TaskSleep(1000);
+	}
+	return 0;
+}
+/*******************************************************************************
+ * End of function os_spi_task_t
+ ******************************************************************************/
+
+/******************************************************************************
+* Function Name: os_adc_task_t
+* Description  : ADC control task
+* Arguments    : none
+* Return Value : 0
+******************************************************************************/
+int_t	os_adc_task_t(void)
 {
-    configGATEWAY_ADDR0,
-    configGATEWAY_ADDR1,
-    configGATEWAY_ADDR2,
-    configGATEWAY_ADDR3
-};
+    //
+    // Initialization for ADC I/F
+    //
+	r_adc_init();
+    //
+	while(1)
+	{
+        R_OS_TaskSleep(100);
+		r_adc_gets();
+	}
+	return 0;
+}
+/*******************************************************************************
+ * End of function os_adc_task_t
+ ******************************************************************************/
 
-/* The following is the address of an OpenDNS server. */
-static const uint8_t ucDNSServerAddress[ 4 ] =
+/**********************************************************************************************************************
+ * Function Name: os_main_task_t
+ * Description  : FreeRTOS main task called by R_OS_KernelInit()
+ *              : FreeRTOS is now configured and R_OS_Abstraction calls
+ *              : can be used.
+ *              : From this point forward no longer use direct_xxx calls.
+ *              : For example
+ *              : in place of   direct_open("ostm2", O_RDWR);
+ *              : use           open(DEVICE_INDENTIFIER "ostm2", O_RDWR);
+ *              :
+ * Arguments    : none
+ * Return Value : 0
+ *********************************************************************************************************************/
+int_t	os_main_task_t(void)
 {
-    configDNS_SERVER_ADDR0,
-    configDNS_SERVER_ADDR1,
-    configDNS_SERVER_ADDR2,
-    configDNS_SERVER_ADDR3
-};
+	static uint32_t		gs_led_pattern;      /* LED lighting/turning off */
 
-/**
- * @brief Application task startup hook.
- */
-void vApplicationDaemonTaskStartupHook( void );
+	if(0 > (g_handle_gpio = open(DEVICE_INDENTIFIER "gpio", O_RDWR)))
+	{
+		while (1)
+		{
+			R_COMPILER_Nop();
+		}
+	}
+	//
+	//	Create a task to run the console
+	//
+	R_OS_TaskCreate("CONSOLE", (os_task_code_t)os_console_task_t, NULL,
+		R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_CONSOLE_TASK_PRI);
+    //
+	//	Create a task to control the servos
+	//
+	R_OS_TaskCreate("SERVO", (os_task_code_t)os_servo_task_t, NULL,
+		R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_SERVO_TASK_PRI);
+    //
+	//	Create a task to control the spi interfaces
+	//
+	R_OS_TaskCreate("SPI", (os_task_code_t)os_spi_task_t, NULL,
+		R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_SPI_TASK_PRI);
+    //
+	//	Create a task to control the adc interfaces
+	//
+	R_OS_TaskCreate("ADC", (os_task_code_t)os_adc_task_t, NULL,
+		R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_ADC_TASK_PRI);
+	//
+	//	Start blinking LEDs as heart-beat
+	//
+	gs_led_pattern = 0;
+	while (1)
+	{
+		gs_led_pattern ^= 1;
+		if( 0 == gs_led_pattern )
+		{
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_p76[0]);
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_pA6[1]);
+		}
+		else
+		{
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_p76[1]);
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_pA6[0]);
+		}
+		if(1)
+		{
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_p23[1]);
+		}
+		else
+		{
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_p23[0]);
+		}
+		if(1)
+		{
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_p60[1]);
+		}
+		else
+		{
+			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_p60[0]);
+		}
+		R_OS_TaskSleep(1000);
+	}
+	return 0;
+}
+/**********************************************************************************************************************
+ * End of function os_main_task_t
+ *********************************************************************************************************************/
 
-/**
- * @brief Initializes the board.
- */
-static void prvMiscInitialization( void );
 
-void os_main_task_t( void );
-/*-----------------------------------------------------------*/
-
-int_t main(void)
+/**********************************************************************************************************************
+ * Function Name: main
+ * Description  : C Entry point
+ *              : opens and configures cpg driver
+ *              : starts the freertos kernel
+ * Arguments    : none
+ * Return Value : 0
+ *********************************************************************************************************************/
+int_t	main(void)
 {
     int_t cpg_handle;
 
-    /* configure any drivers that are required before the Kernel initialises */
+    /* configure any drivers that are required before the Kernel initializes */
 
     /* Initialize the devlink layer */
     R_DEVLINK_Init();
 
     /* Initialize CPG */
     cpg_handle = direct_open("cpg", 0);
-    if ( cpg_handle < 0 )
+
+    if (cpg_handle < 0)
     {
         /* stop execute */
-        while(1);
+        while (1)
+        {
+            R_COMPILER_Nop();
+        }
     }
 
     /* Can close handle if no need to change clock after here */
@@ -181,130 +365,13 @@ int_t main(void)
     /* Start FreeRTOS */
     /* R_OS_InitKernel should never return */
     R_OS_KernelInit();
+
+    return (0);
 }
+/**********************************************************************************************************************
+ * End of function main
+ *********************************************************************************************************************/
 
-
-/**
- * @brief The application entry point from a power on reset is PowerON_Reset_PC()
- * in resetprg.c.
- */
-void os_main_task_t( void )
-{
-    while(1)
-    {
-        vTaskDelay(10000);
-    }
-}
-/*-----------------------------------------------------------*/
-
-static void prvMiscInitialization( void )
-{
-    /* Initialize UART for serial terminal. */
-//    uart_config();    //190325 modified for RZ/A2M. It is for RX.
-
-    /* Start logging task. */
-    xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-                            tskIDLE_PRIORITY,
-                            mainLOGGING_MESSAGE_QUEUE_LENGTH );
-}
-/*-----------------------------------------------------------*/
-
-void vApplicationDaemonTaskStartupHook( void )
-{
-    prvMiscInitialization();
-
-    if( SYSTEM_Init() == pdPASS )
-    {
-        /* Initialise the RTOS's TCP/IP stack.  The tasks that use the network
-        are created in the vApplicationIPNetworkEventHook() hook function
-        below.  The hook function is called when the network connects. */
-        FreeRTOS_IPInit( ucIPAddress,
-                         ucNetMask,
-                         ucGatewayAddress,
-                         ucDNSServerAddress,
-                         ucMACAddress );
-
-#if 0    //190325 modified for RZ/A2M. It is for RX. -->
-        /* We should wait for the network to be up before we run any demos. */
-        while( FreeRTOS_IsNetworkUp() == pdFALSE )
-        {
-            vTaskDelay(3000);
-        }
-#endif  //190325 modified for RZ/A2M. It is for RX. <--
-
-
-        /* Provision the device with AWS certificate and private key. */
-        vDevModeKeyProvisioning();
-
-        /* Run all demos. */
-        DEMO_RUNNER_RunDemos();
-    }
-}
-/*-----------------------------------------------------------*/
-
-//190325 modified for RZ/A2M. It is the same setting as RX65N -->
-const char * pcApplicationHostnameHook( void )
-{
-    /* Assign the name "FreeRTOS" to this network node.  This function will
-     * be called during the DHCP: the machine will be registered with an IP
-     * address plus this name. */
-    return clientcredentialIOT_THING_NAME;
-}
-//190325 modified for RZ/A2M. It is the same setting as RX65N <--
-/*-----------------------------------------------------------*/
-
-
-/* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
- * implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
- * used by the Idle task. */
-void vApplicationGetIdleTaskMemory( StaticTask_t ** ppxIdleTaskTCBBuffer,
-                                    StackType_t ** ppxIdleTaskStackBuffer,
-                                    uint32_t * pulIdleTaskStackSize )
-{
-/* If the buffers to be provided to the Idle task are declared inside this
- * function then they must be declared static - otherwise they will be allocated on
- * the stack and so not exists after this function exits. */
-    static StaticTask_t xIdleTaskTCB;
-    static StackType_t uxIdleTaskStack[ configMINIMAL_STACK_SIZE ];
-
-    /* Pass out a pointer to the StaticTask_t structure in which the Idle
-     * task's state will be stored. */
-    *ppxIdleTaskTCBBuffer = &xIdleTaskTCB;
-
-    /* Pass out the array that will be used as the Idle task's stack. */
-    *ppxIdleTaskStackBuffer = uxIdleTaskStack;
-
-    /* Pass out the size of the array pointed to by *ppxIdleTaskStackBuffer.
-     * Note that, as the array is necessarily of type StackType_t,
-     * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
-    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
-}
-/*-----------------------------------------------------------*/
-
-/* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
- * implementation of vApplicationGetTimerTaskMemory() to provide the memory that is
- * used by the RTOS daemon/time task. */
-void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
-                                     StackType_t ** ppxTimerTaskStackBuffer,
-                                     uint32_t * pulTimerTaskStackSize )
-{
-/* If the buffers to be provided to the Timer task are declared inside this
- * function then they must be declared static - otherwise they will be allocated on
- * the stack and so not exists after this function exits. */
-    static StaticTask_t xTimerTaskTCB;
-    static StackType_t uxTimerTaskStack[ configMINIMAL_STACK_SIZE ];
-
-    /* Pass out a pointer to the StaticTask_t structure in which the Idle
-     * task's state will be stored. */
-    *ppxTimerTaskTCBBuffer = &xTimerTaskTCB;
-
-    /* Pass out the array that will be used as the Timer task's stack. */
-    *ppxTimerTaskStackBuffer = uxTimerTaskStack;
-
-    /* Pass out the size of the array pointed to by *ppxTimerTaskStackBuffer.
-     * Note that, as the array is necessarily of type StackType_t,
-     * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
-    *pulTimerTaskStackSize = configMINIMAL_STACK_SIZE;
-}
-/*-----------------------------------------------------------*/
-
+/*****************************************************************************
+ * EOF
+ *****************************************************************************/

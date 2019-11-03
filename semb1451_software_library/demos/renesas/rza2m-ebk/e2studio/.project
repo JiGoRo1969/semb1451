@@ -46,11 +46,6 @@
 			<type>2</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lib</locationURI>
 		</link>
-		<link>
-			<name>application_code/common_demos</name>
-			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/common</locationURI>
-		</link>
 	</linkedResources>
 	<variableList>
 		<variable>

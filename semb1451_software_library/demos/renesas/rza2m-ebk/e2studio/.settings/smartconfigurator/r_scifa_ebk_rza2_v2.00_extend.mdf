@@ -254,16 +254,16 @@ Setting DMA Transfer Mode will require adding DMA component (version 2.0 or late
         <constraint display="The RX DMAC module cannot be edited when the RX data transfer mode is not DMA" actionOnFail="disable">("${SCIFA_RX_DATA_MODE}" == "SCIFA_RX_DMA_MODE")</constraint>
         <description>RX DMAC module&#xA;Please enter the name of the DMAC module to use for transmit.&#xA;If DMA Transfer Mode is used for Data transfer method at transmit, the RX DMAC &#xA;module is not allowed to be NULL or empty.</description>
       </property>
-      <property id="SCIFA_READ_BLOCKING_MODE_SELECT" display="Read function Blocking mode Enable/Disable" default="SCIFA_READ_BLOCKING_MODE_ENABLE" type="combobox">
-        <option id="SCIFA_READ_BLOCKING_MODE_SELECT.SCIFA_READ_BLOCKING_MODE_ENABLE" display="Enable Blocking" value="SCIFA_READ_BLOCKING_MODE_ENABLE"/>
-        <option id="SCIFA_READ_BLOCKING_MODE_SELECT.SCIFA_READ_BLOCKING_MODE_DISABLE" display="Disable Blocking" value="SCIFA_READ_BLOCKING_MODE_DISABLE"/>
+      <property id="SCIFA_BLOCKING_MODE_SELECT" display="Read function Blocking mode Enable/Disable" default="SCIFA_READ_BLOCKING_MODE_ENABLE" type="combobox">
+        <option id="SCIFA_BLOCKING_MODE_SELECT.SCIFA_READ_BLOCKING_MODE_ENABLE" display="Enable Blocking" value="SCIFA_READ_BLOCKING_MODE_ENABLE"/>
+        <option id="SCIFA_BLOCKING_MODE_SELECT.SCIFA_READ_BLOCKING_MODE_DISABLE" display="Disable Blocking" value="SCIFA_READ_BLOCKING_MODE_DISABLE"/>
         <description>Read function blocking mode
 SCIFA_READ_BLOCKING_MODE_ENABLE = Enable Blocking mode (function returns after 1 or more data points)
 SCIFA_READ_BLOCKING_MODE_DISABLE = Disable Blocking mode (function may return with 0 data points)</description>
       </property>
-      <property id="SCIFA_WRITE_BLOCKING_MODE_SELECT" display="Write function Blocking mode Enable/Disable" default="SCIFA_WRITE_BLOCKING_MODE_ENABLE" type="combobox">
-        <option id="SCIFA_WRITE_BLOCKING_MODE_SELECT.SCIFA_WRITE_BLOCKING_MODE_ENABLE" display="Enable Blocking" value="SCIFA_WRITE_BLOCKING_MODE_ENABLE"/>
-        <option id="SCIFA_WRITE_BLOCKING_MODE_SELECT.SCIFA_WRITE_BLOCKING_MODE_DISABLE" display="Disable Blocking" value="SCIFA_WRITE_BLOCKING_MODE_DISABLE"/>
+      <property id="SCIFA_BLOCKING_MODE_SELECT" display="Write function Blocking mode Enable/Disable" default="SCIFA_WRITE_BLOCKING_MODE_ENABLE" type="combobox">
+        <option id="SCIFA_BLOCKING_MODE_SELECT.SCIFA_WRITE_BLOCKING_MODE_ENABLE" display="Enable Blocking" value="SCIFA_WRITE_BLOCKING_MODE_ENABLE"/>
+        <option id="SCIFA_BLOCKING_MODE_SELECT.SCIFA_WRITE_BLOCKING_MODE_DISABLE" display="Disable Blocking" value="SCIFA_WRITE_BLOCKING_MODE_DISABLE"/>
         <description>Write function blocking mode
 SCIFA_WRITE_BLOCKING_MODE_ENABLE = Enable Blocking mode (waits for transmit buffer space before returning)
 SCIFA_WRITE_BLOCKING_MODE_DISABLE = Disable Blocking mode (return number of bytes added to transmit buffer, overflow is lost)</description>

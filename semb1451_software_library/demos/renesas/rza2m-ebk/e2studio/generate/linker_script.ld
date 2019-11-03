@@ -28,10 +28,10 @@
 MEMORY {
     ROM               (rx)  : ORIGIN = 0x20010000, LENGTH = 0x04000000
     MMU_PAGE_TABLE    (rw)  : ORIGIN = 0x80020000, LENGTH = 0x00004000
-    HARDWARE_INIT_RAM (rwx) : ORIGIN = 0x80024000, LENGTH = 0x00004000
+    HARDWARE_INIT_RAM (rwx) : ORIGIN = 0x80024000, LENGTH = 0x00003E00
     STACK             (rw)  : ORIGIN = 0x80028000, LENGTH = 0x00010000
-    CACHED_RAM        (rwx) : ORIGIN = 0x80038000, LENGTH = 0x00148000
-    UNCACHED_RAM      (rwx) : ORIGIN = 0x82180000, LENGTH = 0x00280000
+    CACHED_RAM        (rwx) : ORIGIN = 0x80038000, LENGTH = 0x002C8000
+    UNCACHED_RAM      (rwx) : ORIGIN = 0x82300000, LENGTH = 0x00100000
 }
 
 SECTIONS
@@ -120,22 +120,13 @@ SECTIONS
 
     } > CACHED_RAM
 
-    VRAM (NOLOAD) : ALIGN( 0x40 ) {
-        * (Video_RAM)
-        * (Graphics_RAM)
-        . = ALIGN( 0x80 );
-        * (Capture_RAM)
-
-    } > UNCACHED_RAM
-
     .uncached_RAM (NOLOAD) : ALIGN( 0x20 ) {
         __uncached_RAM_start = .;
 
         "*/r_cache_*.o" (.bss .bss.* COMMON)
         * (UNCACHED_BSS)
+
         . = ALIGN( 0x4 );
-        PROVIDE(__sectop__ETHERNET_BUFFERS = .);
-        *(_ETHERNET_BUFFERS)
         __uncached_RAM_end = .;
     } > UNCACHED_RAM
 
@@ -250,5 +241,6 @@ SECTIONS
         /* heap end */
 
     } > CACHED_RAM
+
 }
 /*EOF*/

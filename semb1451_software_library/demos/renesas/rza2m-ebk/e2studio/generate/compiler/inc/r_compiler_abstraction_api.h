@@ -34,7 +34,7 @@ extern void __enable_fiq(void);
 extern void __disable_fiq(void);
 
 
-R_COMPILER_INLINE void R_COMPILER_Nop(void) { __asm volatile ("nop"); }
+#define	R_COMPILER_Nop()	__asm("nop")
 
 R_COMPILER_INLINE void R_COMPILER_EnableInterrupts(void) { __enable_irq(); }
 

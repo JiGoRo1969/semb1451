@@ -23,25 +23,23 @@
 
 *******************************************************************************
 * File Name    : application_cfg.h
-* Device(s)    : RZ/A2M
-* H/W Platform : RZ/A2M Evaluation Board Kit
+* Device(s)    : RZ/A1L
+* H/W Platform : rza2m misano
 * Description  : Overall control of system state
 *******************************************************************************
 * History      : DD.MM.YYYY Ver. Description
 *              : 07.02.2018 1.00 First Release
 ******************************************************************************/
+
+
 #ifndef RENESAS_CONFIGURATION_APPLICATION_CFG_H_
 #define RENESAS_CONFIGURATION_APPLICATION_CFG_H_
 
-/* Common function controls */
-#define R_OPTION_ENABLE  (1)
-#define R_MSG_ENABLED  ("ENABLED")
-
-#define R_OPTION_DISABLE (0)
-#define R_MSG_DISABLED ("DISABLED")
-
-/* Enable Trace Macro here allows individual source files to enable Trace macro */
-/* Removing this define disables trace macro for all files regardless of file setting */
+/*
+ * Enable Trace Macro here allows individual source files to enable Trace macro
+ * Removing this define disables trace macro for all files regardless of file
+ * setting
+*/
 #define _TRACE_ON_
 
 #endif /* RENESAS_CONFIGURATION_APPLICATION_CFG_H_ */

@@ -1,5 +1,4 @@
-
-/*******************************************************************************
+/**********************************************************************************************************************
  * DISCLAIMER
  * This software is supplied by Renesas Electronics Corporation and is only
  * intended for use with Renesas products. No other uses are authorized. This
@@ -19,26 +18,22 @@
  * software, you agree to the additional terms and conditions found by
  * accessing the following link:
  * http://www.renesas.com/disclaimer
-*******************************************************************************
-* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
- *****************************************************************************/
-/******************************************************************************
+ **********************************************************************************************************************
+ * Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
+ *********************************************************************************************************************/
+/**********************************************************************************************************************
  * @headerfile     console.h
  * @brief          Simple command line console implementation
  * @version        1.00
  * @date           27.06.2018
  * H/W Platform    RZ/A1LU
- *****************************************************************************/
- /*****************************************************************************
+ *********************************************************************************************************************/
+/**********************************************************************************************************************
  * History      : DD.MM.YYYY Ver. Description
  *              : 30.06.2018 1.00 First Release
- *****************************************************************************/
+ *********************************************************************************************************************/
 
-/* Multiple inclusion prevention macro */
-#ifndef CONSOLE_H_
-#define CONSOLE_H_
-
-/**************************************************************************//**
+/******************************************************************************************************************//**
  * @ingroup R_SW_PKG_93_CONSOLE
  * @defgroup R_SW_PKG_93_CONSOLE_HDR Console Internal header
  * @brief Console Implementation header.
@@ -48,17 +43,21 @@
  * This driver is used in the RZA2M Software Package.
  * @see RENESAS_APPLICATION_SOFTWARE_PACKAGE
  * @{
- *****************************************************************************/
+ *********************************************************************************************************************/
 
-/******************************************************************************
+/**********************************************************************************************************************
  Includes   <System Includes> , "Project Includes"
- *****************************************************************************/
+ *********************************************************************************************************************/
 
 #include "r_typedefs.h"
 
-/******************************************************************************
+/* Multiple inclusion prevention macro */
+#ifndef CONSOLE_H_
+#define CONSOLE_H_
+
+/**********************************************************************************************************************
  Macro definitions
- *****************************************************************************/
+ *********************************************************************************************************************/
 
 /* Define default settings */
 #ifndef CMD_READER_LINE_SIZE
@@ -84,13 +83,14 @@
 /** Function macro to remove the unused variable information in command processor functions */
 #define AVOID_UNUSED_WARNING        (void) iArgCount; (void) ppszArgument; (void) pCom;
 
-/******************************************************************************
+/**********************************************************************************************************************
  Typedef definitions
- *****************************************************************************/
+ *********************************************************************************************************************/
 
 typedef struct _CMDTAB /* CMDTAB */ st_command_table_t;
 typedef struct _CMDTAB *pst_command_table_t;
 typedef const struct _CMDTAB *cpst_command_table_t;
+
 
 /** Enumerate the escape sequences states */
 typedef enum
@@ -158,7 +158,7 @@ typedef struct
     char_t working_dir_prompt[CMD_MAX_PATH];
 
     /** The default prompt */
-    char_t *default_prompt;
+    char_t *p_default_prompt;
 } st_convar_t;
 
 typedef st_convar_t st_comset_t;
@@ -179,13 +179,14 @@ typedef enum
 } e_cmderr_t;
 
 /**
+ * @fn CMDFUNC
  * @brief Function prototype to handle commands passed to the parser
  * @param iArgCount - The number of argument strings in the array
  * @param ppszArgument - Pointer to the argument list
  * @param pCom - Pointer to the command object
  * @return  for success otherwise error code
  */
-typedef int16_t (* const CMDFUNC) (int_t iArgCount, char_t **ppszArgument, pst_comset_t pCom);
+typedef int16_t (* const CMDFUNC)(int_t iArgCount, char_t **ppszArgument, pst_comset_t pCom);
 
 /** Structure of a set of commands used by the command line parser
  * Each command set requires one of these */
@@ -198,6 +199,9 @@ typedef struct
 
 typedef st_cmdfnass_t *pst_cmdfnass_t;
 
+/** Define the escape key handler function type */
+typedef e_cmdesc_t (* const PESCFN) (pst_comset_t);
+
 struct _CMDTAB
 {
     uint8_t group_name[32];              /** Optional name for group */
@@ -205,20 +209,18 @@ struct _CMDTAB
     uint32_t number_of_commands;        /** The number of commands in the table */
 };
 
-/** Define the escape key handler function type */
-typedef e_cmdesc_t (* const PESCFN) (pst_comset_t);
 
-/******************************************************************************
+/**********************************************************************************************************************
  Variable External definitions and Function External definitions
- *****************************************************************************/
+ *********************************************************************************************************************/
 
-/******************************************************************************
+/**********************************************************************************************************************
  Exported global functions (to be accessed by other files)
- *****************************************************************************/
+ *********************************************************************************************************************/
 
-/******************************************************************************
+/**********************************************************************************************************************
  Function Prototypes
- *****************************************************************************/
+ *********************************************************************************************************************/
 
 #ifdef __cplusplus
 extern "C"
@@ -226,6 +228,7 @@ extern "C"
 #endif
 
 /**
+ * @fn    console
  * @brief Function to implement a simple command console using the ANSI C run time library IO functions
  * @param pCom - Pointer to the command object data
  * @param ppComFunctions - Pointer to a table of command tables
@@ -235,45 +238,50 @@ extern "C"
  * @param pszPrompt - Pointer to the prompt string
  * @return 0 for success otherwise error code
  */
-extern e_cmderr_t console (pst_comset_t pCom, cpst_command_table_t *ppComFunctions, int32_t iNumTables, FILE *pIn, FILE *pOut, char_t *pszPrompt);
+e_cmderr_t console (pst_comset_t pCom, cpst_command_table_t *ppComFunctions, int32_t iNumTables, FILE *pIn,
+        FILE *pOut, char_t *pszPrompt);
 
 /**
+ * @fn    con_get_last_command_line
  * @brief Function to bring up the last command line for editing
  * @param pCom - pointer to the command object
  */
-extern void con_get_last_command_line (pst_comset_t pCom);
+void con_get_last_command_line (pst_comset_t pCom);
 
 /**
+ * @fn    con_do_last_command_line
  * @brief Function to repeat the last command
  * @param pCom - pointer to command table
  * @return 0 for success otherwise error code
  */
-extern e_cmderr_t con_do_last_command_line (pst_comset_t pCom);
+e_cmderr_t con_do_last_command_line (pst_comset_t pCom);
 
 /**
+ * @fn    con_process_char
  * @brief Function to process a character
  * @param pCom - pointer to the command object
  * @param chChar - The character to process
  * @param pbfCommand - Pointer to a flag that is set when a command is received
  * @return 0 for success otherwise error code
  */
-extern e_cmderr_t con_process_char(pst_comset_t pCom, char_t chChar, _Bool *pbfCommand);
+e_cmderr_t con_process_char(pst_comset_t pCom, char_t chChar, _Bool *pbfCommand);
 
 /**
+ * @fn    show_welcome_msg
  * @brief Function to display initial welcome message
  * @param p_out - Pointer to the command object data
  * @param clear_screen - clear screen before message  true/false
  */
-extern void show_welcome_msg (FILE *p_out, bool_t clear_screen);
+void show_welcome_msg (FILE *p_out, bool_t clear_screen);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* CONSOLE_H_ */
-/**************************************************************************//**
+/******************************************************************************************************************//**
  * @} (end addtogroup)
- *****************************************************************************/
-/******************************************************************************
+ *********************************************************************************************************************/
+/**********************************************************************************************************************
  End  Of File
- *****************************************************************************/
+ *********************************************************************************************************************/

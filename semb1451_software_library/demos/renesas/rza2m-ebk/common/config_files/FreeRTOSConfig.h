@@ -84,7 +84,7 @@
 #define configSMALL_STACK_SIZE                  ( ( unsigned short ) 2048 )
 #define configDEFAULT_STACK_SIZE                ( ( unsigned short ) 4096 )
 
-#define configMEMORY_TYPE_FOR_ALLOCATOR         ( 0 ) // todo may need updating ree 2017.12.12
+#define configMEMORY_TYPE_FOR_ALLOCATOR         ( 0 )
 
 /* Prevent C code being included in assembly files when the IAR compiler is
 used. */
@@ -127,8 +127,8 @@ code (which is where the vector table is defined). */
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    0
 #define configMAX_PRIORITIES                       ( TASK_NUMBER_OF_PRIORITIES )
 #define configTICK_RATE_HZ                         ( ( portTickType ) 1000 )
-#define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 512 )
-#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 1024U * 1024U ) )
+#define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 160 )
+#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 512 * 1024U ) )
 #define configMAX_TASK_NAME_LEN                    ( 24 )
 #define configUSE_TRACE_FACILITY                   1
 #define configUSE_16_BIT_TICKS                     0
@@ -143,7 +143,7 @@ code (which is where the vector table is defined). */
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS    3      /* FreeRTOS+FAT requires 2 pointers if a CWD is supported. */
 #define configRECORD_STACK_HIGH_ADDRESS            1
 
-#define configUSE_DAEMON_TASK_STARTUP_HOOK 1
+#define configUSE_DAEMON_TASK_STARTUP_HOOK 0
 
 #define configCPU_CLOCK_HZ              ( 528000000UL )
 #define configPERIPHERAL_CLOCK_HZ       ( 66660000UL )
@@ -195,7 +195,7 @@ void vConfigureTimerForRunTimeStats( void );
 /* Currently the TCP/IP stack is using dynamic allocation, and the MQTT task is
  * using static allocation. */
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configSUPPORT_STATIC_ALLOCATION         1
+#define configSUPPORT_STATIC_ALLOCATION         0
 
 /* Set the following definitions to 1 to include the API function, or zero
  * to exclude the API function. */
@@ -251,7 +251,7 @@ extern void vLoggingPrint( const char * pcMessage );
 
 /* Map the logging task's printf to the board specific output function. */
 //#define configPRINT_STRING( x )    uart_string_printf( x )
-#define configPRINT_STRING( x )  printf (x)
+#define configPRINT_STRING( x )  printf (x)    //190325 modified for RZ/A2M. It is for RZ/A2M.
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
@@ -298,9 +298,9 @@ extern void vLoggingPrint( const char * pcMessage );
  * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/UDP_Echo_Clients.html. */
 #define configECHO_SERVER_ADDR0              192
 #define configECHO_SERVER_ADDR1              168
-#define configECHO_SERVER_ADDR2              128
-#define configECHO_SERVER_ADDR3              1
-#define configTCP_ECHO_CLIENT_PORT           7
+#define configECHO_SERVER_ADDR2              1
+#define configECHO_SERVER_ADDR3              200
+#define configTCP_ECHO_CLIENT_PORT           9999
 
 /* Default MAC address configuration.  The demo creates a virtual network
  * connection that uses this MAC address by accessing the raw Ethernet/WiFi data
@@ -318,24 +318,24 @@ extern void vLoggingPrint( const char * pcMessage );
  * ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */
 #define configIP_ADDR0                       192
 #define configIP_ADDR1                       168
-#define configIP_ADDR2                       128
-#define configIP_ADDR3                       2
+#define configIP_ADDR2                       1
+#define configIP_ADDR3                       100
 
 /* Default gateway IP address configuration.  Used in ipconfigUSE_DHCP is set to
  * 0, or ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */
 #define configGATEWAY_ADDR0                  192
 #define configGATEWAY_ADDR1                  168
-#define configGATEWAY_ADDR2                  128
-#define configGATEWAY_ADDR3                  100
+#define configGATEWAY_ADDR2                  1
+#define configGATEWAY_ADDR3                  1
 
 /* Default DNS server configuration.  OpenDNS addresses are 208.67.222.222 and
  * 208.67.220.220.  Used in ipconfigUSE_DHCP is set to 0, or ipconfigUSE_DHCP is
  * set to 1 but a DNS server cannot be contacted.*/
 
-#define configDNS_SERVER_ADDR0               192
-#define configDNS_SERVER_ADDR1               168
-#define configDNS_SERVER_ADDR2               128
-#define configDNS_SERVER_ADDR3               200
+#define configDNS_SERVER_ADDR0               172
+#define configDNS_SERVER_ADDR1               29
+#define configDNS_SERVER_ADDR2               39
+#define configDNS_SERVER_ADDR3               1
 
 /* Default netmask configuration.  Used in ipconfigUSE_DHCP is set to 0, or
  * ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */

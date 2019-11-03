@@ -26,14 +26,14 @@
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2Studio Ver 7.4.0
 *              : GNU Arm Embedded Toolchain 6-2017-q2-update
-* OS           : FreeRTOS Version See src/freertos/include/FreeRTOS.h
+* OS           : None
 * H/W Platform : RZ/A2M Evaluation Board
 * Description  : The version release and build numbers.
 *                build version
 *                APPLICATION_INFO_VERSION.APPLICATION_INFO_RELEASE.APPLICATION_INFO_BUILD
 *******************************************************************************
 * History      : DD.MM.YYYY Version Description
-*              : 12.04.2018 1.00    First Release
+*              : 17.09.2018 1.00    First Release
 ******************************************************************************/
 
 
@@ -49,11 +49,12 @@ Macro definitions
  * The following definitions are not surrounded by braces as the utility
  * buildinc does not recognise numbers surrounded in braces
 ******************************************************************************/
-#define APPLICATION_INFO_VERSION          (1)
-#define APPLICATION_INFO_RELEASE          (0)
+#define APPLICATION_INFO_VERSION          (0)
+#define APPLICATION_INFO_RELEASE          (1)
 #define APPLICATION_INFO_BUILD            (0)
 
-#endif /* VERSION_H_INCLUDED */
+
+#endif                              /* VERSION_H_INCLUDED */
 
 /******************************************************************************
 End  Of File
