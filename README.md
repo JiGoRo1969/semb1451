@@ -28,6 +28,16 @@ Please set Vertual COM port as terminal with Data 8bit, Non-Parity, Stop 1bit, a
 You can modify the peripheral function with Smart Configulator.
 If you will do it, please check the user's manual for smart configulator.
 
+## Current Support Peripherals
+
+|Function Name    | Peripheral Name | Status | notes |
++-----------------+-----------------+--------+-------+
+|Serial Serbo I/F |SCIFA2-4         | ready  | SCIFA4 is normally using as console     |
+|RSS485 I/F       |SCIFA0,1         | ready  | automatically direction changing(RX,TX) | 
+|ADC I/F          |ADC4-7           | ready  | sample ADC4,5:Joystick, ADC6:distance   |
+|Battery Monitor  |ADC2             | ready  | |
+|RSPI I/F         |RSPI0,1          | ready  | spi master |
+
 ## License
 [Apache Licence Ver.2](http://www.apache.org/licenses/)
 except included source codes created by the another one.
