@@ -37,6 +37,10 @@ If you will do it, please check the user's manual for smart configulator.
 |ADC I/F          |ADC4-7           | ready  | sample ADC4,5:Joystick, ADC6:distance   |
 |Battery Monitor  |ADC2             | ready  | |
 |RSPI I/F         |RSPI0,1          | ready  | spi master |
+|Ethernet         |Ethernet0        | N.A.   | underdevelopment |
+|USB Host         |USB0             | N.A.   | underdevelopment |
+|USB Function     |USB1             | N.A.   | underdevelopment |
+|CAN(FD) I/F      |CAN(FD)          | N.A.   | underdevelopment |
 
 ## License
 [Apache Licence Ver.2](http://www.apache.org/licenses/)
