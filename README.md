@@ -34,7 +34,7 @@ After that, please wirte the firmware to RZ/A2M with e2studio debug mode.
 If you use the console as debug or something to do,
 because SCIFA4 is defined as the console of RZ/A2M,
 you should connect the USB-Serial converter onto SCIFA4 connector.
-Please set Vertual COM port as terminal with Data 8bit, Non-Parity, Stop 1bit, and 115,200bps.
+Please set Vertual COM port as terminal with Data 8bit, Non-Parity, Stop 1bit, and 1Mbps.
 
 ## Contributing
 
