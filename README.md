@@ -53,6 +53,7 @@ If you will do it, please check the user's manual for smart configulator.
 |Ethernet         |Ethernet0        | N.A.   | underdevelopment |
 |USB Host         |USB0             | N.A.   | underdevelopment |
 |USB Function     |USB1             | N.A.   | underdevelopment |
+|micro SD slot    |SDHI0            | N.A.   | underdevelopment |
 |CAN(FD) I/F      |CAN(FD)          | N.A.   | underdevelopment |
 
 ## License
