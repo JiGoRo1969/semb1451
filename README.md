@@ -31,7 +31,7 @@ If you will do it, please check the user's manual for smart configulator.
 ## Current Support Peripherals
 
 |Function Name    | Peripheral Name | Status | notes |
-+-----------------+-----------------+--------+-------+
+|:----------------|:----------------|:------:|:------|
 |Serial Serbo I/F |SCIFA2-4         | ready  | SCIFA4 is normally using as console     |
 |RSS485 I/F       |SCIFA0,1         | ready  | automatically direction changing(RX,TX) | 
 |ADC I/F          |ADC4-7           | ready  | sample ADC4,5:Joystick, ADC6:distance   |
