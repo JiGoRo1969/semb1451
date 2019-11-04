@@ -9,6 +9,14 @@ So you can easily modify and add this codes with e2studio on Windows PC.
   
 Let's enjoy it !
 
+## Information for target board
+
+SEMB-1451/1452 is provided by Shimafuji in Japan.
+  
+JPN : http://www.shimafuji.co.jp/products/1767
+  
+ENG : http://www.shimafuji.co.jp/en/products/1522
+
 ## Installation
 
 Import this library into e2studio.
