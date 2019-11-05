@@ -30,7 +30,7 @@ Import this library into e2studio.
 Build the project on e2studio/Windows PC.
 If there is no error, you can get the hex code for SEMB1451.
 After that, please wirte the firmware to RZ/A2M with e2studio debug mode.
-
+  
 If you use the console as debug or something to do,
 because SCIFA4 is defined as the console of RZ/A2M,
 you should connect the USB-Serial converter onto SCIFA4 connector.
