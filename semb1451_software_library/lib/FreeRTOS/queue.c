@@ -917,7 +917,6 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 			return errQUEUE_FULL;
 		}
 	}
-	return pdPASS;
 }
 /*-----------------------------------------------------------*/
 
@@ -1376,7 +1375,6 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 			}
 		}
 	}
-	return pdPASS;
 }
 /*-----------------------------------------------------------*/
 
@@ -1596,7 +1594,6 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 			}
 		}
 	}
-	return pdPASS;
 }
 /*-----------------------------------------------------------*/
 
@@ -1747,7 +1744,6 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 			}
 		}
 	}
-	return pdPASS;
 }
 /*-----------------------------------------------------------*/
 

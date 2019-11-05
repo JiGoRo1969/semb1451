@@ -35,7 +35,12 @@
 #include "r_riic.h"
 #include "r_rspi.h"
 #include "scifa.h"
+#include "ff.h"
+#include "fat_sample.h"
+#include "r_sdif.h"
+#include "r_sdhi_simplified_drv_sc_cfg.h"
 #include "command.h"
+
 
 /******************************************************************************
  * Definition for Function Selection
@@ -49,9 +54,54 @@
  * Macro definitions
  *****************************************************************************/
 
+#define		D_MAX_CNT_TIMEOUT				(1000000)
+
+/* fat sample channel */
+#define 	FAT_SAMPLE_PRV_CH				(0)
+#define 	FAT_SAMPLE_PRV_CH_NUM			(FF_VOLUMES)
+#define 	FAT_SAMPLE_PRV_RW_PROC_NUM		(10uL)
+#define 	FAT_SAMPLE_PRV_100MS			(100uL)
+#define 	FAT_SAMPLE_PRV_300MS			(300uL)
+#define 	FAT_SAMPLE_PRV_500MS			(500uL)
+#define 	FAT_SAMPLE_PRV_KEY_INPUT_CYCLE	(FAT_SAMPLE_PRV_100MS)
+#define 	FAT_SAMPLE_PRV_QUEUE_GET_CYCLE	(FAT_SAMPLE_PRV_100MS)
+
+#define 	FAT_SAMPLE_PRV_PATH_LEN			(20)
+#define 	FAT_SAMPLE_PRV_QUEUE_NUM		(10uL)
+#define 	FAT_SAMPLE_PRV_RW_BUFF_SIZE		(512u)
+#define 	FAT_SAMPLE_PRV_SEM_WAITTIME		(500uL)
+
+#define 	FAT_SAMPLE_PRV_CATT_NUM_LONG	(50uL)
+#define 	FAT_SAMPLE_PRV_CATT_NUM_SHORT	(2uL)
+
 /******************************************************************************
  * Typedef definitions
  *****************************************************************************/
+
+typedef void (*p_fatSampleFunc)(void);
+
+typedef enum
+{
+	FAT_SAMPLE_EVENT_POWER_ON,
+	FAT_SAMPLE_EVENT_CD_INSERT,
+	FAT_SAMPLE_EVENT_CD_REMOVE,
+	FAT_SAMPLE_EVENT_KEY_INPUT,
+	FAT_SAMPLE_EVENT_NUM
+} e_fat_sample_event_t;
+
+typedef enum
+{
+	FAT_SAMPLE_MODE_DEFAULT,
+	FAT_SAMPLE_MODE_CD_INSERTED,
+	FAT_SAMPLE_MODE_CD_REMOVED,
+	FAT_SAMPLE_MODE_NUM
+} e_fat_sample_mode_t;
+
+typedef enum
+{
+	FAT_SAMPLE_OK,
+	FAT_SAMPLE_NG
+} e_fat_sample_ret_t;
 
 /******************************************************************************
  * Global functions (Prototype definition)
@@ -70,14 +120,6 @@ int_t	main(void);
 
 int_t	g_handle_gpio;
 
-/******************************************************************************
- * Local functions
- *****************************************************************************/
-
-/******************************************************************************
- * Local values
- *****************************************************************************/
-
 st_r_drv_gpio_pin_rw_t	gs_p76[2] = {{GPIO_PORT_7_PIN_6, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
 									 {GPIO_PORT_7_PIN_6, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
 						gs_pA6[2] = {{GPIO_PORT_A_PIN_6, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
@@ -85,7 +127,16 @@ st_r_drv_gpio_pin_rw_t	gs_p76[2] = {{GPIO_PORT_7_PIN_6, GPIO_LEVEL_LOW,  GPIO_SU
 						gs_p23[2] = {{GPIO_PORT_2_PIN_3, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
 									 {GPIO_PORT_2_PIN_3, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
 						gs_p60[2] = {{GPIO_PORT_6_PIN_0, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
-									 {GPIO_PORT_6_PIN_0, GPIO_LEVEL_HIGH, GPIO_SUCCESS}};
+									 {GPIO_PORT_6_PIN_0, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
+						gs_p21	   = { GPIO_PORT_2_PIN_1, GPIO_LEVEL_SC_DEFAULT, GPIO_SUCCESS };
+
+/******************************************************************************
+ * Local functions
+ *****************************************************************************/
+
+/******************************************************************************
+ * Local values
+ *****************************************************************************/
 
 /******************************************************************************
  * Imported global functions
@@ -95,17 +146,20 @@ st_r_drv_gpio_pin_rw_t	gs_p76[2] = {{GPIO_PORT_7_PIN_6, GPIO_LEVEL_LOW,  GPIO_SU
 extern	void	r_sample_servo_init(void);
 extern	void	r_sample_servo_goto_home_position(void);
 extern	void	r_adc_gets(void);
+extern	void	r_adc_init(void);
+extern	void	os_fat_sample_key_input_task_t(void *params);
+extern	void	os_fat_sample_main_task_t(void *params);
+extern	void	fat_sample_led_off(void);
+extern	void	fat_sample_led_on(void);
+extern	void	fat_sample_led_error(void);
 
 /******************************************************************************
  * Imported global variables
  *****************************************************************************/
-#include "scifa.h"
-#include "r_riic.h"
 
-
-
-
-
+//extern	e_fat_sample_event_t	s_fat_sample_isr_event[];
+extern	p_os_msg_queue_handle_t	s_fat_sample_queue_handle[];
+extern	uint32_t				s_fat_sem_key_input[];
 
 /******************************************************************************
 * Function Name: os_console_task_t
@@ -123,18 +177,7 @@ int_t	os_console_task_t(void)
 	//
 	//
 	//
-	printf("\r\nCommand list:\r\n");
-	printf("--- OTHERS ----------------------------------\r\n");
-	printf("help       - show the command description\r\n");
-	printf("ver	       - show the version information\r\n");
-	printf("exit       - shut down the sample program\r\n");
-	printf("--- EEPROM ----------------------------------\r\n");
-	printf("we         - write data to EEPROM\r\n");
-	printf("re         - read data from EEPROM\r\n");
-	printf("--- BMX055 ----------------------------------\r\n");
-	printf("wa, wg, wm - write data to BMX055\r\n");
-	printf("rb, rg, rm - read data from BMX055\r\n");
-	printf("\r\n");
+	printf("\r\nSEMB-1451/1452 software library - simple console\r\n\r\n");
 	while(1)
 	{
 		/* ==== Receive command, activate sample software ==== */
@@ -199,18 +242,38 @@ int_t	os_spi_task_t(void)
 		static uint8_t	gs_spi1_rxbuf[BUF_SIZE];
 		static uint16_t	cnt = 0;
 
-		sprintf(gs_spi0_txbuf, "RSPI0 : test messages %d", cnt);
+		sprintf(gs_spi0_txbuf, "RSPI0 : test messages %5d\n", cnt);
+#ifndef	USE_RSPI_SSL0
+		PORTG.PODR.BIT.PODR3	= D_RSPI_SSL_ACTIVE;
+#endif	// !USE_RSPI_SSL0
 		r_rspi0_send_receive(gs_spi0_txbuf, gs_spi0_rxbuf, BUF_SIZE);
-		while(0 == r_rspi0_completed_translation())
+		for(uint32_t t_cnt_timeout = 0; t_cnt_timeout < D_MAX_CNT_TIMEOUT; t_cnt_timeout++)
 		{
+			if(0 != r_rspi0_completed_translation())
+			{
+				break;
+			}
 			r_nop();
 		}
-		sprintf(gs_spi1_txbuf, "RSPI1 : test messages %d", cnt);
+#ifndef	USE_RSPI_SSL0
+		PORTG.PODR.BIT.PODR3	= D_RSPI_SSL_INACTIVE;
+#endif	// !USE_RSPI_SSL0
+		sprintf(gs_spi1_txbuf, "RSPI1 : test messages %5d\n", cnt);
+#ifndef	USE_RSPI_SSL1
+		PORTG.PODR.BIT.PODR7	= D_RSPI_SSL_ACTIVE;
+#endif	// !USE_RSPI_SSL1
 		r_rspi1_send_receive(gs_spi1_txbuf, gs_spi1_rxbuf, BUF_SIZE);
-		while(0 == r_rspi1_completed_translation())
+		for(uint32_t t_cnt_timeout = 0; t_cnt_timeout < D_MAX_CNT_TIMEOUT; t_cnt_timeout++)
 		{
+			if(0 != r_rspi1_completed_translation())
+			{
+				break;
+			}
 			r_nop();
 		}
+#ifndef	USE_RSPI_SSL1
+		PORTG.PODR.BIT.PODR7	= D_RSPI_SSL_INACTIVE;
+#endif	// !USE_RSPI_SSL1
 		cnt++;
         R_OS_TaskSleep(1000);
 	}
@@ -259,6 +322,8 @@ int_t	os_adc_task_t(void)
  *********************************************************************************************************************/
 int_t	os_main_task_t(void)
 {
+	static e_fat_sample_event_t		event;
+	static bool_t					chk_queue, chk_sem;
 	static uint32_t		gs_led_pattern;      /* LED lighting/turning off */
 
 	if(0 > (g_handle_gpio = open(DEVICE_INDENTIFIER "gpio", O_RDWR)))
@@ -288,6 +353,55 @@ int_t	os_main_task_t(void)
 	//
 	R_OS_TaskCreate("ADC", (os_task_code_t)os_adc_task_t, NULL,
 		R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_ADC_TASK_PRI);
+	//
+	//
+	//
+	/* --- Create message queue start --- */
+	chk_queue = R_OS_MessageQueueCreate(&s_fat_sample_queue_handle[FAT_SAMPLE_PRV_CH], FAT_SAMPLE_PRV_QUEUE_NUM);
+	if(true == chk_queue)
+	{
+		event = FAT_SAMPLE_EVENT_POWER_ON;
+		chk_queue = R_OS_MessageQueuePut(s_fat_sample_queue_handle[FAT_SAMPLE_PRV_CH], &event);
+	}
+	if (false == chk_queue)
+	{
+		fat_sample_led_error();
+		while(true)
+		{
+		}
+	}
+	/* --- Create message queue end --- */
+	/* --- Create semaphore start --- */
+	if(0uL == g_fat_sem_access[FAT_SAMPLE_PRV_CH])
+	{
+		chk_sem = R_OS_SemaphoreCreate(&g_fat_sem_access[FAT_SAMPLE_PRV_CH], 1uL);
+		if(false == chk_sem)
+		{
+			fat_sample_led_error();
+			while(true)
+			{
+			}
+		}
+	}
+	if(0uL == s_fat_sem_key_input[FAT_SAMPLE_PRV_CH])
+	{
+		chk_sem = R_OS_SemaphoreCreate(&s_fat_sem_key_input[FAT_SAMPLE_PRV_CH], 1uL);
+		if(false == chk_sem)
+		{
+			fat_sample_led_error();
+			while(true)
+			{
+			}
+		}
+	}
+	/* --- Create semaphore end --- */
+	/* --- Create a task to run the fat sample --- */
+	/* Cast to an appropriate type */
+	R_OS_TaskCreate("Fat sample key input", os_fat_sample_key_input_task_t, NULL,
+			R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_FAT_SAMPLE_KEY_INPUT_TASK_PRI);
+	/* Cast to an appropriate type */
+	R_OS_TaskCreate("Fat sample main", os_fat_sample_main_task_t, NULL,
+			R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_FAT_SAMPLE_MAIN_TASK_PRI);
 	//
 	//	Start blinking LEDs as heart-beat
 	//
@@ -321,7 +435,7 @@ int_t	os_main_task_t(void)
 		{
 			direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_p60[0]);
 		}
-		R_OS_TaskSleep(1000);
+		R_OS_TaskSleep(500);
 	}
 	return 0;
 }

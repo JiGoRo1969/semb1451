@@ -1,4 +1,4 @@
-# SEMB1451/1452 software library (rev.0.10)
+# SEMB1451/1452 software library (rev.0.11)
 
 This is a C library for SEMB1451/1452 RZ/A2M Eva Lite board
 included with e2studio environment setting files and .scfg file
@@ -53,7 +53,7 @@ If you will do it, please check the user's manual for smart configulator.
 |Ethernet         |Ethernet0        | N.A.   | underdevelopment |
 |USB Host         |USB0             | N.A.   | underdevelopment |
 |USB Function     |USB1             | N.A.   | underdevelopment |
-|micro SD slot    |SDHI0            | N.A.   | underdevelopment |
+|micro SD slot    |SDHI0            | ready  | |
 |CAN(FD) I/F      |CAN(FD)          | N.A.   | underdevelopment |
 
 ## License

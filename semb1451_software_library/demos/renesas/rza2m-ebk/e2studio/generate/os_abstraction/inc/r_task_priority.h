@@ -48,6 +48,8 @@ Enumerated Types
 #define	TASK_SERVO_TASK_PRI			(6)
 #define	TASK_SPI_TASK_PRI			(6)
 #define	TASK_ADC_TASK_PRI			(6)
+#define	TASK_FAT_SAMPLE_KEY_INPUT_TASK_PRI	(6)
+#define	TASK_FAT_SAMPLE_MAIN_TASK_PRI		(6)
 
 /* This is designed to soak CPU time but because it is low priority
    responsiveness of the system is not lost */
