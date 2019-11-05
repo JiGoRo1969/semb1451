@@ -4,7 +4,7 @@ This is a C library for SEMB1451/1452 RZ/A2M Eva Lite board
 included with e2studio environment setting files and .scfg file
 for Smart Configurator provided by Renesas Electronics Corp.
   
-This library is based on software package version 5 provided by Renesas.
+This library is based on "software package version 5" provided by Renesas.
 So you can easily modify and add this codes with e2studio on Windows PC.
   
 Let's enjoy it !
