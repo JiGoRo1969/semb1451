@@ -28,7 +28,7 @@ Import this library into e2studio.
 ## Usage
 
 Build the project on e2studio/Windows PC.
-If there is no error, you can get the hex code for SEMB1451.
+When there is no error, you can get the hex code for SEMB1451.
 After that, please wirte the firmware to RZ/A2M with e2studio debug mode.
   
 If you use the console as debug or something to do,
@@ -39,22 +39,24 @@ Please set Vertual COM port as terminal with Data 8bit, Non-Parity, Stop 1bit, a
 ## Contributing
 
 You can modify the peripheral function with Smart Configulator.
-If you will do it, please check the user's manual for smart configulator.
+When you will do it, please check the user's manual for smart configulator.
 
 ## Current Support Peripherals
 
-|Function Name    | Peripheral Name | Status | notes |
-|:----------------|:----------------|:------:|:------|
-|Serial Serbo I/F |SCIFA2-4         | ready  | SCIFA4 is normally using as console     |
-|RSS485 I/F       |SCIFA0,1         | ready  | automatically direction changing(RX,TX) | 
-|ADC I/F          |ADC4-7           | ready  | sample ADC4,5:Joystick, ADC6:distance   |
-|Battery Monitor  |ADC2             | ready  | |
-|RSPI I/F         |RSPI0,1          | ready  | spi master |
-|Ethernet         |Ethernet0        | N.A.   | underdevelopment |
-|USB Host         |USB0             | N.A.   | underdevelopment |
-|USB Function     |USB1             | N.A.   | underdevelopment |
-|micro SD slot    |SDHI0            | ready  | |
-|CAN(FD) I/F      |CAN(FD)          | N.A.   | underdevelopment |
+|Function Name        | Peripheral Name | Status | notes |
+|:--------------------|:----------------|:------:|:------|
+|Serial Serbo I/F     |SCIFA2-4         | ready  | SCIFA4 is normally using as console     |
+|RSS485 I/F           |SCIFA0,1         | ready  | automatically direction changing(RX,TX) | 
+|ADC I/F              |ADC4-7           | ready  | sample ADC4,5:Joystick, ADC6:distance   |
+|Battery Monitor      |ADC2             | ready  | |
+|BMX055               |RIIC0            | ready  | on-board 9-axes MEMS |
+|EEPROM               |RIIC3            | ready  | on-board 2kbyte-EEPROM |
+|RSPI I/F             |RSPI0,1          | ready  | spi master |
+|Ethernet             |Ethernet0        | N.A.   | underdevelopment |
+|USB Host             |USB0             | N.A.   | underdevelopment |
+|USB Function         |USB1             | N.A.   | underdevelopment |
+|micro SD slot        |SDHI0            | ready  | |
+|CAN(FD) I/F          |CAN(FD)          | N.A.   | underdevelopment |
 
 ## License
 [Apache Licence Ver.2](http://www.apache.org/licenses/)
