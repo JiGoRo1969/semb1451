@@ -29,17 +29,18 @@ Import this library into e2studio.
 
 Build the project on e2studio/Windows PC.
 When there is no error, you can get the hex code for SEMB1451.
-After that, please wirte the firmware to RZ/A2M with e2studio debug mode.
+After that, please write the firmware to flash memory with e2studio debugging mode.
   
 If you use the console as debug or something to do,
-because SCIFA4 is defined as the console of RZ/A2M,
-you should connect the USB-Serial converter onto SCIFA4 connector.
-Please set Vertual COM port as terminal with Data 8bit, Non-Parity, Stop 1bit, and 1Mbps.
+you should connect the USB-Serial converter onto SCIFA4 connector,
+because SCIFA4 is defined with the console of RZ/A2M.
+Please set Vertual COM port with Data 8bit, Non-Parity, Stop 1bit, and 1Mbps at a terminal software on PC .
 
 ## Contributing
 
-You can modify the peripheral function with Smart Configulator.
+You can easly modify the peripheral function with Smart Configulator.
 When you will do it, please check the user's manual for smart configulator.
+Please don't change L1 cache setting for Internal memory (0x80000000-).
 
 ## Current Support Peripherals
 
