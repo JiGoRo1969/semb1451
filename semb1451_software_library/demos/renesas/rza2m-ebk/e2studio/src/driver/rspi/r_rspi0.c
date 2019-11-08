@@ -1,44 +1,55 @@
-/***********************************************************************************************************************
-* DISCLAIMER
-* This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products.
-* No other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
-* applicable laws, including copyright laws. 
-* THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING THIS SOFTWARE, WHETHER EXPRESS, IMPLIED
-* OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NON-INFRINGEMENT.  ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED.TO THE MAXIMUM EXTENT PERMITTED NOT PROHIBITED BY
-* LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES SHALL BE LIABLE FOR ANY DIRECT,
-* INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO THIS SOFTWARE, EVEN IF RENESAS OR
-* ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-* Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability 
-* of this software. By using this software, you agree to the additional terms and conditions found by accessing the 
-* following link:
-* http://www.renesas.com/disclaimer
-*
-* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
-***********************************************************************************************************************/
+/******************************************************************************
+ * File Name	 : r_rspi0.c
+ * Version		 : 1.0.0
+ * Creation Date : 2019-11-01
+ * Device(s)	 : RZ/A2M
+ * Tool-Chain	 : e2Studio Ver 7.4.0
+ *				 : GCC ARM Embedded 6.3.1.20170620
+ * OS			 : FreeRTOS
+ * H/W Platform  : SEMB1451/1452
+ * Description	 : This file implements device driver for r_rspi0.
+ * Operation	 :
+ * Limitations	 :
+ *****************************************************************************/
 
-/***********************************************************************************************************************
-* File Name    : r_rspi0.c
-* Version      : 1.0.0
-* Device(s)    : RZ/A2M
-* Description  : This file implements device driver for r_rspi0.
-* Creation Date: 2019-10-01
-***********************************************************************************************************************/
+/******************************************************************************
+ * Includes
+ *****************************************************************************/
 
-/***********************************************************************************************************************
-Pragma directive
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Includes
-***********************************************************************************************************************/
 #include "r_rspi.h"
 #include "iodefine.h"
 #include "r_stb_drv_api.h"
 
-/***********************************************************************************************************************
-Global variables and functions
-***********************************************************************************************************************/
+/******************************************************************************
+ * Definition for Function Selection
+ *****************************************************************************/
+
+/******************************************************************************
+ * Macro definitions (Register bit)
+ *****************************************************************************/
+
+/******************************************************************************
+ * Macro definitions
+ *****************************************************************************/
+
+/******************************************************************************
+ * Typedef definitions
+ *****************************************************************************/
+
+/******************************************************************************
+ * Global functions (Prototype definition)
+ *****************************************************************************/
+
+void		r_rspi0_transmit_interrupt(void);
+void		r_rspi0_receive_interrupt(void);
+void		r_rspi0_callback_transmitend(void);
+void		r_rspi0_callback_receiveend(void);
+uint32_t	r_rspi0_completed_translation(void);
+
+/******************************************************************************
+ * Global values
+ *****************************************************************************/
+
 volatile uint8_t *	gp_rspi0_tx_address;              /* RSPI0 transmit buffer address */
 volatile uint16_t	g_rspi0_tx_count;                 /* RSPI0 transmit data number */
 volatile uint8_t *	gp_rspi0_rx_address;              /* RSPI0 receive buffer address */
@@ -46,11 +57,28 @@ volatile uint16_t	g_rspi0_rx_count;                 /* RSPI0 receive data number
 volatile uint16_t	g_rspi0_rx_length;                /* RSPI0 receive data length */
 volatile uint32_t	r_cnt_rx0 = 0;
 
-void		r_rspi0_transmit_interrupt(void);
-void		r_rspi0_receive_interrupt(void);
-void		r_rspi0_callback_transmitend(void);
-void		r_rspi0_callback_receiveend(void);
-uint32_t	r_rspi0_completed_translation(void);
+/******************************************************************************
+ * Local functions
+ *****************************************************************************/
+
+/******************************************************************************
+ * Local values
+ *****************************************************************************/
+
+/******************************************************************************
+ * Imported global functions
+ *****************************************************************************/
+
+/******************************************************************************
+ * Imported global variables
+ *****************************************************************************/
+
+/***********************************************************************************************************************
+* Function Name: r_rspi0_completed_translation
+* Description  : This is a function to check to complete transmission
+* Arguments    : None
+* Return Value : r_cnt_rx0
+***********************************************************************************************************************/
 
 uint32_t	r_rspi0_completed_translation(void)
 {
@@ -92,8 +120,8 @@ void	r_rspi0_transmit_interrupt(void)
 	if (g_rspi0_tx_count > 0U)
 	{
 		/* Write data for transmission */
-#if 1
 #if defined(USE_RSPI_DATALEN_32bit)
+		if(NULL != gp_rspi0_tx_address)
 		{
 			uint32_u	t_dat;
 
@@ -103,8 +131,13 @@ void	r_rspi0_transmit_interrupt(void)
 			t_dat.b[0] = *gp_rspi0_tx_address++;
 			RSPI0.SPDR.LONG		= t_dat.l;
 		}
+		else
+		{
+			RSPI0.SPDR.LONG		= 0;
+		}
 		g_rspi0_tx_count	   -= 4;
 #elif defined(USE_RSPI_DATALEN_16bit)
+		if(NULL != gp_rspi0_tx_address)
 		{
 			uint16_u	t_dat;
 
@@ -112,23 +145,22 @@ void	r_rspi0_transmit_interrupt(void)
 			t_dat.b[0] = *gp_rspi0_tx_address++;
 			RSPI0.SPDR.WORD.L	= t_dat.w;
 		}
+		else
+		{
+			RSPI0.SPDR.WORD.L	= 0;
+		}
 		g_rspi0_tx_count	   -= 2;
 #else // USE_RSPI_DATALEN_8bit
-		RSPI0.SPDR.BYTE.LL		= (*(uint8_t*)gp_rspi0_tx_address);
+		if(NULL != gp_rspi0_tx_address)
+		{
+			RSPI0.SPDR.BYTE.LL	= (*(uint8_t*)gp_rspi0_tx_address);
+		}
+		else
+		{
+			RSPI0.SPDR.BYTE.LL	= 0;
+		}
 		gp_rspi0_tx_address++;
 		g_rspi0_tx_count--;
-#endif
-#else
-#if defined(USE_RSPI_DATALEN_32bit)
-		RSPI0.SPDR.LONG			= 0U;
-		g_rspi0_tx_count	   -= 4;
-#elif	defined(USE_RSPI_DATALEN_16bit)
-		RSPI0.SPDR.WORD.L		= 0U;
-		g_rspi0_tx_count	   -= 2;
-#else // USE_RSPI_DATALEN_8bit
-		RSPI0.SPDR.BYTE.LL		= 0U;
-		g_rspi0_tx_count--;
-#endif
 #endif
 	}
 	else
@@ -370,6 +402,7 @@ void	r_rspi0_zerosend_receive(
 	uint16_t	len
 )
 {
+	gp_rspi0_tx_address		= NULL;
 	g_rspi0_tx_count		= len;
 	gp_rspi0_rx_address		= rx_buf;
 	g_rspi0_rx_length		= len;

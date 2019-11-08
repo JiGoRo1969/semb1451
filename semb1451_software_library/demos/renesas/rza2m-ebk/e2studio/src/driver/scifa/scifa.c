@@ -7,7 +7,7 @@
  *				 : GCC ARM Embedded 6.3.1.20170620
  * OS			 : FreeRTOS
  * H/W Platform  : SEMB1451/1452
- * Description	 : RZ/A2M Program to control SCIFA functions
+ * Description	 : RZ/A2M Program to control SCIFAs as UART
  * Operation	 :
  * Limitations	 :
  *****************************************************************************/

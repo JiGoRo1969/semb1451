@@ -1,5 +1,5 @@
 /******************************************************************************
- * File Name	 : adc.c
+ * File Name	 : servo_dynamixel.c
  * Version       : 1.0.0
  * Creation Date : 2019-11-01
  * Device(s)	 : RZ/A2M
@@ -7,7 +7,7 @@
  *				 : GCC ARM Embedded 6.3.1.20170620
  * OS			 : FreeRTOS
  * H/W Platform  : SEMB1451/1452
- * Description	 : RZ/A2M Program to control adc functions
+ * Description	 : RZ/A2M Program to control dynamixel servos
  * Operation	 :
  * Limitations	 :
  *****************************************************************************/

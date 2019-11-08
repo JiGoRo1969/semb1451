@@ -156,6 +156,17 @@
 <extendedItem direction="O" drvctrl="4mA" id="AB17" initSource="ByGPIOInit" interrupt="Disabled" outdt="Low"/>
 <extendedItem direction="O" drvctrl="4mA" id="W7" initSource="ByGPIOInit" interrupt="Disabled" outdt="Low"/>
 <extendedItem direction="O" drvctrl="8mA" id="K4" initSource="ByGPIOInit" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="O" drvctrl="4mA" id="R3" initSource="ByGPIOInit" interrupt="Disabled" outdt="High"/>
+<extendedItem direction="I" drvctrl="" id="Y19" initSource="ByDriver" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="I" drvctrl="" id="Y20" initSource="ByDriver" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="AB2" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="AB3" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="V3" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="W4" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="N20" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="C18" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="K20" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="4mA" id="K22" initSource="ByManual" interrupt="Disabled" outdt="Low"/>
 <pinItem allocation="M20" comments="" direction="None" id="P6_0" locked="false" status="0"/>
 <pinItem allocation="AA6" comments="" direction="None" id="PC_1" locked="false" status="0"/>
 <pinItem allocation="A16" comments="" direction="None" id="RxD4" locked="false" status="0"/>
@@ -200,8 +211,8 @@
 <pinItem allocation="T20" comments="" direction="None" id="SD0_DAT1" locked="false" status="0"/>
 <pinItem allocation="R19" comments="" direction="None" id="SD0_DAT2" locked="false" status="0"/>
 <pinItem allocation="U22" comments="" direction="None" id="SD0_CLK" locked="false" status="0"/>
-<pinItem allocation="E2" comments="" direction="None" id="SD0_CD" locked="false" status="0"/>
-<pinItem allocation="K3" comments="" direction="None" id="SD0_WP" locked="false" status="0"/>
+<pinItem allocation="Y19" comments="" direction="None" id="SD0_CD" locked="false" status="0"/>
+<pinItem allocation="Y20" comments="" direction="None" id="SD0_WP" locked="false" status="0"/>
 <pinItem allocation="D22" comments="" direction="None" id="RIIC0SDA" locked="false" status="0"/>
 <pinItem allocation="F19" comments="" direction="None" id="RIIC0SCL" locked="false" status="0"/>
 <pinItem allocation="E20" comments="" direction="None" id="RIIC1SCL" locked="false" status="0"/>
@@ -210,6 +221,15 @@
 <pinItem allocation="AB17" comments="" direction="None" id="PC_3" locked="false" status="0"/>
 <pinItem allocation="W7" comments="" direction="None" id="P2_0" locked="false" status="0"/>
 <pinItem allocation="K4" comments="" direction="None" id="PJ_0" locked="false" status="0"/>
+<pinItem allocation="R3" comments="" direction="None" id="PJ_5" locked="false" status="0"/>
+<pinItem allocation="N20" comments="" direction="None" id="SSL00" locked="false" status="0"/>
+<pinItem allocation="C18" comments="" direction="None" id="RSPCK0" locked="false" status="0"/>
+<pinItem allocation="V3" comments="" direction="None" id="RSPCK1" locked="false" status="0"/>
+<pinItem allocation="AB3" comments="" direction="None" id="SSL10" locked="false" status="0"/>
+<pinItem allocation="W4" comments="" direction="None" id="MISO1" locked="false" status="0"/>
+<pinItem allocation="K22" comments="" direction="None" id="MISO0" locked="false" status="0"/>
+<pinItem allocation="K20" comments="" direction="None" id="MOSI0" locked="false" status="0"/>
+<pinItem allocation="AB2" comments="" direction="None" id="MOSI1" locked="false" status="0"/>
 </tool>
 <tool enable="true" id="Mmu" import="resources\importtemplate\bootmode.xml" version="1.0.0.0">
 <entry attribute="1" id="" name="CS0 space" physicalAddress="0x00000000" size="64" virtualAddress="0x00000000"/>
@@ -619,11 +639,6 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration channel="fatfs" inuse="true" name="fatfs">
-<component description="依存モジュール: なし&#10;fatfs&#10;Note: documents.zip includes *.c files. If you unzipped the zip file, exclude the documents\res from your build." detailDescription="" display="fatfs" id="fatfs0.133" version="0.133"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration channel="RIIC0" inuse="true" name="riic0">
 <component description="依存モジュール: r_cpg バージョン 1.03&#10;RIIC Driver" detailDescription="" display="r_riic" id="r_riic1.04" version="1.04">
 <gridItem id="RIIC0SCL" selectedIndex="1"/>
@@ -764,30 +779,6 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration channel="SDMMC0" inuse="true" name="sdhi0">
-<component description="依存モジュール: fatfs バージョン 0.133&#10;SDHI Driver&#10;SD Host/Ancillary Product License Agreement (SD HALA) is required to develop SD host-related products. Refer https://www.sdcard.org/developers/licensing/ for detail:&#10;[Updates:1.20]&#10;- Implement the configurations of &quot;SD card detection callback function setting&quot;.&#10;- Implement the configurations of &quot;SD card detection callback function&quot;.&#10;- Update the default value of &quot;SD write protection signal detection option&quot; from SD_WP_ENABLED to SD_WP_DISABLED." detailDescription="" display="r_sdhi_simplified" id="r_sdhi_simplified1.20" version="1.20">
-<gridItem id="SD0_CD" selectedIndex="1"/>
-<gridItem id="SD0_CLK" selectedIndex="1"/>
-<gridItem id="SD0_CMD" selectedIndex="1"/>
-<gridItem id="SD0_DAT0" selectedIndex="1"/>
-<gridItem id="SD0_DAT1" selectedIndex="1"/>
-<gridItem id="SD0_DAT2" selectedIndex="1"/>
-<gridItem id="SD0_DAT3" selectedIndex="1"/>
-<gridItem id="SD0_DAT4" selectedIndex="0"/>
-<gridItem id="SD0_DAT5" selectedIndex="0"/>
-<gridItem id="SD0_DAT6" selectedIndex="0"/>
-<gridItem id="SD0_DAT7" selectedIndex="0"/>
-<gridItem id="SD0_RST#" selectedIndex="0"/>
-<gridItem id="SD0_WP" selectedIndex="1"/>
-<gridItem id="SDMMC0" selectedIndex="1"/>
-<gridItem id="SDHI_CD_LAYOUT" selectedIndex="0"/>
-<gridItem id="SDHI_WP_LAYOUT" selectedIndex="1"/>
-<gridItem id="SDHI_CB_SETTING" selectedIndex="1"/>
-<gridItem id="SDHI_CB_FUNCTION" selectedIndex="r_sdhi_callback_cd"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration channel="DMAC4" inuse="true" name="dmac4_rs_rxi2">
 <component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.02" version="2.02">
 <gridItem id="DMAC_RESOURCE" selectedIndex="165"/>
@@ -887,6 +878,54 @@
 <gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
 <gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
 </component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="SDMMC0" inuse="true" name="sdhi_simplified0">
+<component description="依存モジュール: fatfs バージョン 0.133&#10;SDHI Driver&#10;SD Host/Ancillary Product License Agreement (SD HALA) is required to develop SD host-related products. Refer https://www.sdcard.org/developers/licensing/ for detail:&#10;[Updates:1.20]&#10;- Implement the configurations of &quot;SD card detection callback function setting&quot;.&#10;- Implement the configurations of &quot;SD card detection callback function&quot;.&#10;- Update the default value of &quot;SD write protection signal detection option&quot; from SD_WP_ENABLED to SD_WP_DISABLED." detailDescription="" display="r_sdhi_simplified" id="r_sdhi_simplified1.20" version="1.20">
+<gridItem id="SD0_CD" selectedIndex="1"/>
+<gridItem id="SD0_CLK" selectedIndex="1"/>
+<gridItem id="SD0_CMD" selectedIndex="1"/>
+<gridItem id="SD0_DAT0" selectedIndex="1"/>
+<gridItem id="SD0_DAT1" selectedIndex="1"/>
+<gridItem id="SD0_DAT2" selectedIndex="1"/>
+<gridItem id="SD0_DAT3" selectedIndex="1"/>
+<gridItem id="SD0_DAT4" selectedIndex="0"/>
+<gridItem id="SD0_DAT5" selectedIndex="0"/>
+<gridItem id="SD0_DAT6" selectedIndex="0"/>
+<gridItem id="SD0_DAT7" selectedIndex="0"/>
+<gridItem id="SD0_RST#" selectedIndex="0"/>
+<gridItem id="SD0_WP" selectedIndex="1"/>
+<gridItem id="SDMMC0" selectedIndex="1"/>
+<gridItem id="SDHI_CD_LAYOUT" selectedIndex="0"/>
+<gridItem id="SDHI_WP_LAYOUT" selectedIndex="1"/>
+<gridItem id="SDHI_CB_SETTING" selectedIndex="1"/>
+<gridItem id="SDHI_CB_FUNCTION" selectedIndex="fat_cd_int_cb_function"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="SDMMC1" inuse="true" name="sdhi_simplified1">
+<component description="依存モジュール: fatfs バージョン 0.133&#10;SDHI Driver&#10;SD Host/Ancillary Product License Agreement (SD HALA) is required to develop SD host-related products. Refer https://www.sdcard.org/developers/licensing/ for detail:&#10;[Updates:1.20]&#10;- Implement the configurations of &quot;SD card detection callback function setting&quot;.&#10;- Implement the configurations of &quot;SD card detection callback function&quot;.&#10;- Update the default value of &quot;SD write protection signal detection option&quot; from SD_WP_ENABLED to SD_WP_DISABLED." detailDescription="" display="r_sdhi_simplified" id="r_sdhi_simplified1.20" version="1.20">
+<gridItem id="SD1_CD" selectedIndex="1"/>
+<gridItem id="SD1_CLK" selectedIndex="1"/>
+<gridItem id="SD1_CMD" selectedIndex="1"/>
+<gridItem id="SD1_DAT0" selectedIndex="1"/>
+<gridItem id="SD1_DAT1" selectedIndex="1"/>
+<gridItem id="SD1_DAT2" selectedIndex="1"/>
+<gridItem id="SD1_DAT3" selectedIndex="1"/>
+<gridItem id="SD1_WP" selectedIndex="1"/>
+<gridItem id="SDMMC1" selectedIndex="0"/>
+<gridItem id="SDHI_CD_LAYOUT" selectedIndex="0"/>
+<gridItem id="SDHI_WP_LAYOUT" selectedIndex="0"/>
+<gridItem id="SDHI_CB_SETTING" selectedIndex="0"/>
+<gridItem id="SDHI_CB_FUNCTION" selectedIndex="NULL"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="fatfs" inuse="true" name="fatfs0">
+<component description="依存モジュール: なし&#10;fatfs&#10;Note: documents.zip includes *.c files. If you unzipped the zip file, exclude the documents\res from your build." detailDescription="" display="fatfs" id="fatfs0.133" version="0.133"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>

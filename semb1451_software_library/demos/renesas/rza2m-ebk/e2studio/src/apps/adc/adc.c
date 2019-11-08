@@ -7,7 +7,7 @@
  *				 : GCC ARM Embedded 6.3.1.20170620
  * OS			 : FreeRTOS
  * H/W Platform  : SEMB1451/1452
- * Description	 : RZ/A2M Program to control adc functions
+ * Description	 : RZ/A2M Program to control A/D converters
  * Operation	 :
  * Limitations	 :
  *****************************************************************************/
@@ -15,6 +15,11 @@
 /******************************************************************************
  * Includes
  *****************************************************************************/
+
+#include	<stdio.h>
+#include	<string.h>
+#include	<fcntl.h>
+#include	<unistd.h>
 
 #include	"r_typedefs.h"
 #include	"iodefine.h"
@@ -63,7 +68,6 @@ typedef	union {
  * Global functions (Prototype definition)
  *****************************************************************************/
 
-void		os_adc_task_t(void);
 void		r_adc_init(void);
 
 /******************************************************************************

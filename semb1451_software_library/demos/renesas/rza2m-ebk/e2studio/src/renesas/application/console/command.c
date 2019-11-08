@@ -36,11 +36,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <r_fat.h>
 #include "compiler_settings.h"
 #include "driver.h"
 #include "version.h"
 #include "command.h"
 #include "r_os_abstraction_api.h"
+#include "r_devlink_wrapper.h"
 #include "application_cfg.h"
 #include "r_riic.h"
 
@@ -88,61 +90,26 @@ Public Functions
    description of what the command does */
 static st_cmdfnass_t gs_cmd_command[] =
 {
-    {
-        "we",
-        cmd_write_eeprom,
-        "address size fist_data_value data_count_type<CR> - Write data to EEPROM",
-    },
-    {
-        "re",
-        cmd_read_eeprom,
-        "address size<CR> - Read data from EEPROM",
-    },
-    {
-        "wa",
-        cmd_write_bmx055_acc,
-        "address size fist_data_value data_count_type<CR> - Write data to BMX055",
-    },
-    {
-        "ra",
-        cmd_read_bmx055_acc,
-        "address size<CR> - Read data from BMX055",
-    },
-    {
-        "wg",
-        cmd_write_bmx055_gyr,
-        "address size fist_data_value data_count_type<CR> - Write data to BMX055",
-    },
-    {
-        "rg",
-        cmd_read_bmx055_gyr,
-        "address size<CR> - Read data from BMX055",
-    },
-    {
-        "wm",
-        cmd_write_bmx055_mag,
-        "address size fist_data_value data_count_type<CR> - Write data to BMX055",
-    },
-    {
-        "rm",
-        cmd_read_bmx055_mag,
-        "address size<CR> - Read data from BMX055",
-    },
-    {
-        "help",
-        cmd_help,
-        "<CR> - Show the command description",
-    },
-    {
-        "ver",
-        cmd_version,
-        "<CR> - Show the application version",
-    },
-    {
-        "exit",
-        cmd_exit,
-        "<CR> - Exit sample program",
-    }
+	{"we",	cmd_write_eeprom,		"address size fist_data_value data_count_type<CR> - Write data to EEPROM", },
+	{"re",	cmd_read_eeprom,		"address size<CR> - Read data from EEPROM", },
+	{"wa",	cmd_write_bmx055_acc,	"address size fist_data_value data_count_type<CR> - Write data to BMX055", },
+	{"ra",	cmd_read_bmx055_acc,	"address size<CR> - Read data from BMX055", },
+	{"wg",	cmd_write_bmx055_gyr,	"address size fist_data_value data_count_type<CR> - Write data to BMX055", },
+	{"rg",	cmd_read_bmx055_gyr,	"address size<CR> - Read data from BMX055", },
+	{"wm",	cmd_write_bmx055_mag,	"address size fist_data_value data_count_type<CR> - Write data to BMX055", },
+	{"rm",	cmd_read_bmx055_mag,	"address size<CR> - Read data from BMX055", },
+	{"ATT",		FAT_Att,	NULL},
+	{"DET",		FAT_Det,	NULL},
+	{"DIR",		FAT_Dir,	NULL},
+	{"TYPE",	FAT_Type,	NULL},
+	{"WRITE",	FAT_Write,	NULL},
+	{"CREATE",	FAT_Create,	NULL},
+	{"DEL",		FAT_Del,	NULL},
+	{"MKDIR",	FAT_Mkdir,	NULL},
+	{"RMDIR",	FAT_Rmdir,	NULL},
+	{"help", 	cmd_help,		"<CR> - Show the command description", },
+	{"ver",  	cmd_version,	"<CR> - Show the application version", },
+	{"exit", 	cmd_exit,		"<CR> - Exit sample program", }
 };
 
 /* Table that points to the above table and contains the number of entries */
@@ -843,6 +810,16 @@ static int16_t	cmd_help(int_t iArgCount, char_t **ppszArgument, pst_comset_t pCo
 	fprintf(pCom->p_out, "  'size' - read data size (range:0x01 - 0x100)\r\n");
 	fprintf(pCom->p_out, "command example:\r\n");
 	fprintf(pCom->p_out, "  ra 0x10 0x10\r\n");
+	fprintf(pCom->p_out, "[FAT command for microSD]\r\n");
+	fprintf(pCom->p_out, "  ATT drive_number                  : Connects a drive.                                           \r\n");
+	fprintf(pCom->p_out, "  DET drive_number                  : Disconnects a drive.                                        \r\n");
+	fprintf(pCom->p_out, "  DIR path_name(full path)          : Displays a list of files and subdirectories in a directory. \r\n");
+	fprintf(pCom->p_out, "  TYPE file_name(full path)         : Displays the contents of a file.                            \r\n");
+	fprintf(pCom->p_out, "  WRITE file_name(full path)        : Write a sample string.                                      \r\n");
+	fprintf(pCom->p_out, "  CREATE new_file_name(full path)   : Create a new file.                                          \r\n");
+	fprintf(pCom->p_out, "  DEL delete_file_name(full path)   : Delete a file.                                              \r\n");
+	fprintf(pCom->p_out, "  MKDIR new_dir_name(full path)     : Create a new directory.                                     \r\n");
+	fprintf(pCom->p_out, "  RMDIR delete_dir_name(full path)  : Delete a directory.                                         \r\n");
 	return CMD_OK;
 }
 /******************************************************************************

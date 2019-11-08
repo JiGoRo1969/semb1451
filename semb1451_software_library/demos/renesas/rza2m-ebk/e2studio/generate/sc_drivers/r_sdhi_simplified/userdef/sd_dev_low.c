@@ -127,11 +127,11 @@ static st_sdhi_info_dev_ch_t s_sdhi_dev_ch[SDHI_PRV_CH_NUM] =
     }
 };
 
-/*--- PD1 voltage ---*/
+/*--- PJ5 voltage ---*/
 static const r_gpio_port_pin_t s_sd_init_ch0_voltage_pin_list[] =
 {
     /* Cast to an appropriate type */
-    GPIO_PORT_D_PIN_1,
+    GPIO_PORT_J_PIN_5,
 };
 
 static st_r_drv_gpio_pin_list_t s_sd_init_ch0_voltage =
@@ -142,7 +142,7 @@ static st_r_drv_gpio_pin_list_t s_sd_init_ch0_voltage =
 };
 
 /* Cast to an appropriate type */
-static st_r_drv_gpio_pin_rw_t s_sd_ch0_voltage_3_3 = { GPIO_PORT_D_PIN_1, GPIO_LEVEL_HIGH, GPIO_SUCCESS };
+static st_r_drv_gpio_pin_rw_t s_sd_ch0_voltage_3_3 = { GPIO_PORT_J_PIN_5, GPIO_LEVEL_HIGH, GPIO_SUCCESS };
 
 /* SD current */
 static const st_r_drv_gpio_sc_config_t s_sd_gpio_current_ch0[] =
@@ -488,7 +488,7 @@ static int32_t sddev_init_voltage(int32_t sd_port)
                 }
                 else
                 {
-                    /*--- Control GPIO (PD1 = High(3.3V)) ---*//* Cast to an appropriate type */
+                    /*--- Control GPIO (PJ5 = High(3.3V)) ---*//* Cast to an appropriate type */
                     gpio_err = direct_control(gpio_handle, (uint32_t)CTL_GPIO_PIN_WRITE, &s_sd_ch0_voltage_3_3);
                     if (gpio_err < 0)
                     {

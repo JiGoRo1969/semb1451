@@ -14,6 +14,11 @@
  * Includes
  *****************************************************************************/
 
+#include	<stdio.h>
+#include	<string.h>
+#include	<fcntl.h>
+#include	<unistd.h>
+
 #include 	"r_typedefs.h"
 #include 	"r_devlink_wrapper.h"
 #include 	"r_riic_drv_sc_cfg.h"
