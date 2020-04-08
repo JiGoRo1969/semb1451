@@ -430,6 +430,27 @@ static int_t dmac_hld_control (st_stream_ptr_t p_stream, uint32_t ctl_code, void
             break;
         }
 
+        case CTL_DMAC_GET_TRANSFER_BYTE_COUNT:
+        {
+            if (NULL != p_ctl_struct)
+            {
+                /* assign new pointer for readability */
+                uint32_t * p_crtb_value = (uint32_t *) p_ctl_struct;
+
+                dmac_err = R_DMAC_GetCrtbRegisterValue(sc_config_index, p_crtb_value);
+
+                if (DMAC_SUCCESS == dmac_err)
+                {
+                    ret_value = DRV_SUCCESS;
+                }
+                else
+                {
+                    ret_value = DRV_ERROR;
+                }
+            }
+            break;
+        }
+
         default:
         {
             TRACE(("DMAC Driver: Unknown control code\r\n"));

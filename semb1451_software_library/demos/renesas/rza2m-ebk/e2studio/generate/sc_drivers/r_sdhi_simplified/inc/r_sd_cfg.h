@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver Sample Program
 * File Name    : r_sd_cfg.h
-* Version      : 1.20
+* Version      : 1.30
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -32,6 +32,8 @@
 * History : DD.MM.YYYY Version  Description
 *         : 16.03.2018 1.00     First Release
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 12.11.2019 1.30     Support for SDIO
+*         : 31.03.2020 1.50     Support high speed for SDIO
 ******************************************************************************/
 #ifndef R_SD_CFG_H
 #define R_SD_CFG_H
@@ -68,7 +70,17 @@ Macro definitions
 /* ------------------------------------------------------
   Set the card type to support
 --------------------------------------------------------*/
-#define SD_CFG_MEM
+/* #define SD_CFG_MEM */
+#define SD_CFG_IO
+
+#ifdef SD_CFG_IO
+/* ------------------------------------------------------
+  Set the speed to support
+--------------------------------------------------------*/
+/* #define SD_CFG_DS */
+#define SD_CFG_HS
+
+#endif //SD_CFG_IO
 
 /* ------------------------------------------------------
   Set the version to support
@@ -87,52 +99,66 @@ Macro definitions
     #endif
 #endif
 
-/* ==== end of the setting ==== */
+    /* the SD bus width */
+    #define SD_CFG_DRIVER_MODE_BUS_WIDTH    (SD_MODE_4BIT)
+
 #if    defined(SD_CFG_HWINT)
-    #if    defined(SD_CFG_TRNS_DMA)
-            #if    defined(SD_CFG_VER2X)
-
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_HWINT|SD_MODE_DMA|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER2X)
-            #else
-
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_HWINT|SD_MODE_DMA|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER1X)
-            #endif
-    #else
-            #if    defined(SD_CFG_VER2X)
-
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_HWINT|SD_MODE_SW|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER2X)
-            #else
-
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_HWINT|SD_MODE_SW|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER1X)
-            #endif
-    #endif
+    /* the method of check SD Status */
+    #define SD_CFG_DRIVER_MODE_METHOD       (SD_MODE_HWINT)
 #else
-    #if    defined(SD_CFG_TRNS_DMA)
-            #if    defined(SD_CFG_VER2X)
+    /* the method of check SD Status */
+    #define SD_CFG_DRIVER_MODE_METHOD       (SD_MODE_POLL)
+#endif
 
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_POLL|SD_MODE_DMA|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER2X)
-            #else
+#if    defined(SD_CFG_TRNS_DMA)
+    /* the method of data transfer */
+    #define SD_CFG_DRIVER_MODE_TRANSFER     (SD_MODE_DMA)
+#else
+    /* the method of data transfer */
+    #define SD_CFG_DRIVER_MODE_TRANSFER     (SD_MODE_SW)
+#endif
 
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_POLL|SD_MODE_DMA|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER1X)
-            #endif
-    #else
-            #if    defined(SD_CFG_VER2X)
+#if    defined(SD_CFG_MEM)
+    /* the card type to support */
+    #define SD_CFG_DRIVER_MODE_CARD_TYPE    (SD_MODE_MEM)
+#else
+    /* the card type to support */
+    #define SD_CFG_DRIVER_MODE_CARD_TYPE    (SD_MODE_IO)
+#endif
 
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_POLL|SD_MODE_SW|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER2X)
-            #else
+#ifdef SD_CFG_IO
+ #if    defined(SD_CFG_HS)
+    /* the speed to support */
+    #define SD_CFG_DRIVER_MODE_SPEED        (SD_MODE_HS)
+ #else
+    /* the speed to support */
+    #define SD_CFG_DRIVER_MODE_SPEED        (SD_MODE_DS)
+ #endif
 
-                /* configuration driver mode */
-                #define SD_CFG_DRIVER_MODE     (SD_MODE_POLL|SD_MODE_SW|SD_MODE_MEM|SD_MODE_DS|SD_MODE_VER1X)
-            #endif
-    #endif
-#endif    
+#else
+    /* the speed to support */
+    #define SD_CFG_DRIVER_MODE_SPEED        (SD_MODE_DS)
+#endif //SD_CFG_IO
+
+#if    defined(SD_CFG_VER2X)
+    /* the version to support */
+    #define SD_CFG_DRIVER_MODE_VER          (SD_MODE_VER2X)
+#else
+    /* the version to support */
+    #define SD_CFG_DRIVER_MODE_VER          (SD_MODE_VER1X)
+#endif
+
+/* Set driver mode configration */
+#define SD_CFG_DRIVER_MODE                  (SD_CFG_DRIVER_MODE_BUS_WIDTH | \
+                                            SD_CFG_DRIVER_MODE_METHOD     | \
+                                            SD_CFG_DRIVER_MODE_TRANSFER   | \
+                                            SD_CFG_DRIVER_MODE_CARD_TYPE  | \
+                                            SD_CFG_DRIVER_MODE_SPEED      | \
+                                            SD_CFG_DRIVER_MODE_VER)
+
+/* ==== end of the setting ==== */
+
+
 
 /******************************************************************************
 Imported global variables and functions (from other files)

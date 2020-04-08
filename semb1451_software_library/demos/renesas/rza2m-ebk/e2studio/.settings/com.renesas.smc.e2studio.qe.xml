@@ -8,7 +8,9 @@
 <Setting id="F22" value="PB_1"/>
 <Setting id="J21" value="P7_6"/>
 <Setting id="J20" value="RxD0"/>
+<Setting id="L21" value="TxD1"/>
 <Setting id="L22" value="P7_2"/>
+<Setting id="E2" value="SD0_CD"/>
 <Setting id="N20" value="SSL00"/>
 <Setting id="T21" value="SD0_DAT3"/>
 <Setting id="T20" value="SD0_DAT1"/>
@@ -17,11 +19,8 @@
 <Setting id="AB17" value="PC_3"/>
 <Setting id="V3" value="RSPCK1"/>
 <Setting id="R3" value="PJ_5"/>
-<Setting id="N2" value="RxD1"/>
 <Setting id="A16" value="RxD4"/>
-<Setting id="N4" value="TxD1"/>
 <Setting id="C15" value="TxD4"/>
-<Setting id="C14" value="RxD3"/>
 <Setting id="C17" value="PA_2"/>
 <Setting id="C19" value="PB_0"/>
 <Setting id="C18" value="RSPCK0"/>
@@ -30,10 +29,10 @@
 <Setting id="AB5" value="P2_1"/>
 <Setting id="AB6" value="P2_3"/>
 <Setting id="B8" value="TxD2"/>
+<Setting id="B9" value="TxD3"/>
 <Setting id="W4" value="MISO1"/>
 <Setting id="W19" value="AN002"/>
 <Setting id="W7" value="P2_0"/>
-<Setting id="Y19" value="SD0_CD"/>
 <Setting id="E20" value="RIIC1SCL"/>
 <Setting id="C22" value="RIIC1SDA"/>
 <Setting id="C21" value="RIIC3SDA"/>
@@ -41,6 +40,7 @@
 <Setting id="G21" value="PB_3"/>
 <Setting id="K2" value="PJ_6"/>
 <Setting id="K20" value="MOSI0"/>
+<Setting id="K3" value="SD0_WP"/>
 <Setting id="K4" value="PJ_0"/>
 <Setting id="K22" value="MISO0"/>
 <Setting id="M20" value="P6_0"/>
@@ -49,14 +49,14 @@
 <Setting id="U22" value="SD0_CLK"/>
 <Setting id="U21" value="SD0_CMD"/>
 <Setting id="AA19" value="PC_4"/>
-<Setting id="Y20" value="SD0_WP"/>
+<Setting id="C9" value="RxD3"/>
 <Setting id="Y21" value="AN007"/>
 <Setting id="D11" value="PF_3"/>
-<Setting id="B14" value="TxD3"/>
 <Setting id="D14" value="PF_0"/>
 <Setting id="D17" value="PA_7"/>
 <Setting id="F19" value="RIIC0SCL"/>
 <Setting id="H19" value="PB_4"/>
+<Setting id="L19" value="RxD1"/>
 <Setting id="R19" value="SD0_DAT2"/>
 <Setting id="T19" value="SD0_DAT0"/>
 <Setting id="AA22" value="AN005"/>
@@ -69,9 +69,9 @@
 <Setting id="PinCount" value="324"/>
 </Segment>
 <Segment id="Component">
-<Setting id="scifa4" value="FIT"/>
 <Setting id="dmac7_rs_txi3" value="FIT"/>
 <Setting id="dmac8_rs_rxi4" value="FIT"/>
+<Setting id="scifa4" value="FIT"/>
 <Setting id="cbuffer0" value="FIT"/>
 <Setting id="dmac5_rs_txi2" value="FIT"/>
 <Setting id="riic0" value="FIT"/>
@@ -90,16 +90,16 @@
 <Setting id="dmac0_rs_rxi0" value="FIT"/>
 <Setting id="dmac1_rs_txi0" value="FIT"/>
 <Setting id="os_abstraction_freertos" value="FIT"/>
-<Setting id="iodefine" value="FIT"/>
 <Setting id="sdhi_simplified1" value="FIT"/>
+<Setting id="iodefine" value="FIT"/>
 <Setting id="sdhi_simplified0" value="FIT"/>
 <Setting id="riic3" value="FIT"/>
 <Setting id="riic2" value="FIT"/>
 <Setting id="riic1" value="FIT"/>
 <Setting id="scifa1" value="FIT"/>
+<Setting id="dmac9_rs_txi4" value="FIT"/>
 <Setting id="adc0" value="FIT"/>
 <Setting id="scifa0" value="FIT"/>
-<Setting id="dmac9_rs_txi4" value="FIT"/>
 <Setting id="scifa3" value="FIT"/>
 <Setting id="gpio" value="FIT"/>
 <Setting id="scifa2" value="FIT"/>

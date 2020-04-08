@@ -22,11 +22,11 @@
 * Version      : 1.0.0
 * Device(s)    : R7S921053
 * Description  : Pin Configuration.
-* Creation Date: 2019-11-08
+* Creation Date: 2020-04-08
 ***********************************************************************************************************************/
 
-#ifndef _R_GPIO_DRV_SC_CFG_H_
-#define _R_GPIO_DRV_SC_CFG_H_
+#ifndef DRIVERS_R_GPIO_INC_R_GPIO_DRV_SC_CFG_H_
+#define DRIVERS_R_GPIO_INC_R_GPIO_DRV_SC_CFG_H_
 
 /******************************************************************************
 Includes   <System Includes> , "Project Includes"
@@ -48,7 +48,7 @@ Variable Externs
 /* This code is auto-generated. Do not edit manually */
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_INIT[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_2_PIN_0, {GPIO_FUNC_OUT_LOW, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
     {GPIO_PORT_2_PIN_1, {GPIO_FUNC_IN, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_2_PIN_3, {GPIO_FUNC_OUT_HIGH, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
@@ -73,7 +73,7 @@ static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_INIT[] =
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_MANUAL[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_6_PIN_0, {GPIO_FUNC_OUT_HIGH, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
     {GPIO_PORT_C_PIN_1, {GPIO_FUNC_OUT_HIGH, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
     {GPIO_PORT_G_PIN_0, {GPIO_FUNC_PERIPHERAL3, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
@@ -87,7 +87,7 @@ static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_MANUAL[] =
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_adc0[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_5_PIN_2, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_5_PIN_4, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_5_PIN_5, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
@@ -96,65 +96,65 @@ static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_adc0[] =
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_riic0[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_D_PIN_0, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_D_PIN_1, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_riic1[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_D_PIN_2, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_D_PIN_3, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_riic2[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_riic3[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_D_PIN_6, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_D_PIN_7, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_scifa0[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_7_PIN_7, {GPIO_FUNC_PERIPHERAL5, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_B_PIN_5, {GPIO_FUNC_PERIPHERAL5, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_scifa1[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
-    {GPIO_PORT_J_PIN_1, {GPIO_FUNC_PERIPHERAL4, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
-    {GPIO_PORT_J_PIN_2, {GPIO_FUNC_PERIPHERAL4, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
+    /* {<pin>, {<function>, <tint>, <current>}}, */
+    {GPIO_PORT_7_PIN_1, {GPIO_FUNC_PERIPHERAL4, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
+    {GPIO_PORT_7_PIN_3, {GPIO_FUNC_PERIPHERAL4, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_scifa2[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_F_PIN_4, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
     {GPIO_PORT_F_PIN_5, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_scifa3[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
-    {GPIO_PORT_F_PIN_1, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
-    {GPIO_PORT_F_PIN_2, {GPIO_FUNC_PERIPHERAL1, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
+    /* {<pin>, {<function>, <tint>, <current>}}, */
+    {GPIO_PORT_6_PIN_2, {GPIO_FUNC_PERIPHERAL3, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
+    {GPIO_PORT_6_PIN_3, {GPIO_FUNC_PERIPHERAL3, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_scifa4[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
     {GPIO_PORT_9_PIN_0, {GPIO_FUNC_PERIPHERAL4, GPIO_TINT_DISABLE, GPIO_CURRENT_4mA}},
     {GPIO_PORT_9_PIN_1, {GPIO_FUNC_PERIPHERAL4, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_sdhi_simplified0[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
-    {GPIO_PORT_5_PIN_0, {GPIO_FUNC_PERIPHERAL3, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
-    {GPIO_PORT_5_PIN_1, {GPIO_FUNC_PERIPHERAL3, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
+    /* {<pin>, {<function>, <tint>, <current>}}, */
+    {GPIO_PORT_H_PIN_3, {GPIO_FUNC_PERIPHERAL5, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
+    {GPIO_PORT_H_PIN_4, {GPIO_FUNC_PERIPHERAL5, GPIO_TINT_DISABLE, GPIO_CURRENT_RESERVED}},
 };
 static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_sdhi_simplified1[] =
 {
- /* { <pin>            , {<function>              , <tint>           , <current>         }}, */
+    /* {<pin>, {<function>, <tint>, <current>}}, */
 };
 /* End of modification */
 
@@ -162,6 +162,6 @@ static const st_r_drv_gpio_sc_config_t GPIO_SC_TABLE_sdhi_simplified1[] =
 Functions Prototypes
 ******************************************************************************/
 
-#endif  /* _R_GPIO_DRV_SC_CFG_H_ */
+#endif  /* DRIVERS_R_GPIO_INC_R_GPIO_DRV_SC_CFG_H_ */
 
 /* End of File */

@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_mount.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -34,6 +34,9 @@
 *         : 14.12.2018 1.01     Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02     Support for OS
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 17.09.2019 1.30     Support for SDIO
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
+*         : 31.03.2020 1.50     Support high speed for SDIO
 ******************************************************************************/
 
 /******************************************************************************
@@ -42,7 +45,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
-
+#include "iodefine.h"
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -74,6 +77,7 @@ static uint16_t s_stat_buff[NUM_PORT][64 / sizeof(uint16_t)];
 
 static int32_t _sd_mount_error(st_sdhndl_t *p_hndl);
 static int32_t _sd_card_init_get_rca(st_sdhndl_t *p_hndl);
+static int32_t _sd_io_mount_error(st_sdhndl_t *p_hndl);
 static int32_t _sd_mem_mount_error(st_sdhndl_t *p_hndl);
 static int32_t _sd_read_byte_error(st_sdhndl_t *p_hndl);
 static int32_t _sd_write_byte_error(st_sdhndl_t *p_hndl);
@@ -92,6 +96,8 @@ static int32_t _sd_write_byte_error(st_sdhndl_t *p_hndl);
  *              : SD_MODE_SW       : software data transfer (SD_BUF)
  *              : SD_MODE_DMA      : DMA data transfer (SD_BUF)
  *              : SD_MODE_MEM      : only memory cards
+ *              : SD_MODE_IO       : memory and io cards
+ *              : SD_MODE_COMBO    : memory ,io and combo cards
  *              : SD_MODE_DS       : only default speed
  *              : SD_MODE_VER1X    : ver1.1 host
  *              : SD_MODE_VER2X    : ver2.x host
@@ -107,6 +113,7 @@ int32_t sd_mount(int32_t sd_port, uint32_t mode, uint32_t voltage)
 {
     st_sdhndl_t *p_hndl;
     uint64_t    info1_back;
+    uint8_t     io_buff;
     uint16_t    sd_spec;
     uint16_t    sd_spec3;
 
@@ -125,6 +132,28 @@ int32_t sd_mount(int32_t sd_port, uint32_t mode, uint32_t voltage)
     if (0 == p_hndl->p_rw_buff)
     {
         return SD_ERR;  /* not allocated yet */
+    }
+
+    if (mode & SD_MODE_IO)
+    {
+        if ( (p_hndl->sup_card & 0x30u) == (mode & 0x30u) )
+        {
+            /* support SDIO card */
+            if ((SD_MEDIA_IO == p_hndl->media_type) || (SD_MEDIA_COMBO == p_hndl->media_type))
+            {
+                /* media has SDIO */
+                if (p_hndl->io_flag & SD_IO_POWER_INIT)    /* already supplied power */
+                {
+                    /* ==== transfer idle state (issue CMD52) ==== */
+                    /* data:08'h func:0 address:06'h verify write */
+                    io_buff = 0x08;
+                    if (sdio_write_direct(sd_port, &io_buff, 0, 0x06, SD_IO_VERIFY_WRITE) != SD_OK)
+                    {
+                        return SD_ERR;
+                    }
+                }
+            }
+        }
     }
 
     /* ==== initialize parameter ==== */
@@ -160,19 +189,19 @@ int32_t sd_mount(int32_t sd_port, uint32_t mode, uint32_t voltage)
     sddev_loc_cpu(sd_port);
 
     /* Cast to an appropriate type */
-    info1_back = SD_INP(p_hndl, SD_INFO1);
-
+    info1_back = SDMMC.SD_INFO1.LONGLONG;
+    
     /* Cast to an appropriate type */
     info1_back &= (uint64_t)0xfff8;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO1, (uint64_t)info1_back);
-
+    SDMMC.SD_INFO1.LONGLONG = (uint64_t)info1_back;
+    
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2, (uint64_t)0);
-
+    SDMMC.SD_INFO2.LONGLONG = (uint64_t)0;
+    
     /* Clear DMA Enable because of CPU Transfer */
-    SD_OUTP(p_hndl, CC_EXT_MODE, (uint64_t)(SD_INP(p_hndl, CC_EXT_MODE) & ~CC_EXT_MODE_DMASDRW)); /* disable DMA  */
+    SDMMC.CC_EXT_MODE.LONGLONG = (uint64_t)(SDMMC.CC_EXT_MODE.LONGLONG & ~CC_EXT_MODE_DMASDRW); /* disable DMA  */
 
     sddev_unl_cpu(sd_port);
 
@@ -201,6 +230,14 @@ int32_t sd_mount(int32_t sd_port, uint32_t mode, uint32_t voltage)
 
         /* check write protect */
         p_hndl->write_protect |= (uint8_t)_sd_iswp(p_hndl);
+    }
+
+    if (p_hndl->media_type & SD_MEDIA_IO)   /* with IO part */
+    {
+        if (_sd_io_mount(p_hndl) != SD_OK)
+        {
+            return _sd_mount_error(p_hndl);
+        }
     }
 
     if (p_hndl->media_type & SD_MEDIA_MEM)    /* with memory part */
@@ -261,6 +298,22 @@ int32_t sd_mount(int32_t sd_port, uint32_t mode, uint32_t voltage)
         /* Cast to an appropriate type */
         (void)_sd_calc_erase_sector(p_hndl);
     }
+    /* if io or combo, set io part speed */
+    if (p_hndl->media_type & SD_MEDIA_IO)
+    {
+        if (SD_MEDIA_COMBO != p_hndl->media_type)
+        {
+                if ((p_hndl->sup_speed & SD_MODE_HS) != 0)
+                {
+                    if (_sd_set_io_speed(p_hndl) != SD_OK)
+                    {
+                        return _sd_mount_error(p_hndl);
+                    }
+                }
+        }
+        /* Enable SDIO interrupt */
+        SDMMC.SDIO_MODE.LONGLONG = (uint64_t)(SDMMC.SDIO_MODE.LONGLONG | SDIO_MODE_IOMOD);
+    }
 
     /* ---- set mount flag ---- */
     p_hndl->mount = SD_MOUNT_UNLOCKED_CARD;
@@ -305,6 +358,7 @@ int32_t _sd_card_init(st_sdhndl_t *p_hndl)
 {
     int32_t  ret;
     int32_t  i;
+    int32_t  just_sdio_flag;
     uint16_t if_cond_0;
     uint16_t if_cond_1;
 
@@ -312,68 +366,182 @@ int32_t _sd_card_init(st_sdhndl_t *p_hndl)
     if_cond_0 = p_hndl->if_cond[0];
     if_cond_1 = p_hndl->if_cond[1];
 
-    /* ==== transfer idle state (issue CMD0) ==== */
-    for (i = 0; i < 3; i++)
+    if (p_hndl->sup_card & SD_MODE_IO)
     {
-        ret = _sd_send_cmd(p_hndl, CMD0);
-        if (SD_OK == ret)
+        just_sdio_flag = 0;                             /* basically treate as Combo */
+        if (sddev_cmd0_sdio_mount(p_hndl->sd_port) == SD_OK)
         {
-            break;
-        }
-    }
-
-    if (SD_OK != ret)
-    {
-        return SD_ERR;  /* error for CMD0 */
-    }
-
-    /* clear error by reissuing CMD0 */
-    p_hndl->error = SD_OK;
-
-    p_hndl->media_type |= SD_MEDIA_SD;
-
-    if (SD_MODE_VER2X == p_hndl->sup_ver)
-    {
-        ret = _sd_card_send_cmd_arg(p_hndl, CMD8, SD_RSP_R7, if_cond_0, if_cond_1);
-        if (SD_OK == ret)
-        {
-            /* check R7 response */
-            if (p_hndl->if_cond[0] & 0xf000)
+            ret = _sd_send_cmd(p_hndl, CMD0);
+            if (SD_OK != ret)
             {
-                p_hndl->error = SD_ERR_IFCOND_VER;
-                return SD_ERR;
+                p_hndl->error = SD_OK;
+                just_sdio_flag = 1;                     /* treate as just I/O */
             }
-            if ((p_hndl->if_cond[1] & 0x00ff) != 0x00aa)
-            {
-                p_hndl->error = SD_ERR_IFCOND_ECHO;
-                return SD_ERR;
-            }
-            p_hndl->sd_spec = SD_SPEC_20;         /* cmd8 have response.              */
-
-            /* because of (phys spec ver2.00)   */
         }
         else
         {
-            /* ==== clear illegal command error for CMD8 ==== */
-            for (i = 0; i < 3; i++)
+            just_sdio_flag = 1;                         /* treate as just I/O */
+        }
+
+        if (sddev_cmd8_sdio_mount(p_hndl->sd_port) == SD_OK )
+        {
+            if (SD_MODE_VER2X == p_hndl->sup_ver)
             {
-                ret = _sd_send_cmd(p_hndl, CMD0);
+                ret = _sd_card_send_cmd_arg(p_hndl, CMD8, SD_RSP_R7, if_cond_0, if_cond_1);
                 if (SD_OK == ret)
                 {
-                    break;
+                    /* check R7 response */
+                    if (p_hndl->if_cond[0] & 0xf000)
+                    {
+                        p_hndl->error = SD_ERR_IFCOND_VER;
+                        return SD_ERR;
+                    }
+                    if ((p_hndl->if_cond[1] & 0x00ff) != 0x00aa)
+                    {
+                        p_hndl->error = SD_ERR_IFCOND_ECHO;
+                        return SD_ERR;
+                    }
+                    p_hndl->sd_spec = SD_SPEC_20;         /* cmd8 have response.              */
+
+                    /* because of (phys spec ver2.00)   */
+                }
+                else
+                {
+                    /* ==== clear illegal command error for CMD8 ==== */
+                    if (sddev_cmd0_sdio_mount(p_hndl->sd_port) == SD_OK )
+                    {
+                        for (i = 0; i < 3; i++)
+                        {
+                            ret = _sd_send_cmd(p_hndl, CMD0);
+                            if (SD_OK == ret)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    p_hndl->error = SD_OK;
+                    p_hndl->sd_spec = SD_SPEC_10;         /* cmd8 have no response.                   */
+
+                    /* because of (phys spec ver1.01 or 1.10)   */
                 }
             }
+            else
+            {
+                p_hndl->sd_spec = SD_SPEC_10;             /* cmd8 have response.                      */
+
+                /* because of (phys spec ver1.01 or 1.10)   */
+            }
+        }
+        else
+        {
+            just_sdio_flag = 1;                         /* treate as just I/O */
+        }
+
+        /* ==== distinguish card and read OCR (issue CMD5) ==== */
+        ret = _sd_card_send_ocr(p_hndl, SD_MEDIA_UNKNOWN);
+        if (SD_OK == ret)
+        {
+            /* set OCR (issue CMD5) */
+            if (_sd_card_send_ocr(p_hndl, SD_MEDIA_IO) != SD_OK)
+            {
+                return SD_ERR;
+            }
+
+            p_hndl->io_flag |= SD_IO_FUNC_INIT;
+
+            /* Cast to an appropriate type */
+            p_hndl->io_info = (uint8_t)(p_hndl->io_ocr[0] >> 8);
+
+            /* is memory present */
+            p_hndl->media_type = SD_MEDIA_IO;
+
+            if ( 0 == just_sdio_flag )
+            {
+                /* is not memory present */
+                if ((p_hndl->io_info & 0x08) == 0)     /* just IO */
+                {
+                    return _sd_card_init_get_rca(p_hndl);
+                }
+            }
+            else
+            {
+                return _sd_card_init_get_rca(p_hndl); /* just IO */
+            }
+        }
+        else
+        {
+            /* clear error due to card distinction */
             p_hndl->error = SD_OK;
-            p_hndl->sd_spec = SD_SPEC_10;         /* cmd8 have no response.                   */
+        }
+    }
+
+    /* ==== transfer idle state (issue CMD0) ==== */
+    if (SD_MEDIA_UNKNOWN == p_hndl->media_type)
+    {
+        for (i = 0; i < 3; i++)
+        {
+            ret = _sd_send_cmd(p_hndl, CMD0);
+            if (SD_OK == ret)
+            {
+                break;
+            }
+        }
+
+        if (SD_OK != ret)
+        {
+            return SD_ERR;  /* error for CMD0 */
+        }
+
+        /* clear error by reissuing CMD0 */
+        p_hndl->error = SD_OK;
+
+        p_hndl->media_type |= SD_MEDIA_SD;
+
+
+
+        if (SD_MODE_VER2X == p_hndl->sup_ver)
+        {
+            ret = _sd_card_send_cmd_arg(p_hndl, CMD8, SD_RSP_R7, if_cond_0, if_cond_1);
+            if (SD_OK == ret)
+            {
+                /* check R7 response */
+                if (p_hndl->if_cond[0] & 0xf000)
+                {
+                    p_hndl->error = SD_ERR_IFCOND_VER;
+                    return SD_ERR;
+                }
+                if ((p_hndl->if_cond[1] & 0x00ff) != 0x00aa)
+                {
+                    p_hndl->error = SD_ERR_IFCOND_ECHO;
+                    return SD_ERR;
+                }
+                p_hndl->sd_spec = SD_SPEC_20;         /* cmd8 have response.              */
+
+                /* because of (phys spec ver2.00)   */
+            }
+            else
+            {
+                /* ==== clear illegal command error for CMD8 ==== */
+                for (i = 0; i < 3; i++)
+                {
+                    ret = _sd_send_cmd(p_hndl, CMD0);
+                    if (SD_OK == ret)
+                    {
+                        break;
+                    }
+                }
+                p_hndl->error = SD_OK;
+                p_hndl->sd_spec = SD_SPEC_10;         /* cmd8 have no response.                   */
+
+                /* because of (phys spec ver1.01 or 1.10)   */
+            }
+        }
+        else
+        {
+            p_hndl->sd_spec = SD_SPEC_10;             /* cmd8 have response.                      */
 
             /* because of (phys spec ver1.01 or 1.10)   */
         }
-    }
-    else
-    {
-        p_hndl->sd_spec = SD_SPEC_10;             /* cmd8 have response.                      */
-
-        /* because of (phys spec ver1.01 or 1.10)   */
     }
 
     /* set OCR (issue ACMD41) */
@@ -440,7 +608,7 @@ static int32_t _sd_card_init_get_rca(st_sdhndl_t *p_hndl)
     int32_t  i;
 
     /* ---- get RCA (issue CMD3) ---- */
-    if (p_hndl->media_type & SD_MEDIA_SD)  /* SD */
+    if (p_hndl->media_type & SD_MEDIA_COMBO)  /* IO or SD */
     {
         for (i = 0; i < 3; i++)
         {
@@ -450,6 +618,10 @@ static int32_t _sd_card_init_get_rca(st_sdhndl_t *p_hndl)
             }
             if (0x00 != p_hndl->rca[0])
             {
+                if (p_hndl->media_type & SD_MEDIA_IO)
+                {
+                    p_hndl->io_flag |= SD_IO_POWER_INIT;
+                }
                 break;
             }
         }
@@ -469,6 +641,13 @@ static int32_t _sd_card_init_get_rca(st_sdhndl_t *p_hndl)
         {
             return SD_ERR;
         }
+    }
+
+    /* ==== stand-by state  ==== */
+
+    if (SD_MEDIA_IO == p_hndl->media_type)
+    {
+        return SD_OK;
     }
 
     /* ---- get CSD (issue CMD9) ---- */
@@ -502,6 +681,121 @@ static int32_t _sd_card_init_get_rca(st_sdhndl_t *p_hndl)
  *****************************************************************************/
 
 /******************************************************************************
+ * Function Name: _sd_io_mount
+ * Description  : mount io part from stand-by to command or transfer state
+ * Arguments    : st_sdhndl_t *p_hndl : SD handle
+ * Return Value : SD_OK : end of succeed
+ *                SD_ERR: end of error
+ *****************************************************************************/
+int32_t _sd_io_mount(st_sdhndl_t *p_hndl)
+{
+    int32_t  i;
+    uint8_t  io_buff;
+    uint16_t len;
+
+    /* ==== data-transfer mode ==== */
+    if (_sd_card_send_cmd_arg(p_hndl, CMD7, SD_RSP_R1B, p_hndl->rca[0], 0x0000)
+            != SD_OK)
+    {
+        return _sd_io_mount_error(p_hndl);
+    }
+
+    /* ---- get card capability (include LSC and 4BLS) ---- */
+    /* func:0 address:08'h read */
+    if (_sdio_direct(p_hndl, &io_buff, 0, 0x08, 0, 0) != SD_OK)
+    {
+        return _sd_io_mount_error(p_hndl);
+    }
+
+    if (io_buff & 0x40u)     /* low speed card */
+    {
+        p_hndl->csd_tran_speed = SD_CLK_400KHZ;
+    }
+    else    /* high speed card */
+    {
+        p_hndl->csd_tran_speed = SD_CLK_25MHZ;
+    }
+
+    /* ---- supply clock (data-transfer ratio) ---- */
+    _sd_set_clock(p_hndl, (int32_t)p_hndl->csd_tran_speed, SD_CLOCK_ENABLE);
+
+    /* set bus width and clear pull-up DAT3 */
+    if ((io_buff & 0x40u) && ((io_buff & 0x80u) == 0))   /* not support 4bits */
+    {
+        _sd_set_port(p_hndl, SD_PORT_SERIAL);
+    }
+    else
+    {
+        _sd_set_port(p_hndl, p_hndl->sup_if_mode);
+    }
+
+    /* ---- get CCCR value ---- */
+    if (_sdio_read_byte(p_hndl, p_hndl->io_reg[0], 0, 0, SDIO_INTERNAL_REG_SIZE,
+                        SD_IO_INCREMENT_ADDR) != SD_OK)
+    {
+        return _sd_io_mount_error(p_hndl);
+    }
+
+    /* save io function 0 block length */
+    if ((p_hndl->io_reg[0][0x08] & 0x02) != 0)
+    {
+        len  = p_hndl->io_reg[0][0x11];
+        len <<= 8;
+        len |= (p_hndl->io_reg[0][0x10] & 0x00ff);
+
+        switch (len)
+        {
+            case 32:
+            case 64:
+            case 128:
+            case 256:
+            case 512:
+
+                /* len is OK */
+                p_hndl->io_len[0] = len;              /* already and supported */
+                break;
+            default:
+                p_hndl->io_len[0] = 0xffff;           /* already but not supported */
+                break;
+        }
+
+        for ( i = 1; i < 8; i++ )
+        {
+            p_hndl->io_len[i] = 0;                /* not yet */
+        }
+    }
+    else
+    {
+        for ( i = 0; i < 8; i++ )
+        {
+            p_hndl->io_len[i] = 0xffff;           /* already but not supported */
+        }
+    }
+
+    return SD_OK;
+}
+/******************************************************************************
+ End of function _sd_io_mount
+ *****************************************************************************/
+
+/******************************************************************************
+ * Function Name: _sd_io_mount_error
+ * Description  : mount io card error
+ * Arguments    : st_sdhndl_t *p_hndl : SD handle
+ * Return Value : SD_OK : end of succeed
+ *                SD_ERR: end of error
+ *****************************************************************************/
+static int32_t _sd_io_mount_error(st_sdhndl_t *p_hndl)
+{
+    /* ---- halt clock ---- */
+    _sd_set_clock(p_hndl, 0, SD_CLOCK_DISABLE);
+    return p_hndl->error;
+}
+/******************************************************************************
+ End of function _sd_io_mount_error
+ *****************************************************************************/
+
+/******************************************************************************
  * Function Name: _sd_mem_mount
  * Description  : mount memory card.
  *              : mount memory part from stand-by to transfer state
@@ -511,6 +805,25 @@ static int32_t _sd_card_init_get_rca(st_sdhndl_t *p_hndl)
  *****************************************************************************/
 int32_t _sd_mem_mount(st_sdhndl_t *p_hndl)
 {
+    /* case of combo, already supplied data transfer clock */
+    if ((p_hndl->media_type & SD_MEDIA_IO) == 0)
+    {
+        /* ---- supply clock (data-transfer ratio) ---- */
+        if ( p_hndl->csd_tran_speed > SD_CLK_25MHZ )
+        {
+            p_hndl->csd_tran_speed = SD_CLK_25MHZ;
+
+            /* Herein after, if switch-function(cmd6) is pass,      */
+            /* p_hndl->csd_tran_speed is set to SD_CLK_50MHz          */
+        }
+
+        /* Cast to an appropriate type */
+        if (_sd_set_clock(p_hndl, (int32_t)p_hndl->csd_tran_speed, SD_CLOCK_ENABLE) != SD_OK)
+        {
+            return _sd_mem_mount_error(p_hndl);
+        }
+    }
+
     /* ==== data-transfer mode(Transfer State) ==== */
     if (_sd_card_send_cmd_arg(p_hndl, CMD7, SD_RSP_R1B, p_hndl->rca[0], 0x0000)
             != SD_OK)
@@ -590,6 +903,52 @@ static int32_t _sd_mem_mount_error(st_sdhndl_t *p_hndl)
  *****************************************************************************/
 
 /******************************************************************************
+ * Function Name: _sd_set_io_speed
+ * Description  : query high speed supported
+ *                transfer card high speed mode
+ * Arguments    : st_sdhndl_t *p_hndl : SD handle
+ * Return Value : SD_OK : end of succeed
+ *                SD_ERR: end of error
+ *****************************************************************************/
+int32_t _sd_set_io_speed(st_sdhndl_t *p_hndl)
+{
+    uint8_t io_buff;
+
+    /* is CCCR/FBR version 2.00? */
+    if ((p_hndl->io_reg[0][0] & 0x0F) >= 0x02)
+    {
+        /* is high speed supported? */
+        if (p_hndl->io_reg[0][0x13] & 0x01)
+        {
+            p_hndl->speed_mode |= SD_SUP_HIGH_SPEED;
+
+            io_buff = 0x02;
+            if (_sdio_direct(p_hndl, &io_buff, 0, 0x13, 1, SD_IO_VERIFY_WRITE)
+                    != SD_OK)
+            {
+                return SD_ERR;
+            }
+            p_hndl->io_reg[0][0x13] = io_buff;
+            if (io_buff & 0x02)  /* high speed mode */
+            {
+                /* force set high-speed mode */
+                p_hndl->csd_tran_speed = SD_CLK_50MHZ;
+                p_hndl->speed_mode |= SD_CUR_HIGH_SPEED;
+            }
+        }
+        else
+        {
+            /* Cast to an appropriate type */
+            p_hndl->speed_mode &= (uint8_t)~SD_SUP_HIGH_SPEED;
+        }
+    }
+
+    return SD_OK;
+}
+/******************************************************************************
+ End of function _sd_set_io_speed
+ *****************************************************************************/
+/******************************************************************************
  * Function Name: sd_unmount
  * Description  : unmount card.
  *              : turn off power
@@ -599,6 +958,7 @@ static int32_t _sd_mem_mount_error(st_sdhndl_t *p_hndl)
 int32_t sd_unmount(int32_t sd_port)
 {
     st_sdhndl_t  *p_hndl;
+    uint8_t      io_buff;
 
     if ( (0 != sd_port) && (1 != sd_port) )
     {
@@ -609,6 +969,20 @@ int32_t sd_unmount(int32_t sd_port)
     if (0 == p_hndl)
     {
         return SD_ERR;  /* not initialized */
+    }
+
+    if ( (SD_MEDIA_IO == p_hndl->media_type) || (SD_MEDIA_COMBO == p_hndl->media_type) )
+    {
+        /* media has SDIO */
+        if (p_hndl->io_flag & SD_IO_POWER_INIT)   /* already supplied power */
+        {
+            /* ==== transfer idle state (issue CMD52) ==== */
+            /* data:08'h func:0 address:06'h verify write */
+            io_buff = 0x08;
+            sdio_write_direct(sd_port, &io_buff, 0, 0x06, SD_IO_VERIFY_WRITE);
+
+            /* dont care error */
+        }
     }
 
     /* ---- clear mount flag ---- */
@@ -738,11 +1112,11 @@ int32_t _sd_read_byte(st_sdhndl_t *p_hndl, uint16_t cmd, uint16_t h_arg,
                         uint16_t l_arg, uint8_t *readbuff, uint16_t byte)
 {
     /* ---- disable SD_SECCNT ---- */
-    SD_OUTP(p_hndl, SD_STOP, 0x0000);
-
+    SDMMC.SD_STOP.LONGLONG = 0x0000;
+    
     /* ---- set transfer bytes ---- */
-    SD_OUTP(p_hndl, SD_SIZE, (uint64_t)byte);
-
+    SDMMC.SD_SIZE.LONGLONG = (uint64_t)byte;
+    
     /* ---- issue command ---- */
     if (cmd & 0x0040u)  /* ACMD13, ACMD22 and ACMD51 */
     {
@@ -796,7 +1170,9 @@ int32_t _sd_read_byte(st_sdhndl_t *p_hndl, uint16_t cmd, uint16_t h_arg,
     _sd_clear_info(p_hndl, 0x0000, SD_INFO2_MASK_RE); /* clear BRE bit */
 
     /* transfer data */
-    if (sddev_read_data(p_hndl->sd_port, readbuff, (uint32_t)(p_hndl->reg_base + SD_BUF0), (int32_t)byte) != SD_OK)
+
+    if (sddev_read_data(p_hndl->sd_port, readbuff, (uint32_t)(&SDMMC.SD_BUF0.LONGLONG), (int32_t)byte) != SD_OK)
+
     {
         _sd_set_err(p_hndl, SD_ERR_CPU_IF);
         return _sd_read_byte_error(p_hndl);
@@ -837,8 +1213,8 @@ int32_t _sd_read_byte(st_sdhndl_t *p_hndl, uint16_t cmd, uint16_t h_arg,
 static int32_t _sd_read_byte_error(st_sdhndl_t *p_hndl)
 {
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_STOP, (uint64_t)0x0001);                       /* stop data transfer   */
-
+    SDMMC.SD_STOP.LONGLONG = (uint64_t)0x0001;                       /* stop data transfer   */
+    
     /* Cast to an appropriate type */
     _sd_clear_info(p_hndl, SD_INFO1_MASK_DATA_TRNS, SD_INFO2_MASK_ERR); /* clear All end bit    */
 
@@ -873,11 +1249,11 @@ int32_t _sd_write_byte(st_sdhndl_t *p_hndl, uint16_t cmd, uint16_t h_arg,
     int32_t time_out;
 
     /* ---- disable SD_SECCNT ---- */
-    SD_OUTP(p_hndl, SD_STOP, 0x0000);
-
+    SDMMC.SD_STOP.LONGLONG = 0x0000;
+    
     /* ---- set transfer bytes ---- */
-    SD_OUTP(p_hndl, SD_SIZE, (uint64_t)byte);
-
+    SDMMC.SD_SIZE.LONGLONG = (uint64_t)byte;
+    
     /* ---- issue command ---- */
     _sd_set_arg(p_hndl, h_arg, l_arg);
     if (_sd_send_cmd(p_hndl, cmd) != SD_OK)
@@ -919,7 +1295,8 @@ int32_t _sd_write_byte(st_sdhndl_t *p_hndl, uint16_t cmd, uint16_t h_arg,
     _sd_clear_info(p_hndl, 0x0000, SD_INFO2_MASK_WE); /* clear BWE bit */
 
     /* transfer data */
-    if (sddev_write_data(p_hndl->sd_port, writebuff, (uint32_t)(p_hndl->reg_base + SD_BUF0), (int32_t)byte) != SD_OK)
+
+    if (sddev_write_data(p_hndl->sd_port, writebuff, (uint32_t)(&SDMMC.SD_BUF0.LONGLONG), (int32_t)byte) != SD_OK)
     {
         _sd_set_err(p_hndl, SD_ERR_CPU_IF);
         return _sd_write_byte_error(p_hndl);
@@ -990,8 +1367,8 @@ int32_t _sd_write_byte(st_sdhndl_t *p_hndl, uint16_t cmd, uint16_t h_arg,
 static int32_t _sd_write_byte_error(st_sdhndl_t *p_hndl)
 {
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_STOP, (uint64_t)0x0001);               /* stop data transfer   */
-
+    SDMMC.SD_STOP.LONGLONG = (uint64_t)0x0001;               /* stop data transfer   */
+    
     /* Cast to an appropriate type */
     _sd_clear_info(p_hndl, SD_INFO1_MASK_DATA_TRNS, 0x0000);  /* clear All end bit    */
 

@@ -48,7 +48,7 @@ Typedef definitions
 /******************************************************************************
 Macro definitions
 ******************************************************************************/
-#define SD_PRV_RW_BUFF_SIZE     (8)
+#define SD_PRV_RW_BUFF_SIZE     (1 * 1024) /* for SDIO */
 
 /******************************************************************************
 Imported global variables and functions (from other files)

@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_util.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -32,6 +32,8 @@
 * History : DD.MM.YYYY Version  Description
 *         : 16.03.2018 1.00     First Release
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 17.09.2019 1.30     Support for SDIO
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 /******************************************************************************
@@ -40,6 +42,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -106,14 +109,13 @@ int32_t _sd_set_clock(st_sdhndl_t *p_hndl, int32_t clock, int32_t enable)
         }
 
         /* SCLKEN = 0 */
-        SD_OUTP(p_hndl, SD_CLK_CTRL, (SD_INP(p_hndl, SD_CLK_CTRL) & (~SD_CLK_CTRL_SCLKEN)));
+        SDMMC.SD_CLK_CTRL.LONGLONG = SDMMC.SD_CLK_CTRL.LONGLONG & (~SD_CLK_CTRL_SCLKEN);
 
         /* write DIV[7:0] */
-        SD_OUTP(p_hndl, SD_CLK_CTRL, ((SD_INP(p_hndl, SD_CLK_CTRL) & (~0x00FFuL)) | div));
-
+        SDMMC.SD_CLK_CTRL.LONGLONG = ((SDMMC.SD_CLK_CTRL.LONGLONG  & (~0x00FFuL)) | div);
+        
         /* SCLKEN = 1 */
-        SD_OUTP(p_hndl, SD_CLK_CTRL, (SD_INP(p_hndl, SD_CLK_CTRL) | SD_CLK_CTRL_SCLKEN));
-
+        SDMMC.SD_CLK_CTRL.LONGLONG = (SDMMC.SD_CLK_CTRL.LONGLONG | SD_CLK_CTRL_SCLKEN);
     }
     else
     {
@@ -121,13 +123,13 @@ int32_t _sd_set_clock(st_sdhndl_t *p_hndl, int32_t clock, int32_t enable)
         {
 #ifdef USE_INFO2_CBSY
             /* Cast to an appropriate type */
-            if ( (SD_INP(p_hndl, SD_INFO2) & SD_INFO2_MASK_CBSY) == 0 )
+            if ( (SDMMC.SD_INFO2.LONGLONG & SD_INFO2_MASK_CBSY) == 0 )
             {
                 break;
             }
 #else
             /* Cast to an appropriate type */
-            if (SD_INP(p_hndl, SD_INFO2) & SD_INFO2_MASK_SCLKDIVEN)
+            if (SDMMC.SD_INFO2.LONGLONG & SD_INFO2_MASK_SCLKDIVEN)
             {
                 break;
             }
@@ -139,8 +141,7 @@ int32_t _sd_set_clock(st_sdhndl_t *p_hndl, int32_t clock, int32_t enable)
         }
 
         /* SCLKEN = 0  halt */
-        SD_OUTP(p_hndl, SD_CLK_CTRL, (SD_INP(p_hndl, SD_CLK_CTRL) & (~SD_CLK_CTRL_SCLKEN)));
-
+        SDMMC.SD_CLK_CTRL.LONGLONG = (SDMMC.SD_CLK_CTRL.LONGLONG & (~SD_CLK_CTRL_SCLKEN));
     }
     return SD_OK;
 }
@@ -167,29 +168,53 @@ int32_t _sd_set_port(st_sdhndl_t *p_hndl, int32_t port)
 {
     uint64_t reg;
     uint16_t arg;
+    uint8_t  io_buff;
 
-    if (p_hndl->media_type & SD_MEDIA_SD)    /* SD */
+    if (SD_MEDIA_IO == p_hndl->media_type)    /* IO */
     {
-        /* ---- check card state ---- */
-        if ((p_hndl->resp_status & RES_STATE) == STATE_TRAN)  /* transfer state */
+        /* ==== change io bus width and clear pull-up DAT3 (issue CMD52)==== */
+        if (SD_PORT_SERIAL == port)
         {
-            if (SD_PORT_SERIAL == port)
-            {
-                arg = ARG_ACMD6_1BIT;
-            }
-            else
-            {
-                arg = ARG_ACMD6_4BIT;
-            }
+            /* data:00'h */
+            io_buff = 0x00;
+        }
+        else
+        {
+            /* data:02'h */
+            io_buff = 0x02;
+        }
 
-            /* ==== change card bus width (issue ACMD6) ==== */
-            if (_sd_send_acmd(p_hndl, ACMD6, 0, arg) != SD_OK)
+        /* data:00'h or 02'h func:0 address:07'h verify write */
+        if (_sdio_direct(p_hndl, &io_buff, 0, 0x07, 1, SD_IO_VERIFY_WRITE) != SD_OK)
+        {
+            return SD_ERR;
+        }
+    }
+    else
+    {
+        if (p_hndl->media_type & SD_MEDIA_SD)   /* SD or COMBO */
+        {
+            /* ---- check card state ---- */
+            if ((p_hndl->resp_status & RES_STATE) == STATE_TRAN)  /* transfer state */
             {
-                return SD_ERR;
-            }
-            if (_sd_get_resp(p_hndl, SD_RSP_R1) != SD_OK)
-            {
-                return SD_ERR;
+                if (SD_PORT_SERIAL == port)
+                {
+                    arg = ARG_ACMD6_1BIT;
+                }
+                else
+                {
+                    arg = ARG_ACMD6_4BIT;
+                }
+
+                /* ==== change card bus width (issue ACMD6) ==== */
+                if (_sd_send_acmd(p_hndl, ACMD6, 0, arg) != SD_OK)
+                {
+                    return SD_ERR;
+                }
+                if (_sd_get_resp(p_hndl, SD_RSP_R1) != SD_OK)
+                {
+                    return SD_ERR;
+                }
             }
         }
     }
@@ -200,24 +225,24 @@ int32_t _sd_set_port(st_sdhndl_t *p_hndl, int32_t port)
         sddev_set_port(p_hndl->sd_port, port);
 
         /* Cast to an appropriate type */
-        reg = SD_INP(p_hndl, SD_OPTION);
-
+        reg = SDMMC.SD_OPTION.LONGLONG;
+        
         /* Cast to an appropriate type */
         reg |= SD_OPTION_WIDTH;
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_OPTION, reg);
+        SDMMC.SD_OPTION.LONGLONG = reg;
     }
     else    /* 4bits */
     {
         /* Cast to an appropriate type */
-        reg = SD_INP(p_hndl, SD_OPTION);
-
+        reg = SDMMC.SD_OPTION.LONGLONG;
+        
         /* Cast to an appropriate type */
         reg &= (~SD_OPTION_WIDTH_MASK);
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_OPTION, reg);
+        SDMMC.SD_OPTION.LONGLONG = reg;
         sddev_set_port(p_hndl->sd_port, port);
     }
 
@@ -282,7 +307,7 @@ int32_t _sd_iswp(st_sdhndl_t *p_hndl)
     if (SD_OK == layout)
     {
         /* ===== check SD_INFO1 WP bit ==== */
-        wp = (int32_t)(((~SD_INPLL(p_hndl, SD_INFO1)) & SD_INFO1_MASK_WP) >> 7);
+        wp = (int32_t)(((~SDMMC.SD_INFO1.WORD.LL) & SD_INFO1_MASK_WP) >> 7);
     }
     else
     {
@@ -389,6 +414,8 @@ void sd_stop(int32_t sd_port)
  *              : SD_MEDIA_UNKNOWN : unknown media
  *              : SD_MEDIA_MMC     : MMC card
  *              : SD_MEDIA_SD      : SD Memory card
+ *              : SD_MEDIA_IO      : SD IO card (IO spec ver1.10)
+ *              : SD_MEDIA_COMBO   : SD COMBO card (IO spec ver1.10)
  * Arguments    : int32_t  sd_port : channel no (0 or 1)
  *              : uint16_t *type   : mounting card type
  *              : uint16_t *speed  : speed mode
@@ -529,8 +556,8 @@ int32_t _sd_get_size(st_sdhndl_t *p_hndl, uint32_t area)
             /* Cast to an appropriate type */
             c_size = ((((uint32_t)p_hndl->csd[4] & 0x3fffu) << 8u) |
 
-                    /* Cast to an appropriate type */
-                    (((uint32_t)p_hndl->csd[5] & 0xff00u) >> 8u));
+                        /* Cast to an appropriate type */
+                        (((uint32_t)p_hndl->csd[5] & 0xff00u) >> 8u));
 
             /* memory capacity = C_SIZE*512K byte */
             /* sector_size = memory capacity/512 */
@@ -545,9 +572,9 @@ int32_t _sd_get_size(st_sdhndl_t *p_hndl, uint32_t area)
             /* calculate the number of all sectors */
             p_hndl->card_sector_size = ((uint32_t)(c_size + 1) *
 
-                                    /* Cast to an appropriate type */
-                                    ((uint32_t)1 << (c_mult + 2)) * ((uint32_t)1
-                                        << read_bl_len)) / 512;
+                                        /* Cast to an appropriate type */
+                                        ((uint32_t)1 << (c_mult + 2)) * ((uint32_t)1
+                                                << read_bl_len)) / 512;
         }
     }
 
@@ -902,7 +929,7 @@ int32_t sd_get_ver(int32_t sd_port, uint16_t *sdhi_ver, char_t *sddrv_ver)
     if (sdhi_ver)
     {
         /* Cast to an appropriate type */
-        *sdhi_ver = SD_INPLL(p_hndl, VERSION);
+        *sdhi_ver = SDMMC.VERSION.WORD.LL;
     }
 
     if (sddrv_ver)
@@ -950,8 +977,8 @@ int32_t sd_set_cdtime(int32_t sd_port, uint16_t cdtime)
     }
 
     /* Cast to an appropriate type */
-    reg = SD_INP(p_hndl, SD_OPTION);
-
+    reg = SDMMC.SD_OPTION.LONGLONG;
+    
     /* Cast to an appropriate type */
     reg &= (~(uint64_t)0x000f);
 
@@ -959,7 +986,7 @@ int32_t sd_set_cdtime(int32_t sd_port, uint16_t cdtime)
     reg |= (uint64_t)(cdtime & 0x000fu);
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_OPTION, reg);
+    SDMMC.SD_OPTION.LONGLONG = reg;
     return SD_OK;
 }
 /******************************************************************************
@@ -997,8 +1024,8 @@ int32_t sd_set_responsetime(int32_t sd_port, uint16_t responsetime)
     }
 
     /* Cast to an appropriate type */
-    reg = SD_INP(p_hndl, SD_OPTION);
-
+    reg = SDMMC.SD_OPTION.LONGLONG;
+    
     /* Cast to an appropriate type */
     reg &= (~SD_OPTION_TOP_MASK);
 
@@ -1014,7 +1041,7 @@ int32_t sd_set_responsetime(int32_t sd_port, uint16_t responsetime)
     }
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_OPTION, reg);
+    SDMMC.SD_OPTION.LONGLONG = reg;
     return SD_OK;
 }
 /******************************************************************************
@@ -1212,25 +1239,25 @@ int32_t _sd_active(st_sdhndl_t *p_hndl)
         sddev_set_port(p_hndl->sd_port, SD_PORT_SERIAL);
 
         /* Cast to an appropriate type */
-        reg = SD_INP(p_hndl, SD_OPTION);
-
+        reg = SDMMC.SD_OPTION.LONGLONG;
+        
         /* Cast to an appropriate type */
         reg |= SD_OPTION_WIDTH;
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_OPTION, reg);
+        SDMMC.SD_OPTION.LONGLONG = reg;
     }
     else    /* 4bits */
     {
 
         /* Cast to an appropriate type */
-        reg = SD_INP(p_hndl, SD_OPTION);
-
+        reg = SDMMC.SD_OPTION.LONGLONG;
+        
         /* Cast to an appropriate type */
         reg &= (~SD_OPTION_WIDTH_MASK);
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_OPTION, reg);
+        SDMMC.SD_OPTION.LONGLONG = reg;
         sddev_set_port(p_hndl->sd_port, SD_PORT_PARALLEL);
     }
 

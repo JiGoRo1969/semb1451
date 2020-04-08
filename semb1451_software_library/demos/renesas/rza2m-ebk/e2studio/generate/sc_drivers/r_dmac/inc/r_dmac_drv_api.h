@@ -49,7 +49,7 @@
 
 /** Minor Version Number of API.
  * Updated by developer */
-#define R_DRV_DMAC_HLD_VERSION_MINOR      (0)
+#define R_DRV_DMAC_HLD_VERSION_MINOR      (1)
 
 /** Build Number of API.
  * Generated during customer release */
@@ -70,6 +70,7 @@ typedef enum
     CTL_DMAC_ENABLE,                                           /*!< Enable a DMA transfer */
     CTL_DMAC_DISABLE,                                          /*!< Disable a DMA transfer */
     CTL_DMAC_NEXT_TRANSFER,                                    /*!< Set data for following transfer */
+	CTL_DMAC_GET_TRANSFER_BYTE_COUNT                           /*!< Get current value of CRTB register */
 } e_ctrl_code_dmac_t;
 
 typedef enum

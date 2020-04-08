@@ -1,10 +1,10 @@
-# SEMB1451/1452 software library (rev.0.12)
+# SEMB1451/1452 software library (rev.0.13)
 
 This is a C library for SEMB1451/1452 RZ/A2M Eva Lite board
 included with e2studio environment setting files and .scfg file
 for Smart Configurator provided by Renesas Electronics Corp.
   
-This library is based on "software package version 5" provided by Renesas.
+This library is based on "software package version 7" provided by Renesas.
 So you can easily modify and add this codes with e2studio on Windows PC.
   
 Let's enjoy it !
@@ -58,7 +58,3 @@ Please don't change L1 cache setting for Internal memory (0x80000000-).
 |USB Function         |USB1             | N.A.   | underdevelopment |
 |micro SD slot        |SDHI0            | ready  | |
 |CAN(FD) I/F          |CAN(FD)          | N.A.   | underdevelopment |
-
-## License
-[Apache Licence Ver.2](http://www.apache.org/licenses/)
-except included source codes created by the another one.

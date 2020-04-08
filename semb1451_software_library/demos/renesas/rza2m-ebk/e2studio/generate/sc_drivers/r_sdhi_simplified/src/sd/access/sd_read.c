@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_read.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -34,6 +34,7 @@
 *         : 14.12.2018 1.01     Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02     Support for OS
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 /******************************************************************************
@@ -42,6 +43,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -155,8 +157,8 @@ int32_t sd_read_sect(int32_t sd_port, uint8_t *buff, uint32_t psn, int32_t cnt)
     }
 
     /* transfer size is fixed (512 bytes) */
-    SD_OUTP(p_hndl, SD_SIZE, (uint64_t)512);
-
+    SDMMC.SD_SIZE.LONGLONG = (uint64_t)512;
+    
     /* ---- supply clock (data-transfer ratio) ---- */
     if (_sd_set_clock(p_hndl, (int32_t)p_hndl->csd_tran_speed, SD_CLOCK_ENABLE) != SD_OK)
     {
@@ -204,23 +206,23 @@ int32_t sd_read_sect(int32_t sd_port, uint8_t *buff, uint32_t psn, int32_t cnt)
         if (cnt <= 2)
         {
             /* disable SD_SECCNT */
-            SD_OUTP(p_hndl, SD_STOP, 0x0000);
+            SDMMC.SD_STOP.LONGLONG = 0x0000;
             for (j = cnt; j > 0; j--, psn++, buff += 512)
             {
                 ret = _sd_single_read(p_hndl, buff, psn, mode);
                 if (SD_OK != ret)
                 {
                     /* Cast to an appropriate type */
-                    opt_back = SD_INP(p_hndl, SD_OPTION);
+                    opt_back = SDMMC.SD_OPTION.LONGLONG;
 
                     /* Cast to an appropriate type */
-                    SD_OUTP(p_hndl, SOFT_RST, SOFT_RST_SDRST_RESET);
+                    SDMMC.SOFT_RST.LONGLONG = SOFT_RST_SDRST_RESET;
 
                     /* Cast to an appropriate type */
-                    SD_OUTP(p_hndl, SOFT_RST, SOFT_RST_SDRST_RELEASED);
-
+                    SDMMC.SOFT_RST.LONGLONG = SOFT_RST_SDRST_RELEASED;
+                    
                     /* Cast to an appropriate type */
-                    SD_OUTP(p_hndl, SD_OPTION, opt_back);
+                    SDMMC.SD_OPTION.LONGLONG = opt_back;
                     break;
                 }
             }
@@ -232,7 +234,7 @@ int32_t sd_read_sect(int32_t sd_port, uint8_t *buff, uint32_t psn, int32_t cnt)
         }
 
         /* enable SD_SECCNT */
-        SD_OUTP(p_hndl, SD_STOP, (uint64_t)0x0100);
+        SDMMC.SD_STOP.LONGLONG = (uint64_t)0x0100;
 
         /* issue CMD12 not automatically, if MMC last sector access */
         mmc_lastsect = 0;
@@ -242,7 +244,7 @@ int32_t sd_read_sect(int32_t sd_port, uint8_t *buff, uint32_t psn, int32_t cnt)
         }
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_SECCNT, (uint64_t)cnt);
+        SDMMC.SD_SECCNT.LONGLONG = (uint64_t)cnt;
 
         /* ---- enable RespEnd and ILA ---- */
         _sd_set_int_mask(p_hndl, SD_INFO1_MASK_RESP, 0);
@@ -390,7 +392,7 @@ int32_t sd_read_sect(int32_t sd_port, uint8_t *buff, uint32_t psn, int32_t cnt)
             p_hndl->stop = 0;
 
             /* data transfer stop (issue CMD12) */
-            SD_OUTP(p_hndl, SD_STOP, (uint64_t)0x0001);
+            SDMMC.SD_STOP.LONGLONG = (uint64_t)0x0001;
             i = 0;  /* set zero to break loop */
             _sd_set_err(p_hndl, SD_ERR_STOP);
         }
@@ -443,13 +445,13 @@ static int32_t _sd_read_sect_error(st_sdhndl_t *p_hndl, int32_t mode)
     _sd_clear_int_mask(p_hndl, SD_INFO1_MASK_TRNS_RESP, SD_INFO2_MASK_ALL);
 
     /* Cast to an appropriate type */
-    if ((SD_INP(p_hndl, SD_INFO2) & SD_INFO2_MASK_CBSY) == SD_INFO2_MASK_CBSY)
+    if ((SDMMC.SD_INFO2.LONGLONG & SD_INFO2_MASK_CBSY) == SD_INFO2_MASK_CBSY)
     {
         /* ---- enable All end ---- */
         _sd_set_int_mask(p_hndl, SD_INFO1_MASK_DATA_TRNS, 0);
 
         /* ---- data transfer stop (issue CMD12) ---- */
-        SD_OUTP(p_hndl, SD_STOP, (uint64_t)0x0001);
+        SDMMC.SD_STOP.LONGLONG = (uint64_t)0x0001;
 
         /* ---- wait All end ---- */
         sddev_int_wait(p_hndl->sd_port, SD_TIMEOUT_RESP);
@@ -463,33 +465,33 @@ static int32_t _sd_read_sect_error(st_sdhndl_t *p_hndl, int32_t mode)
         sddev_loc_cpu(p_hndl->sd_port);
 
         /* Cast to an appropriate type */
-        sd_option   = SD_INP(p_hndl, SD_OPTION);
+        sd_option   = SDMMC.SD_OPTION.LONGLONG;
+        
+        /* Cast to an appropriate type */
+        sd_clk_ctrl = SDMMC.SD_CLK_CTRL.LONGLONG;
+        
+        /* Cast to an appropriate type */
+        SDMMC.SOFT_RST.LONGLONG = SOFT_RST_SDRST_RESET;
 
         /* Cast to an appropriate type */
-        sd_clk_ctrl = SD_INP(p_hndl, SD_CLK_CTRL);
+        SDMMC.SOFT_RST.LONGLONG = SOFT_RST_SDRST_RELEASED;
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SOFT_RST, SOFT_RST_SDRST_RESET);
+        SDMMC.SD_STOP.LONGLONG = 0x0000;
+        
+        /* Cast to an appropriate type */
+        SDMMC.SD_OPTION.LONGLONG = sd_option;
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SOFT_RST, SOFT_RST_SDRST_RELEASED);
-
-        /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_STOP, 0x0000);
-
-        /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_OPTION, sd_option);
-
-        /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_CLK_CTRL, sd_clk_ctrl);
+        SDMMC.SD_CLK_CTRL.LONGLONG = sd_clk_ctrl;
         sddev_unl_cpu(p_hndl->sd_port);
     }
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_STOP, (uint64_t)0x0001);
+    SDMMC.SD_STOP.LONGLONG = (uint64_t)0x0001;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_STOP, 0x0000);
+    SDMMC.SD_STOP.LONGLONG = 0x0000;
 
     /* Check Current State */
     if (_sd_card_send_cmd_arg(p_hndl, CMD13, SD_RSP_R1, p_hndl->rca[0], 0x0000) == SD_OK)

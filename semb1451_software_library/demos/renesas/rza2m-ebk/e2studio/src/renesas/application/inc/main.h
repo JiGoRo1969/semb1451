@@ -35,6 +35,12 @@
 #ifndef RENESAS_APPLICATION_INC_MAIN_H_
 #define RENESAS_APPLICATION_INC_MAIN_H_
 
+#define 	TASK_SERVO_TASK_PRI				(6)
+#define 	TASK_SPI_TASK_PRI				(6)
+#define 	TASK_ADC_TASK_PRI				(6)
+#define 	TASK_FAT_MAIN_TASK_PRI			(6)
+#define 	TASK_FAT_KEY_INPUT_TASK_PRI		(6)
+
 /**********************************************************************************************************************
 * Function Name: os_console_task_t
 * Description  : console task

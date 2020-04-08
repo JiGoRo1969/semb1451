@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_int.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -32,6 +32,7 @@
 * History : DD.MM.YYYY Version  Description
 *         : 16.03.2018 1.00     First Release
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 /******************************************************************************
@@ -40,6 +41,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -90,10 +92,10 @@ int32_t _sd_set_int_mask(st_sdhndl_t *p_hndl, uint64_t mask1, uint64_t mask2)
     p_hndl->int_info2_mask |= mask2;
 
     /* ---- set hardware mask ---- */
-    SD_OUTP(p_hndl, SD_INFO1_MASK, (uint64_t)~(p_hndl->int_info1_mask));
+    SDMMC.SD_INFO1_MASK.LONGLONG = (uint64_t)~(p_hndl->int_info1_mask);
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2_MASK, (uint64_t)~(p_hndl->int_info2_mask));
+    SDMMC.SD_INFO2_MASK.LONGLONG = (uint64_t)~(p_hndl->int_info2_mask);
 
     sddev_unl_cpu(p_hndl->sd_port);
 
@@ -125,10 +127,10 @@ int32_t _sd_clear_int_mask(st_sdhndl_t *p_hndl, uint64_t mask1, uint64_t mask2)
     p_hndl->int_info2_mask &= (uint64_t)~mask2;
 
     /* ---- clear hardware mask ---- */
-    SD_OUTP(p_hndl, SD_INFO1_MASK, (uint64_t)~(p_hndl->int_info1_mask));
+    SDMMC.SD_INFO1_MASK.LONGLONG = (uint64_t)~(p_hndl->int_info1_mask);
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2_MASK, (uint64_t)~(p_hndl->int_info2_mask));
+    SDMMC.SD_INFO2_MASK.LONGLONG = (uint64_t)~(p_hndl->int_info2_mask);
 
     sddev_unl_cpu(p_hndl->sd_port);
 
@@ -184,16 +186,16 @@ int32_t _sd_get_int(st_sdhndl_t *p_hndl)
     uint64_t info2;
 
     /* get SD_INFO1 and SD_INFO2 bits */
-    info1 = (uint64_t)(SD_INP(p_hndl, SD_INFO1) & p_hndl->int_info1_mask);
-
+    info1 = (uint64_t)(SDMMC.SD_INFO1.LONGLONG & p_hndl->int_info1_mask);
+    
     /* Cast to an appropriate type */
-    info2 = (uint64_t)(SD_INP(p_hndl, SD_INFO2) & p_hndl->int_info2_mask);
-
+    info2 = (uint64_t)(SDMMC.SD_INFO2.LONGLONG & p_hndl->int_info2_mask);
+    
     /* clear SD_INFO1 and SD_INFO2 bits */
-    SD_OUTP(p_hndl, SD_INFO1, (uint64_t)~info1);
+    SDMMC.SD_INFO1.LONGLONG = (uint64_t)~info1;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2, (uint64_t)~info2);
+    SDMMC.SD_INFO2.LONGLONG = (uint64_t)~info2;
 
     /* save enabled elements */
     p_hndl->int_info1 |= info1;
@@ -368,10 +370,10 @@ int32_t _sd_set_int_dm_mask(st_sdhndl_t *p_hndl, uint64_t mask1, uint64_t mask2)
     p_hndl->int_dm_info2_mask |= mask2;
 
     /* ---- set hardware mask ---- */
-    SD_OUTP(p_hndl, DM_CM_INFO1_MASK, (uint64_t)~(p_hndl->int_dm_info1_mask));
+    SDMMC.DM_CM_INFO1_MASK.LONGLONG = (uint64_t)~(p_hndl->int_dm_info1_mask);
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO2_MASK, (uint64_t)~(p_hndl->int_dm_info2_mask));
+    SDMMC.DM_CM_INFO2_MASK.LONGLONG = (uint64_t)~(p_hndl->int_dm_info2_mask);
 
     sddev_unl_cpu(p_hndl->sd_port);
 
@@ -403,10 +405,10 @@ int32_t _sd_clear_int_dm_mask(st_sdhndl_t *p_hndl, uint64_t mask1, uint64_t mask
     p_hndl->int_dm_info2_mask &= (uint64_t)~mask2;
 
     /* ---- clear hardware mask ---- */
-    SD_OUTP(p_hndl, DM_CM_INFO1_MASK, (uint64_t)~(p_hndl->int_dm_info1_mask));
+    SDMMC.DM_CM_INFO1_MASK.LONGLONG = (uint64_t)~(p_hndl->int_dm_info1_mask);
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO2_MASK, (uint64_t)~(p_hndl->int_dm_info2_mask));
+    SDMMC.DM_CM_INFO2_MASK.LONGLONG = (uint64_t)~(p_hndl->int_dm_info2_mask);
 
     sddev_unl_cpu(p_hndl->sd_port);
 
@@ -462,16 +464,16 @@ int32_t _sd_get_int_dm(st_sdhndl_t *p_hndl)
     uint64_t info2;
 
     /* get DM_CM_INFO1 and DM_CM_INFO2 bits */
-    info1 = (uint64_t)(SD_INP(p_hndl, DM_CM_INFO1) & p_hndl->int_dm_info1_mask);
-
+    info1 = (uint64_t)(SDMMC.DM_CM_INFO1.LONGLONG & p_hndl->int_dm_info1_mask);
+    
     /* Cast to an appropriate type */
-    info2 = (uint64_t)(SD_INP(p_hndl, DM_CM_INFO2) & p_hndl->int_dm_info2_mask);
-
+    info2 = (uint64_t)(SDMMC.DM_CM_INFO2.LONGLONG & p_hndl->int_dm_info2_mask);
+    
     /* clear DM_CM_INFO1 and DM_CM_INFO2 bits */
-    SD_OUTP(p_hndl, DM_CM_INFO1, (uint64_t)~info1);
+    SDMMC.DM_CM_INFO1.LONGLONG = (uint64_t)~info1;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO2, (uint64_t)~info2);
+    SDMMC.DM_CM_INFO2.LONGLONG = (uint64_t)~info2;
 
     /* save enabled elements */
     p_hndl->int_dm_info1 |= info1;

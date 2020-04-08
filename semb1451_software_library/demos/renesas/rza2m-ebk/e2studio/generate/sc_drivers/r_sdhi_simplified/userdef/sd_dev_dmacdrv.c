@@ -19,13 +19,13 @@
 /******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_dev_dmacdrv.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
 * H/W Platform : RZ/A2M Evaluation Board
 * Description  : RZ/A2M SD Sample Program - DMAC Sample Program (Main)
-* Operation    : 
+* Operation    :
 * Limitations  : None
 ******************************************************************************
 * History : DD.MM.YYYY Version Description
@@ -33,6 +33,7 @@
 *         : 14.12.2018 1.01    Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02    Support for OS
 *         : 29.05.2019 1.20    Correspond to internal coding rules
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 
@@ -44,6 +45,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_stb_lld_rza2m.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
 #include "sd_dev_dmacdrv.h"
 
 /******************************************************************************
@@ -88,7 +90,7 @@ int32_t sd_DMAC_PeriReqInit(int32_t sd_port, uint32_t buff, int32_t dir)
     }
 
     p_hndl = SD_GET_HNDLS(sd_port);
-    
+
     /* Cast to an appropriate type */
     if (NULL == p_hndl)
     {
@@ -97,17 +99,17 @@ int32_t sd_DMAC_PeriReqInit(int32_t sd_port, uint32_t buff, int32_t dir)
 
     /* set DMA controller */
     /* W (CC_EXT_MODE, H'0000_0002) */
-    SD_OUTP(p_hndl, CC_EXT_MODE, (uint64_t)(SD_INP(p_hndl, CC_EXT_MODE) | CC_EXT_MODE_DMASDRW));
+    SDMMC.CC_EXT_MODE.LONGLONG = (uint64_t)(SDMMC.CC_EXT_MODE.LONGLONG | CC_EXT_MODE_DMASDRW);
 
     if (SD_TRANS_READ == dir)
     {
         /* W (DM_CM_DTRAN_MODE, "channel01", "bus width") */
-        SD_OUTP(p_hndl, DM_CM_DTRAN_MODE, DM_CM_DTRAN_MODE_READ);
+        SDMMC.DM_CM_DTRAN_MODE.LONGLONG = DM_CM_DTRAN_MODE_READ;
     }
     else
     {
         /* W (DM_CM_DTRAN_MODE, "channel00", "bus width") */
-        SD_OUTP(p_hndl, DM_CM_DTRAN_MODE, DM_CM_DTRAN_MODE_WRITE);
+        SDMMC.DM_CM_DTRAN_MODE.LONGLONG = DM_CM_DTRAN_MODE_WRITE;
     }
 
     /* W (DM_DTRAN_ADDR, "address") */
@@ -116,7 +118,7 @@ int32_t sd_DMAC_PeriReqInit(int32_t sd_port, uint32_t buff, int32_t dir)
     if (MMU_SUCCESS == e_mmu_err)
     {
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, DM_DTRAN_ADDR, paddr);
+        SDMMC.DM_DTRAN_ADDR.LONGLONG = paddr;
     }
     else
     {
@@ -167,7 +169,7 @@ int32_t sd_DMAC_Open(int32_t sd_port, int32_t dir)
     }
 
     /* W (DM_CM_DTRAN_CTRL, H'0000_0001) */
-    SD_OUTP(p_hndl, DM_CM_DTRAN_CTRL, DM_CM_DTRAN_CTRL_DM_START);
+    SDMMC.DM_CM_DTRAN_CTRL.LONGLONG = DM_CM_DTRAN_CTRL_DM_START;
 
     return SD_OK;
 }
@@ -200,29 +202,29 @@ int32_t sd_DMAC_Close(int32_t sd_port)
     }
 
     /* W (DM_CM_INFO1, H'0000_0000) */
-    SD_OUTP(p_hndl, DM_CM_INFO1, (uint64_t)0);
+    SDMMC.DM_CM_INFO1.LONGLONG = (uint64_t)0;
 
     /* SD_BUF disable DMA transfer */
     /* W (CC_EXT_MODE, H'0000_0000) */
-    SD_OUTP(p_hndl, CC_EXT_MODE, (uint64_t)(SD_INP(p_hndl, CC_EXT_MODE) & ~CC_EXT_MODE_DMASDRW));
+    SDMMC.CC_EXT_MODE.LONGLONG = (uint64_t)(SDMMC.CC_EXT_MODE.LONGLONG & ~CC_EXT_MODE_DMASDRW);
 
     /* disable dtransend and dtranerr */
     (void)_sd_clear_int_dm_mask(p_hndl,
 
                                 /* Cast to an appropriate type */
-                                (DM_CM_INFO1_MASK_DTRANEND0|DM_CM_INFO1_MASK_DTRANEND1),
+                                (DM_CM_INFO1_MASK_DTRANEND0 | DM_CM_INFO1_MASK_DTRANEND1),
 
                                 /* Cast to an appropriate type */
-                                (DM_CM_INFO2_MASK_DTRANERR0|DM_CM_INFO2_MASK_DTRANERR1));
+                                (DM_CM_INFO2_MASK_DTRANERR0 | DM_CM_INFO2_MASK_DTRANERR1));
 
     /* Clear dm_cm_info */
     (void)_sd_clear_dm_info(p_hndl,
 
                             /* Cast to an appropriate type */
-                            (DM_CM_INFO1_MASK_DTRANEND0|DM_CM_INFO1_MASK_DTRANEND1),
+                            (DM_CM_INFO1_MASK_DTRANEND0 | DM_CM_INFO1_MASK_DTRANEND1),
 
                             /* Cast to an appropriate type */
-                            (DM_CM_INFO2_MASK_DTRANERR0|DM_CM_INFO2_MASK_DTRANERR1));
+                            (DM_CM_INFO2_MASK_DTRANERR0 | DM_CM_INFO2_MASK_DTRANERR1));
 
     return SD_OK;
 }
@@ -283,11 +285,10 @@ int32_t sd_DMAC_Reset(int32_t sd_port)
                 {
                     /* 3. Set the SRST bit of the corresponding module to 1, then dummy-read the same register. */
                     /* Logic reversed *//* Cast to an appropriate type */
-                    SD_OUTP(p_hndl, DM_CM_RST, DM_CM_RST_RESET);
-
+                    SDMMC.DM_CM_RST.LONGLONG = DM_CM_RST_RESET;
                     /* Cast to an appropriate type */
-                    dummy_read_64 = SD_INP(p_hndl, DM_CM_RST);
-
+                    dummy_read_64 = SDMMC.DM_CM_RST.LONGLONG;
+                    
                     /* Cast to an appropriate type */
                     UNUSED_PARAM(dummy_read_64);
                 }
@@ -350,11 +351,10 @@ int32_t sd_DMAC_Released(int32_t sd_port)
                        has a corresponding bit  */
                 /* 1. Clear the SRST bit of the corresponding module to 0, then dummy-read the same register.   */
                 /* Logic reversed *//* Cast to an appropriate type */
-                SD_OUTP(p_hndl, DM_CM_RST, DM_CM_RST_RELEASED);
-
+                SDMMC.DM_CM_RST.LONGLONG = DM_CM_RST_RELEASED;
                 /* Cast to an appropriate type */
-                dummy_read_64 = SD_INP(p_hndl, DM_CM_RST);
-
+                dummy_read_64 = SDMMC.DM_CM_RST.LONGLONG;
+                
                 /* Cast to an appropriate type */
                 UNUSED_PARAM(dummy_read_64);
 

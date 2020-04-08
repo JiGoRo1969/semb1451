@@ -1957,4 +1957,25 @@ e_r_drv_dmac_err_t R_DMAC_SetNextTransfer(uint_t sc_config_index, void *source_a
  End of function R_DMAC_SetNextTransfer
  ******************************************************************************/
 
+/**
+ * R_DMAC_GetCrtbRegisterValue
+ * @brief      Get the CRTB register value
+ * @param[in]  sc_config_index Configuration ID
+ * @param[in]  p_crtb_value: pointer to location to store current CRTB value
+ * @retval     DMAC_SUCCESS Always returned
+ */
+e_r_drv_dmac_err_t R_DMAC_GetCrtbRegisterValue(uint_t sc_config_index, uint32_t * p_crtb_value)
+{
+    uint_t channel;
+
+    channel = DMAC_SC_TABLE[sc_config_index].channel;
+
+    *p_crtb_value = gsp_dma_ch_register_addr_table[channel]->crtb_n;
+
+	return (DMAC_SUCCESS);
+}
+/*******************************************************************************
+ End of function R_DMAC_GetCrtbRegisterValue
+ ******************************************************************************/
+
 /* End of File */

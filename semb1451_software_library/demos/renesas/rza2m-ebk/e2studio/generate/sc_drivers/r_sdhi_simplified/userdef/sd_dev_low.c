@@ -19,13 +19,13 @@
 /******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_dev_low.c
-* Version      : 1.20
+* Version      : 1.30
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
 * H/W Platform : RZ/A2M Evaluation Board
 * Description  : RZ/A2M SD Driver Sample Program
-* Operation    : 
+* Operation    :
 * Limitations  : Ch0 and Ch1 can't be used at the same time, because the timers
 *              : used on Ch0 and Ch1 are common.
 ******************************************************************************
@@ -34,6 +34,7 @@
 *         : 14.12.2018 1.01    Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02    Support for OS
 *         : 29.05.2019 1.20    Correspond to internal coding rules
+*         : 12.11.2019 1.30    Support for SDIO
 ******************************************************************************/
 
 
@@ -98,8 +99,7 @@ Exported global variables and functions (to be accessed by other files)
 /******************************************************************************
 Private global variables and functions
 ******************************************************************************/
-/* static uint8_t g_sdhi_priority_backup; */
-
+static uint8_t g_sdhi_priority_backup[2] = {0,0};
 static int32_t sddev_init_voltage(int32_t sd_port);
 static void sddev_sd_int_handler_0(uint32_t int_sense);
 static void sddev_sd_int_handler_1(uint32_t int_sense);
@@ -127,28 +127,28 @@ static st_sdhi_info_dev_ch_t s_sdhi_dev_ch[SDHI_PRV_CH_NUM] =
     }
 };
 
-/*--- PJ5 voltage ---*/
+/*--- PD1 voltage ---*/
 static const r_gpio_port_pin_t s_sd_init_ch0_voltage_pin_list[] =
 {
     /* Cast to an appropriate type */
-    GPIO_PORT_J_PIN_5,
+    GPIO_PORT_D_PIN_1,
 };
 
 static st_r_drv_gpio_pin_list_t s_sd_init_ch0_voltage =
 {
     &s_sd_init_ch0_voltage_pin_list[0],                                 /* p_pin_list   */
-    (sizeof(s_sd_init_ch0_voltage_pin_list))/sizeof(r_gpio_port_pin_t), /* count        */
+    (sizeof(s_sd_init_ch0_voltage_pin_list)) / sizeof(r_gpio_port_pin_t), /* count        */
     GPIO_SUCCESS                                                        /* err(r/w)     */
 };
 
 /* Cast to an appropriate type */
-static st_r_drv_gpio_pin_rw_t s_sd_ch0_voltage_3_3 = { GPIO_PORT_J_PIN_5, GPIO_LEVEL_HIGH, GPIO_SUCCESS };
+static st_r_drv_gpio_pin_rw_t s_sd_ch0_voltage_3_3 = { GPIO_PORT_D_PIN_1, GPIO_LEVEL_HIGH, GPIO_SUCCESS };
 
 /* SD current */
 static const st_r_drv_gpio_sc_config_t s_sd_gpio_current_ch0[] =
 {
-/*  { pin,               { function(no used),    tint(no used),     current           } } */
-    
+    /*  { pin,               { function(no used),    tint(no used),     current           } } */
+
     /* Cast to an appropriate type */
     { GPIO_PIN_SD0_CLK,  { GPIO_FUNC_SC_DEFAULT, GPIO_TINT_DISABLE, GPIO_CURRENT_12mA } },
 
@@ -185,7 +185,7 @@ static const st_r_drv_gpio_sc_config_t s_sd_gpio_current_ch0[] =
 
 static const st_r_drv_gpio_sc_config_t s_sd_gpio_current_ch1[] =
 {
-/*  { pin,               { function(no used),    tint(no used),     current           } } */
+    /*  { pin,               { function(no used),    tint(no used),     current           } } */
 
     /* Cast to an appropriate type */
     { GPIO_PIN_SD1_CLK,  { GPIO_FUNC_SC_DEFAULT, GPIO_TINT_DISABLE, GPIO_CURRENT_12mA } },
@@ -208,10 +208,54 @@ static const st_r_drv_gpio_sc_config_t s_sd_gpio_current_ch1[] =
 
 static st_r_drv_gpio_pin_init_table_t s_sd_gpio_current[] =
 {
-/*    p_config_table,          count,                                                           err(r/w) */
-    { &s_sd_gpio_current_ch0[0], ((sizeof(s_sd_gpio_current_ch0))/sizeof(st_r_drv_gpio_sc_config_t)), GPIO_SUCCESS },
-    { &s_sd_gpio_current_ch1[0], ((sizeof(s_sd_gpio_current_ch1))/sizeof(st_r_drv_gpio_sc_config_t)), GPIO_SUCCESS }
+    /*    p_config_table,          count,                                                           err(r/w) */
+    { &s_sd_gpio_current_ch0[0], ((sizeof(s_sd_gpio_current_ch0)) / sizeof(st_r_drv_gpio_sc_config_t)), GPIO_SUCCESS },
+    { &s_sd_gpio_current_ch1[0], ((sizeof(s_sd_gpio_current_ch1)) / sizeof(st_r_drv_gpio_sc_config_t)), GPIO_SUCCESS }
 };
+
+/******************************************************************************
+ * Function Name: sddev_cmd0_sdio_mount
+ * Description  : Select to issue CMD0 before SDIO Mount
+ * Arguments    : int32_t sd_port : channel no (0 or 1)
+ * Return Value : SD_OK  : issue CMD0
+ *                SD_ERR : not issue CMD0
+ *****************************************************************************/
+int32_t sddev_cmd0_sdio_mount(int32_t sd_port)
+{
+    /* Cast to an appropriate type */
+    (void)sd_port;
+
+#ifdef SD_CFG_IO
+    return SD_ERR;
+#else
+    return SD_ERR;
+#endif
+}
+/******************************************************************************
+ End of function sddev_cmd0_sdio_mount
+ *****************************************************************************/
+
+/******************************************************************************
+ * Function Name: sddev_cmd8_sdio_mount
+ * Description  : Select to issue CMD8 before SDIO Mount
+ * Arguments    : int32_t sd_port : channel no (0 or 1)
+ * Return Value : SD_OK  : issue CMD8
+ *                SD_ERR : not issue CMD8
+ *****************************************************************************/
+int32_t sddev_cmd8_sdio_mount(int32_t sd_port)
+{
+    /* Cast to an appropriate type */
+    (void)sd_port;
+
+#ifdef SD_CFG_IO
+    return SD_OK;
+#else
+    return SD_ERR;
+#endif
+}
+/******************************************************************************
+ End of function sddev_cmd8_sdio_mount
+ *****************************************************************************/
 
 /******************************************************************************
 * Function Name: sddev_init
@@ -302,11 +346,11 @@ int32_t sddev_init(int32_t sd_port)
                     {
                         gpio_err = direct_control(gpio_handle,
 
-                                                /* Cast to an appropriate type */
-                                                (uint32_t)CTL_GPIO_INIT_BY_TABLE,
+                                                    /* Cast to an appropriate type */
+                                                    (uint32_t)CTL_GPIO_INIT_BY_TABLE,
 
-                                                /* Cast to an appropriate type */
-                                                (st_r_drv_sdhi_sc_config_t *)&SDHI_SC_TABLE[sc_port].pin);
+                                                    /* Cast to an appropriate type */
+                                                    (st_r_drv_sdhi_sc_config_t *)&SDHI_SC_TABLE[sc_port].pin);
                         if (gpio_err < 0)
                         {
                             ret = SD_ERR;
@@ -470,7 +514,7 @@ static int32_t sddev_init_voltage(int32_t sd_port)
         }
         else /* if (gpio_handle < 0) */
         {
-            if(SDHI_PRV_CH_0 == sd_port)
+            if (SDHI_PRV_CH_0 == sd_port)
             {
                 if (false == p_ch->gpio.gpio_vol_init)
                 {
@@ -488,7 +532,7 @@ static int32_t sddev_init_voltage(int32_t sd_port)
                 }
                 else
                 {
-                    /*--- Control GPIO (PJ5 = High(3.3V)) ---*//* Cast to an appropriate type */
+                    /*--- Control GPIO (PD1 = High(3.3V)) ---*//* Cast to an appropriate type */
                     gpio_err = direct_control(gpio_handle, (uint32_t)CTL_GPIO_PIN_WRITE, &s_sd_ch0_voltage_3_3);
                     if (gpio_err < 0)
                     {
@@ -947,13 +991,13 @@ int32_t sddev_init_dma(int32_t sd_port, uint32_t buff, int32_t dir)
 #else
 
     /* Cast to an appropriate type */
-    UNUSED_PARAM(sd_port); 
+    UNUSED_PARAM(sd_port);
 
     /* Cast to an appropriate type */
-    UNUSED_PARAM(buff); 
+    UNUSED_PARAM(buff);
 
     /* Cast to an appropriate type */
-    UNUSED_PARAM(dir); 
+    UNUSED_PARAM(dir);
 
     return SD_OK;
 
@@ -1036,10 +1080,10 @@ int32_t sddev_wait_dma_end(int32_t sd_port, int32_t cnt)
 #else /* #ifdef SD_CFG_TRNS_DMA */
 
     /* Cast to an appropriate type */
-    UNUSED_PARAM(sd_port); 
+    UNUSED_PARAM(sd_port);
 
     /* Cast to an appropriate type */
-    UNUSED_PARAM(cnt); 
+    UNUSED_PARAM(cnt);
 
     return SD_OK;
 
@@ -1068,7 +1112,7 @@ int32_t sddev_disable_dma(int32_t sd_port)
 #else
 
     /* Cast to an appropriate type */
-    UNUSED_PARAM(sd_port); 
+    UNUSED_PARAM(sd_port);
 
     return SD_OK;
 
@@ -1128,12 +1172,24 @@ int32_t sddev_finalize_dma(int32_t sd_port)
 ******************************************************************************/
 int32_t sddev_loc_cpu(int32_t sd_port)
 {
-    /* Cast to an appropriate type */
-    UNUSED_PARAM(sd_port);
+    if (sd_port < sizeof(g_sdhi_priority_backup))
+    {
+        uint32_t was_masked;
+        
+        was_masked = __disable_irq();
 
-    /* R_INTC_GetMaskLevel(&g_sdhi_priority_backup); */
-    /* R_INTC_SetMaskLevel(0); */
+        if (g_sdhi_priority_backup[sd_port] == 0)
+        {
+            R_INTC_Disable(INTC_ID_SDMMC_SDHI0_0 + (sd_port * 2));
+        }
+        g_sdhi_priority_backup[sd_port]++;
 
+        if (0uL == was_masked)
+        {
+            /* enable all irq */
+            __enable_irq();
+        }
+    }
     return SD_OK;
 }
 /*******************************************************************************
@@ -1149,11 +1205,25 @@ int32_t sddev_loc_cpu(int32_t sd_port)
 ******************************************************************************/
 int32_t sddev_unl_cpu(int32_t sd_port)
 {
-    /* Cast to an appropriate type */
-    UNUSED_PARAM(sd_port);
-
-    /* R_INTC_SetMaskLevel(g_sdhi_priority_backup); */
-
+    if (sd_port < sizeof(g_sdhi_priority_backup))
+    {
+        uint32_t              was_masked;
+        
+        was_masked = __disable_irq();
+        if (g_sdhi_priority_backup[sd_port] > 0)
+        {
+            g_sdhi_priority_backup[sd_port]--;
+        }
+        if (g_sdhi_priority_backup[sd_port] == 0)
+        {
+            R_INTC_Enable(INTC_ID_SDMMC_SDHI0_0 + (sd_port * 2));
+        }
+        if (0uL == was_masked)
+        {
+            /* enable all irq */
+            __enable_irq();
+        }
+    }
     return SD_OK;
 }
 /*******************************************************************************
@@ -1211,7 +1281,7 @@ int32_t sddev_finalize(int32_t sd_port)
             /* enable all irq */
             __enable_irq();
         }
-        
+
 #ifdef SD_CFG_HWINT
         /* --- Invalidate SDHI interrupt --- */
         e_intc_err = R_INTC_Disable(p_ch->intc.int_id);
@@ -1257,6 +1327,7 @@ static void sddev_sd_int_handler_0(uint32_t int_sense)
 
     sd_int_handler(0);
     sd_int_dm_handler(0);
+    sdio_int_handler(0);
 }
 /*******************************************************************************
  End of function sddev_sd_int_handler_0
@@ -1275,6 +1346,7 @@ static void sddev_sd_int_handler_1(uint32_t int_sense)
 
     sd_int_handler(1);
     sd_int_dm_handler(1);
+    sdio_int_handler(1);
 }
 /*******************************************************************************
  End of function sddev_sd_int_handler_1
@@ -1291,7 +1363,7 @@ int32_t sddev_cd_layout(int32_t sd_port)
 {
     int32_t ret;
     int32_t sc_port;
-    
+
     ret = sddev_get_sc_table_config_ch(sd_port, &sc_port);
     if (SD_OK == ret)
     {
@@ -1352,7 +1424,7 @@ int32_t sddev_get_sc_table_config_ch(int32_t sd_port, int32_t *p_sc_port)
     /* Cast to an appropriate type */
     if (NULL != p_sc_port)
     {
-        ch_num = (sizeof(SDHI_SC_TABLE))/sizeof(st_r_drv_sdhi_sc_config_t);
+        ch_num = (sizeof(SDHI_SC_TABLE)) / sizeof(st_r_drv_sdhi_sc_config_t);
 
         for (cnt = 0; cnt < ch_num; cnt++)
         {

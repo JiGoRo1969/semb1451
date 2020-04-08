@@ -55,7 +55,7 @@
 /** Major Version Number of API */
 #define R_DRV_DMAC_LLD_VERSION_MAJOR      (2)
 /** Minor Version Number of API */
-#define R_DRV_DMAC_LLD_VERSION_MINOR      (0)
+#define R_DRV_DMAC_LLD_VERSION_MINOR      (1)
 /** Minor Version Number of API */
 #define R_DRV_DMAC_LLD_BUILD_NUM          (0)
 /** Unique ID */
@@ -87,6 +87,7 @@ e_r_drv_dmac_err_t R_DMAC_GetChannelConfiguration (uint_t sc_config_index, st_r_
 void R_DMAC_ErrInterruptHandler (uint32_t int_sense);
 int_t R_DMAC_GetChannel (uint_t sc_config_index);
 e_r_drv_dmac_err_t R_DMAC_SetNextTransfer (uint_t sc_config_index, void *source_address, void *destination_address, uint32_t count);
+e_r_drv_dmac_err_t R_DMAC_GetCrtbRegisterValue(uint_t sc_config_index, uint32_t * p_crtb_value);
 
 void R_DMAC_InitialiseInterrupts (void);
 void R_DMAC_UnInitialiseInterrupts (void);

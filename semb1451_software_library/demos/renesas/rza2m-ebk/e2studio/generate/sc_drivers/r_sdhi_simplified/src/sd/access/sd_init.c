@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_init.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -34,6 +34,8 @@
 *         : 14.12.2018 1.01     Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02     Support for OS
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 17.09.2019 1.30     Support for SDIO
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 /******************************************************************************
@@ -42,6 +44,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -175,37 +178,46 @@ int32_t sd_init(int32_t sd_port, uint32_t base, void *workarea, int32_t cd_port)
     }
 
     /* ==== initialize SDHI ==== */
-    SD_OUTP(p_hndl, SD_INFO1_MASK, SD_INFO1_MASK_ALL);
+    SDMMC.SD_INFO1_MASK.LONGLONG = SD_INFO1_MASK_ALL;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2_MASK, SD_INFO2_MASK_ALLP);
+    SDMMC.SD_INFO2_MASK.LONGLONG = SD_INFO2_MASK_ALLP;
 
     /* Cast to an appropriate type */
-    info1 = SD_INP(p_hndl, SD_INFO1);
+    SDMMC.SDIO_INFO1_MASK.LONGLONG = SDIO_INFO1_MASK_ALLP;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO1, (uint64_t)(info1 & ~SD_INFO1_MASK_TRNS_RESP));
+    SDMMC.SDIO_MODE.LONGLONG = 0x0000;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2, 0x0000);
+    info1 = SDMMC.SD_INFO1.LONGLONG;
+    
+    /* Cast to an appropriate type */
+    SDMMC.SD_INFO1.LONGLONG = (uint64_t)(info1 & ~SD_INFO1_MASK_TRNS_RESP);
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SOFT_RST, SOFT_RST_SDRST_RESET);
+    SDMMC.SD_INFO2.LONGLONG = 0x0000;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SOFT_RST, SOFT_RST_SDRST_RELEASED);
+    SDMMC.SDIO_INFO1.LONGLONG = 0x0000;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO1_MASK, DM_CM_INFO1_MASK_ALLP);
+    SDMMC.SOFT_RST.LONGLONG = SOFT_RST_SDRST_RESET;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO2_MASK, DM_CM_INFO2_MASK_ALLP);
+    SDMMC.SOFT_RST.LONGLONG = SOFT_RST_SDRST_RELEASED;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO1, (uint64_t)0);
+    SDMMC.DM_CM_INFO1_MASK.LONGLONG = DM_CM_INFO1_MASK_ALLP;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO2, (uint64_t)0);
+    SDMMC.DM_CM_INFO2_MASK.LONGLONG = DM_CM_INFO2_MASK_ALLP;
+
+    /* Cast to an appropriate type */
+    SDMMC.DM_CM_INFO1.LONGLONG = (uint64_t)0;
+
+    /* Cast to an appropriate type */
+    SDMMC.DM_CM_INFO2.LONGLONG = (uint64_t)0;
 
     /* initialize DMAC */
     ret = sddev_reset_dma(sd_port);
@@ -215,10 +227,10 @@ int32_t sd_init(int32_t sd_port, uint32_t base, void *workarea, int32_t cd_port)
     }
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, HOST_MODE, HOST_MODE_64BIT_ACCESS);
+    SDMMC.HOST_MODE.LONGLONG = HOST_MODE_64BIT_ACCESS;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_OPTION, SD_OPTION_INIT);
+    SDMMC.SD_OPTION.LONGLONG = SD_OPTION_INIT;
 
     /* enable all interrupts */
     sddev_unl_cpu(sd_port);
@@ -280,23 +292,32 @@ int32_t sd_finalize(int32_t sd_port)
     }
 
     /* reset SDHI */
-    SD_OUTP(p_hndl, SOFT_RST, SOFT_RST_SDRST_RESET);
+    SDMMC.SOFT_RST.LONGLONG = SOFT_RST_SDRST_RESET;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO1_MASK, SD_INFO1_MASK_ALL);
+    SDMMC.SD_INFO1_MASK.LONGLONG = SD_INFO1_MASK_ALL;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2_MASK, SD_INFO2_MASK_ALLP);
+    SDMMC.SD_INFO2_MASK.LONGLONG = SD_INFO2_MASK_ALLP;
 
     /* Cast to an appropriate type */
-    info1 = SD_INP(p_hndl, SD_INFO1);
+    SDMMC.SDIO_INFO1_MASK.LONGLONG = SDIO_INFO1_MASK_ALLP;
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO1, (uint64_t)(info1 & ~SD_INFO1_MASK_TRNS_RESP));
-
+    SDMMC.SDIO_MODE.LONGLONG = 0x0000;
+    
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2, 0x0000);
-
+    info1 = SDMMC.SD_INFO1.LONGLONG;
+    
+    /* Cast to an appropriate type */
+    SDMMC.SD_INFO1.LONGLONG = (uint64_t)(info1 & ~SD_INFO1_MASK_TRNS_RESP);
+    
+    /* Cast to an appropriate type */
+    SDMMC.SD_INFO2.LONGLONG = 0x0000;
+    
+    /* Cast to an appropriate type */
+    SDMMC.SDIO_INFO1.LONGLONG = 0x0000;
+    
     /* reset DMAC */
     ret = sddev_finalize_dma(sd_port);
     if (SD_OK != ret)
@@ -305,17 +326,17 @@ int32_t sd_finalize(int32_t sd_port)
     }
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO1_MASK, DM_CM_INFO1_MASK_ALLP);
-
+    SDMMC.DM_CM_INFO1_MASK.LONGLONG = DM_CM_INFO1_MASK_ALLP;
+    
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO2_MASK, DM_CM_INFO2_MASK_ALLP);
-
+    SDMMC.DM_CM_INFO2_MASK.LONGLONG = DM_CM_INFO2_MASK_ALLP;
+    
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO1, (uint64_t)0);
-
+    SDMMC.DM_CM_INFO1.LONGLONG = (uint64_t)0;
+    
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, DM_CM_INFO2, (uint64_t)0);
-
+    SDMMC.DM_CM_INFO2.LONGLONG = (uint64_t)0;
+    
     /* ==== finish peripheral module ==== */
     ret = sddev_finalize(sd_port);
 
@@ -349,6 +370,7 @@ int32_t sd_finalize(int32_t sd_port)
 int32_t _sd_init_hndl(st_sdhndl_t *p_hndl, uint32_t mode, uint32_t voltage)
 {
     int32_t i;
+    int32_t j;
 
     p_hndl->media_type = SD_MEDIA_UNKNOWN;
     p_hndl->write_protect = 0;
@@ -418,6 +440,28 @@ int32_t _sd_init_hndl(st_sdhndl_t *p_hndl, uint32_t mode, uint32_t voltage)
     for (i = 0; i < (4 / sizeof(uint16_t)); ++i)
     {
         p_hndl->if_cond[i] = 0;
+    }
+
+    if (p_hndl->sup_card & SD_MODE_IO)
+    {
+        p_hndl->io_flag = 0;
+        p_hndl->io_info = 0; 
+
+        for (i = 0; i < (4 / sizeof(uint16_t)); ++i)
+        {
+            p_hndl->io_ocr[i] = 0;
+        }
+
+        for (i = 0; i < 8; ++i)
+        {
+            for (j = 0; j < (SDIO_INTERNAL_REG_SIZE / sizeof(uint8_t)); ++j)
+            {
+                p_hndl->io_reg[i][j] = 0;
+            }
+
+            p_hndl->io_len[i]   = 0;
+            p_hndl->io_abort[i] = 0;
+        }
     }
 
     if (SD_MODE_VER2X == p_hndl->sup_ver)

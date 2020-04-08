@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sys_sel.h
-* Version      : 1.20
+* Version      : 1.30
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -34,6 +34,8 @@
 *         : 14.12.2018 1.01     Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02     Support for OS
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 17.09.2019 1.30     Support for SDIO
+*         : 31.03.2020 1.50     Support high speed for SDIO
 ******************************************************************************/
 #ifndef SYS_SEL_H
 #define SYS_SEL_H
@@ -53,7 +55,7 @@ Macro definitions
 #define TARGET_RZ_A2
 
 #if defined(TARGET_RZ_A2)
-#define DRIVER_NAME             "RENESAS RZ/A2 SD Driver Ver1.20"
+#define DRIVER_NAME             "RENESAS RZ/A2 SD Driver Ver1.50"
 #else
     error!!
 #endif

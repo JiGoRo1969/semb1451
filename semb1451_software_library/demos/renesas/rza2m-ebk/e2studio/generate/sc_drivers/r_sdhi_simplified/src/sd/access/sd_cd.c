@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_cd.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -32,6 +32,7 @@
 * History : DD.MM.YYYY Version  Description
 *         : 16.03.2018 1.00     First Release
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 /******************************************************************************
@@ -40,6 +41,8 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
+
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -109,13 +112,13 @@ int32_t sd_cd_int(int32_t sd_port, int32_t enable, int32_t (*callback)(int32_t, 
         sddev_loc_cpu(sd_port);
 
         /* Cast to an appropriate type */
-        info1 = SD_INP(p_hndl, SD_INFO1) ;
-
+        info1 = SDMMC.SD_INFO1.LONGLONG;
+        
         /* Cast to an appropriate type */
         info1 &= (uint64_t)~SD_INFO1_MASK_DET_DAT3_CD;
 
         /* Cast to an appropriate type */
-        SD_OUTP(p_hndl, SD_INFO1, info1); /* clear insert and remove bits */
+        SDMMC.SD_INFO1.LONGLONG = info1; /* clear insert and remove bits */
         sddev_unl_cpu(sd_port);
     }
 
@@ -211,7 +214,7 @@ int32_t _sd_check_media(st_sdhndl_t *p_hndl)
     if (SD_OK == layout)
     {
         /* Cast to an appropriate type */
-        reg = SD_INPLL(p_hndl, SD_INFO1);
+        reg = SDMMC.SD_INFO1.WORD.LL;
         if (SD_CD_SOCKET == p_hndl->cd_port)
         {
             /* Cast to an appropriate type */

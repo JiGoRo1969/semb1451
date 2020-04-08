@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : r_sdif.h
-* Version      : 1.20
+* Version      : 1.30
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -34,6 +34,7 @@
 *         : 14.12.2018 1.01     Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02     Support for OS
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 17.09.2019 1.30     Support for SDIO
 ******************************************************************************/
 #ifndef R_SDIF_H
 #define R_SDIF_H
@@ -54,7 +55,7 @@ Macro definitions
 #define SD_SCC_IP1_BASE_ADDR      (0xE8229000uL)        /* Set the base address of SCC ch1. */
 
 /* ---- SD Driver work buffer ---- */
-#define SD_SIZE_OF_INIT           (240)
+#define SD_SIZE_OF_INIT           (856)                                                          /* SDIO */
 
 /* ---- error code ---- */
 #define SD_OK_LOCKED_CARD         (1)                   /* OK but card is locked status */
@@ -86,12 +87,16 @@ Macro definitions
 #define SD_ERR_STOP               (-31)                 /* user stop */
 /* 32-49 */
 #define SD_ERR_CSD_VER            (-50)                 /* CSD register version error */
-/* 51 */
+#define SD_ERR_SCR_VER            (-51)                 /* SCR register version error */
 #define SD_ERR_FILE_FORMAT        (-52)                 /* CSD register file format error  */
 #define SD_ERR_NOTSUP_CMD         (-53)                 /* not supported command  */
-/* 54-69 */
+/* 54-59 */
+#define SD_ERR_ILL_FUNC           (-60)                 /* invalid function request error */
+#define SD_ERR_IO_VERIFY          (-61)                 /* direct write verify error */
+#define SD_ERR_IO_CAPAB           (-62)                 /* IO capability error */
+/* 63-69 */
 #define SD_ERR_IFCOND_VER         (-70)                 /* Interface condition version error */
-/* 71 */
+#define SD_ERR_IFCOND_VOLT        (-71)                 /* Interface condition voltage error */
 #define SD_ERR_IFCOND_ECHO        (-72)                 /* Interface condition echo back pattern error */
 /* 73-79 */
 #define SD_ERR_OUT_OF_RANGE       (-80)                 /* the argument was out of range */
@@ -103,7 +108,10 @@ Macro definitions
 #define SD_ERR_CMD_ERROR          (-86)                 /* SD_INFO2 bit  0 CMD error */
 #define SD_ERR_CBSY_ERROR         (-87)                 /* SD_INFO2 bit 14 CMD Type Reg Busy error */
 #define SD_ERR_NO_RESP_ERROR      (-88)                 /* SD_INFO1 bit  0 No Response error */
-/* 89-98 */
+/* 89-95 */
+#define SD_ERR_ERROR              (-96)                 /* SDIO ERROR */
+#define SD_ERR_FUNCTION_NUMBER    (-97)                 /* SDIO FUNCTION NUMBER ERROR */
+#define SD_ERR_COM_CRC_ERROR      (-98)                 /* SDIO CRC ERROR */
 #define SD_ERR_INTERNAL           (-99)                 /* driver software internal error */
 
 /* ---- driver mode ---- */
@@ -114,7 +122,14 @@ Macro definitions
 
 /* ---- support mode ---- */
 #define SD_MODE_MEM               (0x0000ul)            /* memory cards only are supported */
+#define SD_MODE_IO                (0x0010ul)            /* memory and io cards are supported */
+#define SD_MODE_COMBO             (0x0030ul)            /* memory ,io and combo cards are supported */
 #define SD_MODE_DS                (0x0000ul)            /* only default speed mode is supported */
+#define SD_MODE_HS                (0x0040ul)            /* high speed mode is also supported */
+#define SD_MODE_SDR12             (0x1000ul)            /* SDR12 mode is also supported */
+#define SD_MODE_SDR25             (0x2000ul)            /* SDR25 mode is also supported */
+#define SD_MODE_SDR50             (0x4000ul)            /* SDR50 mode is also supported */
+#define SD_MODE_SDR104            (0x8000ul)            /* SDR104 mode is also supported */
 #define SD_MODE_VER1X             (0x0000ul)            /* ver1.1 host */
 #define SD_MODE_VER2X             (0x0080ul)            /* ver2.x host (high capacity and dual voltage) */
 #define SD_MODE_1BIT              (0x0100ul)            /* SD Mode 1bit only is supported */
@@ -146,11 +161,22 @@ Macro definitions
 #define SD_WRITE_WITH_PREERASE    (0x0000u)             /* pre-erease write */
 #define SD_WRITE_OVERWRITE        (0x0001u)             /* overwrite  */
 
+/* ---- io register write mode ---- */
+#define SD_IO_SIMPLE_WRITE        (0x0000u)             /* just write */
+#define SD_IO_VERIFY_WRITE        (0x0001u)             /* read after write */
+
+/* ---- io operation code ---- */
+#define SD_IO_FIXED_ADDR          (0x0000u)             /* R/W fixed address */
+#define SD_IO_INCREMENT_ADDR      (0x0001u)             /* R/W increment address */
+#define SD_IO_FORCE_BYTE          (0x0010u)             /* byte access only  */
+
 /* ---- media type ---- */
 #define SD_MEDIA_UNKNOWN          (0x0000u)             /* unknown media */
 #define SD_MEDIA_MMC              (0x0010u)             /* MMC card */
 #define SD_MEDIA_SD               (0x0020u)             /* SD Memory card */
+#define SD_MEDIA_IO               (0x0001u)             /* SD IO card */
 #define SD_MEDIA_MEM              (0x0030u)             /* Memory card */
+#define SD_MEDIA_COMBO            (0x0021u)             /* SD COMBO card */
 
 /* ---- write protect info --- */
 #define SD_WP_OFF                 (0x0000u)             /* card is not write protect */
@@ -185,6 +211,16 @@ Macro definitions
 #define SD_SPEED_CLASS_2          (0x01u)               /* 2MB/sec */
 #define SD_SPEED_CLASS_4          (0x02u)               /* 4MB/sec */
 #define SD_SPEED_CLASS_6          (0x03u)               /* 6MB/sec */
+/* ---- IO initialize flags define ---- */    /* add for IO */
+#define SD_IO_INT_ENAB            (0x10u)               /* interrupt enable */
+#define SD_IO_POWER_INIT          (0x04u)               /* power on initialized */
+#define SD_IO_MEM_INIT            (0x02u)               /* memory initialized */
+#define SD_IO_FUNC_INIT           (0x01u)               /* io func initialized */
+
+/* ---- IO function's information ---- */    /* add for IO */
+#define SD_IO_FUNC_READY          (0x80u)               /* io redy */
+#define SD_IO_FUNC_NUM            (0x70u)               /* number of io func */
+#define SD_IO_FUNC_EXISTS         (0x04u)               /* memory present */
 
 /* ---- SD port mode ---- */
 #define SD_PORT_SERIAL            (0x0000u)             /* 1bit mode */
@@ -227,6 +263,7 @@ typedef enum
 
 typedef int32_t (*p_intCallbackFunc)(int32_t sd_port, int32_t cd);
 typedef int32_t (*p_fmtCallbackFunc)(uint32_t secno, uint32_t size);
+typedef int32_t (*p_intIoCallbackFunc)(int32_t sd_port);
 
 /******************************************************************************
 Imported global variables and functions (from other files)
@@ -755,6 +792,302 @@ int32_t sd_set_tmpwp(int32_t sd_port, int32_t is_set);
  * @retval        SD_ERR : end of error
  *****************************************************************************/
 int32_t sd_lock_unlock(int32_t sd_port, uint8_t code, uint8_t *pwd, uint8_t len);
+/* Function Name: sdio_read_direct */
+/**************************************************************************//**
+ * @fn            int32_t sdio_read_direct(int32_t sd_port, uint8_t *buff,uint32_t func,uint32_t adr)
+ * @brief         direct read io register from specified address (=adr)
+ *                using CMD52
+ * @warning       .
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @param [out]   uint8_t *buff   : data buffer
+ * @param [in]    uint32_t func   : access function number
+ * @param [in]    uint32_t adr    : access register address
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_read_direct(int32_t sd_port, uint8_t *buff, uint32_t func, uint32_t adr);
+
+/* Function Name: sdio_write_direct */
+/**************************************************************************//**
+ * @fn            int32_t sdio_write_direct(int32_t sd_port, uint8_t *buff, 
+ *                          uint32_t func, uint32_t adr, uint32_t raw_flag);
+ * @brief         direct write io register from specified address (=adr)
+ *                using CMD52
+ * @warning       .
+ * @param [in]    int32_t sd_port   : channel no (0 or 1)
+ * @param [out]   uint8_t *buff     : data buffer
+ * @param [in]    uint32_t func     : access function number
+ * @param [in]    uint32_t adr      : access register address
+ * @param [in]    uint32_t raw_flag : write mode
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_write_direct(int32_t sd_port, uint8_t *buff, uint32_t func, uint32_t adr, uint32_t raw_flag);
+
+/* Function Name: sdio_check_int */
+/**************************************************************************//**
+ * @fn            int32_t sdio_check_int(int32_t sd_port)
+ * @brief         check SDIO_INFO1 interrupt elements
+ *                if any interrupt is detected, return SD_OK
+ *                if no interrupt is detected, return SD_ERR
+ * @warning       .
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_check_int(int32_t sd_port);
+
+/* Function Name: sdio_int_handler */
+/**************************************************************************//**
+ * @fn            void    sdio_int_handler(int32_t sd_port)
+ * @brief         SDIO_INFO1 interrupt handler
+ *                examine the relevant elements (without masked)
+ *                save those elements to int_io_info
+ *                if a callback function is registered, call it
+ * @warning       .
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        none
+ *****************************************************************************/
+void    sdio_int_handler(int32_t sd_port);
+
+/* Function Name: sdio_set_intcallback */
+/**************************************************************************//**
+ * @fn            int32_t sdio_set_intcallback(int32_t sd_port, int32_t (*callback)(int32_t))
+ * @brief         register SDIO_INFO1 callback function
+ *                if SDIO_INFO1 interrupt are occured, call callback function
+ * @warning       .
+ * @param [in]    int32_t sd_port              : channel no (0 or 1)
+ * @param [in]    int32_t (*callback)(int32_t) : callback function
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_set_intcallback(int32_t sd_port, int32_t (*callback)(int32_t));
+
+/* Function Name: sdio_enable_int */
+/**************************************************************************//**
+ * @fn            int32_t sdio_enable_int(int32_t sd_port)
+ * @brief         enable SDHI detect interrupt from SDIO (=IRQ)
+ * @warning       .
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        SD_OK  : end of succeed
+ *****************************************************************************/
+int32_t sdio_enable_int(int32_t sd_port);
+
+/* Function Name: sdio_disable_int */
+/**************************************************************************//**
+ * @fn            int32_t sdio_disable_int(int32_t sd_port)
+ * @brief         disable SDHI detect interrupt from SDIO (=IRQ)
+ * @warning       .
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        SD_OK  : end of succeed
+ *****************************************************************************/
+int32_t sdio_disable_int(int32_t sd_port);
+
+/* Function Name: sdio_read */
+/**************************************************************************//**
+ * @fn            int32_t sdio_read(int32_t sd_port, uint8_t *buff, 
+ *                  uint32_t func, uint32_t adr, int32_t cnt, uint32_t op_code)
+ * @brief         read io register from specified address (=adr) by the
+ *                number of bytes or blocks (=cnt)
+ *                if SD Driver mode is SD_MODE_SW, data transfer by
+ *                sddev_read_data function
+ *                if SD Driver mode is SD_MODE_DMA, data transfer by DMAC
+ * @warning       .
+ * @param [in]    int32_t sd_port  : channel no (0 or 1)
+ * @param [out]   uint8_t *buff    : read data buffer
+ * @param [in]    uint32_t func    : access function number
+ * @param [in]    uint32_t adr     : read register address
+ * @param [in]    int32_t cnt      : number of read registers (byte)
+ * @param [in]    uint32_t op_code : operation code
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_read(int32_t sd_port, uint8_t *buff, uint32_t func, uint32_t adr, int32_t cnt, uint32_t op_code);
+
+/* Function Name: sdio_write */
+/**************************************************************************//**
+ * @fn            int32_t sdio_write(int32_t sd_port, uint8_t *buff, uint32_t func, 
+ *                  uint32_t adr, int32_t cnt, uint32_t op_code)
+ * @brief         write io register from (or at) the address (=adr) by the
+ *                number of bytes or blocks (=cnt)
+ *                if SD Driver mode is SD_MODE_SW, data transfer by
+ *                sddev_read_data function
+ *                if SD Driver mode is SD_MODE_DMA, data transfer by DMAC
+ * @warning       .
+ * @param [in]    int32_t sd_port  : channel no (0 or 1)
+ * @param [out]   uint8_t *buff    : write data buffer
+ * @param [in]    uint32_t func    : access function number
+ * @param [in]    uint32_t adr     : read register address
+ * @param [in]    int32_t cnt      : number of write registers (byte)
+ * @param [in]    uint32_t op_code : operation code
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_write(int32_t sd_port, uint8_t *buff, uint32_t func, uint32_t adr, int32_t cnt, uint32_t op_code);
+
+/* Function Name: sdio_reset */
+/**************************************************************************//**
+ * @fn            int32_t sdio_reset(int32_t sd_port)
+ * @brief         Reset SDIO Function
+ * @warning       if pointer has NULL ,the register value isn't returned
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_reset(int32_t sd_port);
+
+/* Function Name: sdio_get_ioocr */
+/**************************************************************************//**
+ * @fn            int32_t sdio_get_ioocr(int32_t sd_port, uint32_t *ioocr)
+ * @brief         get io ocr register value
+ * @warning       if pointer has NULL ,the register value isn't returned
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @param [in]    uint32_t *ioocr : IO OCR register address
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_get_ioocr(int32_t sd_port, uint32_t *ioocr);
+
+/* Function Name: sdio_get_ioinfo */
+/**************************************************************************//**
+ * @fn            int32_t sdio_get_ioinfo(int32_t sd_port, uint8_t *ioinfo)
+ * @brief         get io information(IO OCR[31:24])
+ * @warning       if pointer has NULL ,the register value isn't returned
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @param [out]   uint8_t *ioinfo : io information(IO OCR[31:24])
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_get_ioinfo(int32_t sd_port, uint8_t *ioinfo);
+
+/* Function Name: sdio_get_cia */
+/**************************************************************************//**
+ * @fn            int32_t sdio_get_cia(int32_t sd_port, uint8_t *reg, uint8_t *cis, 
+ *                  uint32_t func_num, int32_t cnt)
+ * @brief         get cia value
+ * @warning       if pointer has NULL ,the register value isn't returned
+ * @param [in]    int32_t sd_port   : channel no (0 or 1)
+ * @param [out]   uint8_t *reg      : CCCR or FBR register address
+ * @param [out]   uint8_t *cis      : CIS register address
+ * @param [in]    uint32_t func_num : function number (0 to 7, 0 means Common)
+ * @param [in]    int32_t cnt       : size of CIS to read
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_get_cia(int32_t sd_port, uint8_t *reg, uint8_t *cis, uint32_t func_num, int32_t cnt);
+
+/* Function Name: sdio_set_enable */
+/**************************************************************************//**
+ * @fn            int32_t sdio_set_enable(int32_t sd_port, uint8_t func_bit)
+ * @brief         set io functions access raedy state
+ * @warning       .
+ * @param [in]    int32_t sd_port  : channel no (0 or 1)
+ * @param [in]    uint8_t func_bit : specify function by bit map
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_set_enable(int32_t sd_port, uint8_t func_bit);
+
+/* Function Name: sdio_get_ready */
+/**************************************************************************//**
+ * @fn            int32_t sdio_get_ready(int32_t sd_port, uint8_t *func_bit)
+ * @brief         inquire io function's access ready status
+ * @warning       .
+ * @param [in]    int32_t sd_port   : channel no (0 or 1)
+ * @param [out]   uint8_t *func_bit : access enable function by bit map
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_get_ready(int32_t sd_port, uint8_t *func_bit);
+
+/* Function Name: sdio_set_int */
+/**************************************************************************//**
+ * @fn            int32_t sdio_set_int(int32_t sd_port, uint8_t func_bit, int32_t enab)
+ * @brief         enable or disable interrupt from io functions
+ * @warning       .
+ * @param [in]    int32_t sd_port  : channel no (0 or 1)
+ * @param [in]    uint8_t func_bit : specify enable function by bit map
+ * @param [in]    int32_t enab     : control enable or disable
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_set_int(int32_t sd_port, uint8_t func_bit, int32_t enab);
+
+/* Function Name: sdio_get_int */
+/**************************************************************************//**
+ * @fn            int32_t sdio_get_int(int32_t sd_port, uint8_t *func_bit, int32_t *enab)
+ * @brief         inquire io functions's interrupt status
+ * @warning       .
+ * @param [in]    int32_t sd_port   : channel no (0 or 1)
+ * @param [out]   uint8_t *func_bit : ready function by bit map
+ * @param [out]   int32_t *enab     : control enable or disable
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_get_int(int32_t sd_port, uint8_t *func_bit, int32_t *enab);
+
+/* Function Name: sdio_set_blocklen */
+/**************************************************************************//**
+ * @fn            int32_t sdio_set_blocklen(int32_t sd_port, uint16_t len, uint32_t func_num)
+ * @brief         set io function's block length
+ * @warning       .
+ * @param [in]    int32_t sd_port   : channel no (0 or 1)
+ * @param [in]    uint16_t len      : block length
+ * @param [in]    uint32_t func_num : specify function by number (from 0 to 7)
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_set_blocklen(int32_t sd_port, uint16_t len, uint32_t func_num);
+
+/* Function Name: sdio_get_blocklen */
+/**************************************************************************//**
+ * @fn            int32_t sdio_get_blocklen(int32_t sd_port, uint16_t *len, uint32_t func_num)
+ * @brief         inquire io function's block length
+ * @warning       .
+ * @param [in]    int32_t sd_port   : channel no (0 or 1)
+ * @param [out]   uint16_t *len     : block length
+ * @param [in]    uint32_t func_num : specify function by number (from 0 to 7)
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_get_blocklen(int32_t sd_port, uint16_t *len, uint32_t func_num);
+
+/* Function Name: sdio_abort */
+/**************************************************************************//**
+ * @fn            void    sdio_abort(int32_t sd_port, uint32_t func_num)
+ * @brief         set flag (=SD handle member stop) stop operations compulsory
+ *                if this flag is set, read, write, format operations is
+ *                stopped
+ *                this flag is used for card detect/removal interrupt detection
+ * @warning       .
+ * @param [in]    int32_t sd_port   : channel no (0 or 1)
+ * @param [in]    uint32_t func_num : function number
+ * @retval        none
+ *****************************************************************************/
+void    sdio_abort(int32_t sd_port, uint32_t func_num);
+
+/* Function Name: sdio_set_blkcnt */
+/**************************************************************************//**
+ * @fn            int32_t sdio_set_blkcnt(int32_t sd_port, int16_t blocks)
+ * @brief         set maximum block count per multiple command
+ * @warning       maximam block count is constrained from 3 to 32767(0x7fff)
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @param [in]    int16_t blocks  : block count
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_set_blkcnt(int32_t sd_port, int16_t blocks);
+
+/* Function Name: sdio_get_blkcnt */
+/**************************************************************************//**
+ * @fn            int32_t sdio_get_blkcnt(int32_t sd_port)
+ * @brief         get maximum block count per multiple command
+ * @warning       maximam block count are constrained from 1 to 65535
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        not less than 0 : block count
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t sdio_get_blkcnt(int32_t sd_port);
 
 /* ---- target CPU I/F ---- */
 /* Function Name: sddev_init */
@@ -960,6 +1293,27 @@ int32_t sddev_loc_cpu(int32_t sd_port);
  *****************************************************************************/
 int32_t sddev_unl_cpu(int32_t sd_port);
 
+/* Function Name: sddev_cmd0_sdio_mount */
+/**************************************************************************//**
+ * @fn            int32_t sddev_cmd0_sdio_mount(int32_t sd_port)
+ * @brief         Select to issue CMD0 before SDIO Mount
+ * @warning       .
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        SD_OK  : issue CMD0
+ * @retval        SD_ERR : not issue CMD0
+ *****************************************************************************/
+int32_t sddev_cmd0_sdio_mount(int32_t sd_port);
+
+/* Function Name: sddev_cmd8_sdio_mount */
+/**************************************************************************//**
+ * @fn            int32_t sddev_cmd8_sdio_mount(int32_t sd_port)
+ * @brief         Select to issue CMD8 before SDIO Mount
+ * @warning       .
+ * @param [in]    int32_t sd_port : channel no (0 or 1)
+ * @retval        SD_OK  : issue CMD8
+ * @retval        SD_ERR : not issue CMD8
+ *****************************************************************************/
+int32_t sddev_cmd8_sdio_mount(int32_t sd_port);
 /* Function Name: sddev_cd_layout */
 /**************************************************************************//**
  * @fn            int32_t sddev_cd_layout(int32_t sd_port)

@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd.h
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -34,6 +34,8 @@
 *         : 14.12.2018 1.01     Changed the DMAC soft reset procedure.
 *         : 28.12.2018 1.02     Support for OS
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 17.09.2019 1.30     Support for SDIO
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 /******************************************************************************
 Includes   <System Includes> , "Project Includes"
@@ -72,6 +74,9 @@ Macro definitions
 #define SD_MOUNT_LOCKED_CARD        (0x02u)
 #define SD_CARD_LOCKED              (0x04u)
 
+#define SDMMC    (*(volatile struct st_sdmmc0    *) p_hndl->reg_base) /* For SDHI register address */
+
+#if 0 /* Replace these by sdmmc_iodefine.h */
 /* ==== SDHI register address ==== */
 #define SD_CMD          ((0x0000u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* Command Type                                 */
 #define SD_ARG          ((0x0010u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* SD Command Argument CF39-CF8(32bit)          */
@@ -96,6 +101,9 @@ Macro definitions
 #define SD_ERR_STS1     ((0x00B0u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* SD Error Status 1                            */
 #define SD_ERR_STS2     ((0x00B8u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* SD Error Status 2                            */
 #define SD_BUF0         ((0x00C0u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* SD Buffer Read/Write                         */
+#define SDIO_MODE       ((0x00D0u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* SDIO Mode Control                            */
+#define SDIO_INFO1      ((0x00D8u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* SDIO Interrupt Flag                          */
+#define SDIO_INFO1_MASK ((0x00E0u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* SDIO_INFO1 Interrupt Flag                    */
 #define CC_EXT_MODE     ((0x0360u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* DMA Mode Enable                              */
 #define SOFT_RST        ((0x0380u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* Soft Reset                                   */
 #define VERSION         ((0x0388u<<SD_REG_SHIFT)+SD_BYTE_OFFSET) /* Version                                      */
@@ -120,6 +128,8 @@ Macro definitions
 #define SCC_RVSCNTL                 (0x0020u<<SD_REG_SHIFT)
 #define SCC_RVSREQ                  (0x0028u<<SD_REG_SHIFT)
 #define SCC_SMPCMP                  (0x0030u<<SD_REG_SHIFT)
+
+#endif /* Replace these by sdmmc_iodefine.h */
 
 /* ==== command type ==== */
 /* ---- SD commands ---- */
@@ -150,6 +160,15 @@ Macro definitions
 #define CMD38                       (38u)                       /* ERASE */
 #define CMD42                       (42u)                       /* LOCK_UNLOCK */
 #define CMD55                       (55u)                       /* APP_CMD */
+
+/* ---- IO commnds ---- */  /* add for IO */
+#define CMD5                        (0x4705u)                   /* IO_SEND_OP_COND */
+#define CMD52_W                     (0x4434u)                   /* IO_WRITE_DIRECT */
+#define CMD52_R                     (0x5434u)                   /* IO_READ_DIRECT */
+#define CMD53_W_BLOCK               (0x6c35u)                   /* IO_WRITE_EXTENDED_BLOCK */
+#define CMD53_W_BYTE                (0x4c35u)                   /* IO_WRITE_EXTENDED_BYTE */
+#define CMD53_R_BLOCK               (0x7c35u)                   /* IO_READ_EXTENDED_BLOCK */
+#define CMD53_R_BYTE                (0x5c35u)                   /* IO_READ_EXTENDED_BYTE */
 
 /* ---- switch function command (phys spec ver1.10) ---- */
 #define CMD6                        (0x1C06u)                   /* SWITCH_FUNC */
@@ -193,6 +212,8 @@ Macro definitions
 #define SD_RSP_R2_CSD               (5)                         /* CSD register */
 #define SD_RSP_R3                   (6)                         /* OCR register */
 #define SD_RSP_R6                   (7)                         /* Published RCA response */
+#define SD_RSP_R4                   (8)                         /* IO OCR register */
+#define SD_RSP_R5                   (9)                         /* IO RW response */
 #define SD_RSP_R7                   (10)                        /* Card Interface Condition response */
 
 /* --- R1 response error bit ---- */
@@ -287,6 +308,18 @@ Macro definitions
 #define SD_INFO2_MASK_ERR1          ((uint64_t)(0x0002))        /* b1  : CRC Error                              */
 #define SD_INFO2_MASK_ERR0          ((uint64_t)(0x0001))        /* b0  : CMD Error                              */
 
+/* ---- SDIO_INFO1 interrupt mask register ---- */
+#define SDIO_INFO1_MASK_ALLP        ((uint64_t)(0xc007))        /* All SDIO_INFO1 interrupt for OUTPUT      */
+#define SDIO_INFO1_MASK_EXWT        ((uint64_t)(0x8000))
+#define SDIO_INFO1_MASK_EXPUB52     ((uint64_t)(0x4000))
+#define SDIO_INFO1_MASK_IOIRQ       ((uint64_t)(0x0001))        /* SD IO Interrupt                          */
+
+/* ---- SDIO mode control register ---- */
+#define SDIO_MODE_C52PUB            ((uint64_t)(0x0200))        /* SDIO none abort                          */
+#define SDIO_MODE_IOABT             ((uint64_t)(0x0100))        /* SDIO abort                               */
+#define SDIO_MODE_RWREQ             ((uint64_t)(0x0004))        /* Read Wait Request                        */
+#define SDIO_MODE_IOMOD             ((uint64_t)(0x0001))        /* SDIO Mode                                */
+
 /* ---- DMA mode enable register ---- */
 #define CC_EXT_MODE_DMASDRW         ((uint64_t)(0x0002))        /* SD_BUF Read/Write DMA Transfer           */
 
@@ -356,6 +389,11 @@ Macro definitions
 #define SD_SPEC_30_REGISTER         (0x8000u)                   /* SD_SPEC3 SCR[47] is 1   */
 #define SD_SPEC_20_REGISTER         (0x0200u)                   /* SD_SPEC SCR[57] is 1    */
 #define SD_SPEC_11_REGISTER         (0x0100u)                   /* SD_SPEC SCR[56] is 1    */
+/* --- SD Card Speed ---- */
+#define SD_CUR_DEFAULT_SPEED        (0x0000u)                   /*   current default speed mode     */
+#define SD_SUP_DEFAULT_SPEED        (0x0000u)                   /*   supported default speed mode   */
+#define SD_CUR_HIGH_SPEED           (0x0001u)                   /*   current high speed mode        */
+#define SD_SUP_HIGH_SPEED           (0x0100u)                   /*   supported high speed mode      */
 /* ==== format parameter ==== */
 #define SIZE_CARD_256KB             (256*1024/512)              /*  256*1KB/(sector size) */
 #define SIZE_CARD_1MB               (1024*1024/512)             /* 1024*1KB/(sector size) */
@@ -427,6 +465,7 @@ Macro definitions
 /* ==== macro functions ==== */
 #define SD_GET_HNDLS(a)            (gp_sdhandle[(a)])
 
+#if 0 /* Replace these by sdmmc_iodefine.h */
 /* 64bit access */
 #define SD_OUTP(h,offset,data)      (((volatile u_sd_reg_t *)((h)->reg_base+(offset)))->longlong = (data))
 #define SD_INP(h,offset)            (((volatile u_sd_reg_t *)((h)->reg_base+(offset)))->longlong)
@@ -446,6 +485,7 @@ Macro definitions
 #define SD_INPHL(h,offset)          (((volatile u_sd_reg_t *)((h)->reg_base+(offset)))->st_word_t.hl_)
 #define SD_INPLH(h,offset)          (((volatile u_sd_reg_t *)((h)->reg_base+(offset)))->st_word_t.lh_)
 #define SD_INPLL(h,offset)          (((volatile u_sd_reg_t *)((h)->reg_base+(offset)))->st_word_t.ll_)
+#endif /* Replace these by sdmmc_iodefine.h */
 
 /* ==== command type ==== */
 /* ---- eSD commands ---- */
@@ -453,6 +493,9 @@ Macro definitions
 #define CMD44                       (0x0C2C)                    /* MANAGE_PARTITIONS */
 #define CMD45                       (0x1C2D)                    /* QUERY_PARTITIONS */
 
+/* ==== constants ==== */
+#define SDIO_INTERNAL_REG_SIZE      (0x20)
+#define SDIO_INTERNAL_CIS_SIZE      (0x20)
 /* ==== SD Card detect ==== */
 #define SD_CD_DETECT                (0x0001u)                   /* card detection */
 
@@ -487,10 +530,23 @@ typedef struct __sdhndl                 /* SD handle */
                                         /*   CSD  TMP_WRITE_PROTECT : 2     */
                                         /*   CSD PERM_WRITE_PROTECT : 4     */
                                         /*   SD ROM                 : 0x10  */
+    uint8_t     io_flag;                /* io initialize flag */
+
+                                        /*  interrupt enable        : bit4  */
+                                        /*  power on initialized    : bit2  */
+                                        /*  memory initialized      : bit1  */
+                                        /*  io func initialized     : bit0  */
+    uint8_t     io_info;                /* io function's information */
+
+                                        /*  io ready            : bit7                                  */
+                                        /*  number of io func   : bit6-bit4 memory present      : bit3  */
+                                        /*  reserved            : bit2-bit0                             */
     uint64_t    int_info1;              /* SD_INFO1 status */
     uint64_t    int_info2;              /* SD_INFO2 status */
     uint64_t    int_info1_mask;         /* SD_INFO1_MASK status */
     uint64_t    int_info2_mask;         /* SD_INFO2_MASK status */
+    uint64_t    int_io_info;            /* SDIO_INFO1 status */
+    uint64_t    int_io_info_mask;       /* SDIO_INFO1_MASK status */
     uint64_t    int_dm_info1;           /* DM_CM_INFO1 status */
     uint64_t    int_dm_info2;           /* DM_CM_INFO2 status */
     uint64_t    int_dm_info1_mask;      /* DM_CM_INFO1_MASK status */
@@ -517,8 +573,10 @@ typedef struct __sdhndl                 /* SD handle */
     p_fmtCallbackFunc int_format_callback;  /* callback function for card format */
     p_intCallbackFunc int_callback;         /* callback function for interrupt flags */
     p_intCallbackFunc int_dma_callback;     /* callback function for interrupt flags */
+    p_intIoCallbackFunc int_io_callback;    /* callback function for interrupt flags */
     uint32_t    resp_status;                            /* R1/R1b response status */
     uint16_t    ocr[4 / sizeof(uint16_t)];              /* OCR value */
+    uint16_t    io_ocr[4 / sizeof(uint16_t)];           /* IO OCR value */
     uint16_t    if_cond[4 / sizeof(uint16_t)];          /* IF_COND value */
     uint16_t    cid[16 / sizeof(uint16_t)];             /* CID value */
     uint16_t    csd[16 / sizeof(uint16_t)];             /* CSD value */
@@ -527,6 +585,10 @@ typedef struct __sdhndl                 /* SD handle */
     uint16_t    scr[8 / sizeof(uint16_t)];              /* SCR value */
     uint16_t    sdstatus[16 / sizeof(uint16_t)];        /* SD STATUS value */
     uint16_t    status_data[18 / sizeof(uint16_t)];     /* STATUS DATA value (phys spec ver1.10) */
+    uint16_t    io_len[8];                              /* io block length common:0 func:more than 1 */
+    uint8_t     io_reg[8][SDIO_INTERNAL_REG_SIZE / sizeof(uint8_t)]; /* CCCR(=0) and FBR(1 to 7) value */
+    uint8_t     cis[8][SDIO_INTERNAL_CIS_SIZE / sizeof(uint8_t)];   /* CIS value (to be fixed) */
+    uint16_t    io_abort[8];                            /* compulsory stop flag */
     uint8_t     *p_rw_buff;                             /* work buffer pointer */
     uint32_t    buff_size;                              /* work buffer size */
     int32_t     sup_if_mode;                            /* supported bus width (1bit:0 4bits:1) */
@@ -576,6 +638,17 @@ int32_t _sd_init_hndl(st_sdhndl_t *p_hndl, uint32_t mode, uint32_t voltage);
  *****************************************************************************/
 int32_t _sd_card_init(st_sdhndl_t *p_hndl);
 
+/* Function Name: _sd_io_mount */
+/**************************************************************************//**
+ * @fn            int32_t _sd_io_mount(st_sdhndl_t *p_hndl)
+ * @brief         mount io part from stand-by to command or transfer state
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl : SD handle
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sd_io_mount(st_sdhndl_t *p_hndl);
+
 /* Function Name: _sd_mem_mount */
 /**************************************************************************//**
  * @fn            int32_t _sd_mem_mount(st_sdhndl_t *p_hndl)
@@ -587,6 +660,18 @@ int32_t _sd_card_init(st_sdhndl_t *p_hndl);
  * @retval        SD_ERR : end of error
  *****************************************************************************/
 int32_t _sd_mem_mount(st_sdhndl_t *p_hndl);
+
+/* Function Name: _sd_set_io_speed */
+/**************************************************************************//**
+ * @fn            int32_t _sd_set_io_speed(st_sdhndl_t *p_hndl)
+ * @brief         query high speed supported
+ *                transfer card high speed mode
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl : SD handle
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sd_set_io_speed(st_sdhndl_t *p_hndl);
 
 /* Function Name: _sd_card_get_status */
 /**************************************************************************//**
@@ -697,8 +782,64 @@ int32_t _sd_software_trans(st_sdhndl_t *p_hndl, uint8_t *buff, int32_t cnt, int3
  *****************************************************************************/
 int32_t _sd_dma_trans(st_sdhndl_t *p_hndl, int32_t cnt);
 
+/* ---- sdio_trns.c ---- */
+/* Function Name: _sdio_software_trans */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_software_trans(st_sdhndl_t *p_hndl, uint8_t *buff, 
+ *                      int32_t cnt, int32_t dir, uint16_t blocklen)
+ * @brief         transfer data to/from card by software
+ *                this operations are used multiple command data phase
+ *                if dir is SD_TRANS_READ, data is from card to host
+ *                if dir is SD_TRANS_WRITE, data is from host to card
+ * @warning       transfer finished, check CMD12 sequence refer to All end
+ * @param [out]   st_sdhndl_t *p_hndl    : SD handle
+ * @param [out]   uint8_t *buff   : destination/source data buffer
+ * @param [in]    int32_t cnt     : number of transfer bytes
+ * @param [in]    int32_t dir     : transfer direction
+ * @param [in]    uint16_t blklen : block length
+ * @retval        p_hndl->error : SD handle error value
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_software_trans(st_sdhndl_t *p_hndl, uint8_t *buff, int32_t cnt, int32_t dir, uint16_t blocklen);
+
+
+/* Function Name: _sdio_software_trans2 */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_software_trans2(st_sdhndl_t *p_hndl, uint8_t *buff,
+ *                  int32_t cnt, int32_t dir)
+ * @brief         transfer data to/from card by software
+ *                this operations are used multiple command data phase
+ *                if dir is SD_TRANS_READ, data is from card to host
+ *                if dir is SD_TRANS_WRITE, data is from host to card
+ * @warning       transfer finished, check CMD12 sequence refer to All end
+ * @param [out]   st_sdhndl_t *p_hndl  : SD handle
+ * @param [out]   uint8_t *buff : destination/source data buffer
+ * @param [in]    int32_t cnt   : number of transfer bytes
+ * @param [in]    int32_t dir   : transfer direction
+ * @retval        p_hndl->error : SD handle error value
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_software_trans2(st_sdhndl_t *p_hndl, uint8_t *buff, int32_t cnt, int32_t dir);
+
+/* Function Name: _sdio_dma_trans */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_dma_trans(st_sdhndl_t *p_hndl, int32_t cnt, uint16_t blocklen)
+ * @brief         transfer data to/from card by DMA
+ *                this operations are multiple command data phase
+ * @warning       transfer finished, check CMD12 sequence refer to All end
+ * @param [out]   st_sdhndl_t *p_hndl      : SD handle
+ * @param [in]    int32_t cnt       : number of transfer bytes
+ * @param [in]    uint16_t blocklen : block length
+ * @retval        p_hndl->error : SD handle error value
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_dma_trans(st_sdhndl_t *p_hndl, int32_t cnt, uint16_t blocklen);
+
 /* ---- sd_read.c ---- */
-    /* no function */
+/* no function */
 
 /* ---- sd_write.c ---- */
 /* Function Name: _sd_write_sect */
@@ -724,6 +865,118 @@ int32_t _sd_dma_trans(st_sdhndl_t *p_hndl, int32_t cnt);
  *****************************************************************************/
 int32_t _sd_write_sect(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t psn,
                         int32_t cnt, int32_t writemode);
+
+/* ---- sd_io_read.c ---- */
+/* Function Name: _sdio_read */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_read(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+ *                      uint32_t adr, int32_t cnt, uint32_t op_code, uint16_t blocklen)
+ * @brief         read io register from specified address (=adr) by the
+ *                number of bytes or blocks (=cnt)
+ *                if SD Driver mode is SD_MODE_SW, data transfer by
+ *                sddev_read_data function
+ *                if SD Driver mode is SD_MODE_DMA, data transfer by DMAC
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl       : SD handle
+ * @param [out]   uint8_t *buff      : read data buffer
+ * @param [in]    uint32_t func      : access function number
+ * @param [in]    uint32_t adr       : read register address
+ * @param [in]    int32_t cnt        : number of read registers (byte)
+ * @param [in]    uint32_t op_code   : operation code
+ * @param [in]    uint16_t blocklen  : block length
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_read(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+                    uint32_t adr, int32_t cnt, uint32_t op_code, uint16_t blocklen);
+
+/* Function Name: _sdio_read_byte */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_read_byte(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+ *                      uint32_t adr, int32_t cnt, uint32_t op_code)
+ * @brief         read io register from specified address (=adr) by the
+ *                number of bytes or blocks (=cnt)
+ *                if SD Driver mode is SD_MODE_SW, data transfer by
+ *                sddev_read_data function
+ *                if SD Driver mode is SD_MODE_DMA, data transfer by DMAC
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl       : SD handle
+ * @param [out]   uint8_t *buff      : read data buffer
+ * @param [in]    uint32_t func      : access function number
+ * @param [in]    uint32_t adr       : read register address
+ * @param [in]    int32_t cnt        : number of read registers (byte)
+ * @param [in]    uint32_t op_code   : operation code
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_read_byte(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+                        uint32_t adr, int32_t cnt, uint32_t op_code);
+
+/* ---- sd_io_write.c ---- */
+/* Function Name: _sdio_write */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_write(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+ *                  uint32_t adr, int32_t cnt, uint32_t op_code, uint16_t blocklen)
+ * @brief         write io register from specified address (=adr) by the
+ *                number of bytes or blocks (=cnt)
+ *                if SD Driver mode is SD_MODE_SW, data transfer by
+ *                sddev_read_data function
+ *                if SD Driver mode is SD_MODE_DMA, data transfer by DMAC
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl      : SD handle
+ * @param [out]   uint8_t *buff     : write data buffer
+ * @param [in]    uint32_t func     : access function number
+ * @param [in]    uint32_t adr      : read register address
+ * @param [in]    int32_t cnt       : number of write registers (byte)
+ * @param [in]    uint32_t op_code  : operation code
+ * @param [in]    uint16_t blocklen : block length
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_write(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+                    uint32_t adr, int32_t cnt, uint32_t op_code, uint16_t blocklen);
+
+/* Function Name: _sdio_write_byte */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_write_byte(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+ *                          uint32_t adr, int32_t cnt, uint32_t op_code);
+ * @brief         write io register from specified address (=adr) by the
+ *                number of bytes or blocks (=cnt)
+ *                if SD Driver mode is SD_MODE_SW, data transfer by
+ *                sddev_read_data function
+ *                if SD Driver mode is SD_MODE_DMA, data transfer by DMAC
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl     : SD handle
+ * @param [out]   uint8_t *buff    : write data buffer
+ * @param [in]    uint32_t func    : access function number
+ * @param [in]    uint32_t adr     : read register address
+ * @param [in]    int32_t cnt      : number of write registers (byte)
+ * @param [in]    uint32_t op_code : operation code
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_write_byte(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+                            uint32_t adr, int32_t cnt, uint32_t op_code);
+
+/* ---- sd_io_direct.c ---- */
+/* Function Name: _sdio_direct */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_direct(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+ *                     uint32_t adr, uint32_t rw_flag, uint32_t raw_flag)
+ * @brief         direct read or write io register from specified address
+ *                (=adr) using CMD52
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl      : SD handle
+ * @param [out]   uint8_t *buff     : data buffer
+ * @param [in]    uint32_t func     : access function number
+ * @param [in]    uint32_t adr      : access register address
+ * @param [in]    uint32_t rw_flag  : read (= 0) or write (= 1)
+ * @param [in]    uint32_t raw_flag : write mode
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_direct(st_sdhndl_t *p_hndl, uint8_t *buff, uint32_t func,
+                        uint32_t adr, uint32_t rw_flag, uint32_t raw_flag);
 
 /* ---- sd_cd.c ---- */
 /* Function Name: _sd_check_media */
@@ -888,6 +1141,22 @@ int32_t _sd_check_csd(st_sdhndl_t *p_hndl);
  *****************************************************************************/
 int32_t _sd_check_info2_err(st_sdhndl_t *p_hndl);
 
+/* Function Name: _sd_send_iocmd */
+/**************************************************************************//**
+ * @fn            int32_t _sd_send_iocmd(st_sdhndl_t *p_hndl, uint16_t cmd, uint32_t arg)
+ * @brief         issue io access command (CMD52 or CMD53)
+ *                wait response
+ *                set access parameter by argument form
+ *                after this function finished, start data transfer
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl : SD handle
+ * @param [in]    uint16_t cmd   : command code (CMD52 or CMD53)
+ * @param [in]    uint32_t arg   : access parameter (command argument)
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sd_send_iocmd(st_sdhndl_t *p_hndl, uint16_t cmd, uint32_t arg);
+
 /* ---- sd_int.c ---- */
 /* Function Name: _sd_set_int_mask */
 /**************************************************************************//**
@@ -1008,6 +1277,57 @@ int32_t _sd_get_int_dm(st_sdhndl_t *p_hndl);
  *****************************************************************************/
 int32_t _sd_clear_dm_info(st_sdhndl_t *p_hndl, uint64_t clear_info1, uint64_t clear_info2);
 
+/* ---- sdio_int.c ---- */
+/* Function Name: _sdio_set_int_mask */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_set_int_mask(st_sdhndl_t *p_hndl, uint64_t mask)
+ * @brief         set int_io_info_mask depend on the mask bits value
+ *                if mask bit is one, it is enabled
+ *                if mask bit is zero, it is disabled
+ * @warning       execute sdio_enable_int preceeded, to enable interrupt
+ * @param [out]   st_sdhndl_t *p_hndl  : SD handle
+ * @param [in]    uint64_t mask : SDIO_INFO1_MASK bits value
+ * @retval        SD_OK : end of succeed
+ *****************************************************************************/
+int32_t _sdio_set_int_mask(st_sdhndl_t *p_hndl, uint64_t mask);
+
+/* Function Name: _sdio_clear_int_mask */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_clear_int_mask(st_sdhndl_t *p_hndl, uint64_t mask)
+ * @brief         clear int_io_info_mask depend on the mask bits value
+ *                if mask bit is one, it is disabled
+ *                if mask bit is zero, it is enabled
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl  : SD handle
+ * @param [in]    uint64_t mask : SDIO_INFO1_MASK bits value
+ * @retval        SD_OK : end of succeed
+ *****************************************************************************/
+int32_t _sdio_clear_int_mask(st_sdhndl_t *p_hndl, uint64_t mask);
+
+/* Function Name: _sdio_clear_info */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_clear_info(st_sdhndl_t *p_hndl, uint64_t clear)
+ * @brief         clear int_io_info depend on the clear value
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl   : SD handle
+ * @param [in]    uint64_t clear : int_io_info clear bits value
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_clear_info(st_sdhndl_t *p_hndl, uint64_t clear);
+
+/* Function Name: _sdio_get_int */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_get_int(st_sdhndl_t *p_hndl)
+ * @brief         clear int_io_info depend on the clear value
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl   : SD handle
+ * @param [in]    uint64_t clear : int_io_info clear bits value
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_get_int(st_sdhndl_t *p_hndl);
+
 /* ---- sd_util.c ---- */
 /* Function Name: _sd_set_clock */
 /**************************************************************************//**
@@ -1050,7 +1370,7 @@ int32_t _sd_set_port(st_sdhndl_t *p_hndl, int32_t port);
  *                if WP pin is disconnected to SDHI, return value has no
  *                meaning
  * @warning       don't check CSD write protect bits and ROM card
- * @param [in]    st_sdhndl_t *p_hndl : SD handle
+ * @param [out]   st_sdhndl_t *p_hndl : SD handle
  * @retval        SD_WP_OFF (0) : not write protected
  * @retval        SD_WP_HW  (1) : write protected
  *****************************************************************************/
@@ -1132,6 +1452,19 @@ int32_t _sd_active(st_sdhndl_t *p_hndl);
  * @retval        SD_ERR : end of error
  *****************************************************************************/
 int32_t _sd_inactive(st_sdhndl_t *p_hndl);
+
+/* Function Name: _sdio_set_blocklen */
+/**************************************************************************//**
+ * @fn            int32_t _sdio_set_blocklen(st_sdhndl_t *p_hndl, uint16_t len, uint32_t func)
+ * @brief         set io function's block length
+ * @warning       .
+ * @param [out]   st_sdhndl_t *p_hndl      : SD handle
+ * @param [in]    uint16_t len      : block length
+ * @param [in]    uint32_t func_num : specify function by number (from 0 to 7)
+ * @retval        SD_OK  : end of succeed
+ * @retval        SD_ERR : end of error
+ *****************************************************************************/
+int32_t _sdio_set_blocklen(st_sdhndl_t *p_hndl, uint16_t len, uint32_t func);
 
 /* Function Name: _sd_memset */
 /**************************************************************************//**

@@ -85,18 +85,6 @@ extern int32_t fat_cd_int_cb_function(int32_t sd_port, int32_t cd);
 static const st_r_drv_sdhi_sc_config_t SDHI_SC_TABLE[] =
 {
     /* This code is auto-generated. Do not edit manually */
-    { 0, 
-        {
-            SD_CD_ENABLED, 
-            SD_WP_DISABLED, 
-            SD_CB_USED, 
-            fat_cd_int_cb_function, 
-        }, 
-        {
-            &GPIO_SC_TABLE_sdhi_simplified0[0], 
-            sizeof(GPIO_SC_TABLE_sdhi_simplified0)/sizeof(st_r_drv_gpio_sc_config_t), 
-        }
-    },
     { 1, 
         {
             SD_CD_ENABLED, 
@@ -107,6 +95,18 @@ static const st_r_drv_sdhi_sc_config_t SDHI_SC_TABLE[] =
         {
             &GPIO_SC_TABLE_sdhi_simplified1[0], 
             sizeof(GPIO_SC_TABLE_sdhi_simplified1)/sizeof(st_r_drv_gpio_sc_config_t), 
+        }
+    },
+    { 0, 
+        {
+            SD_CD_ENABLED, 
+            SD_WP_DISABLED, 
+            SD_CB_USED, 
+            fat_cd_int_cb_function, 
+        }, 
+        {
+            &GPIO_SC_TABLE_sdhi_simplified0[0], 
+            sizeof(GPIO_SC_TABLE_sdhi_simplified0)/sizeof(st_r_drv_gpio_sc_config_t), 
         }
     },
     /* End of modification */

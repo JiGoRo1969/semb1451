@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_cmd.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -32,6 +32,8 @@
 * History : DD.MM.YYYY Version  Description
 *         : 16.03.2018 1.00     First Release
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 17.09.2019 1.30     Support for SDIO
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 /******************************************************************************
@@ -40,6 +42,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -87,6 +90,27 @@ static const int32_t s_resp_err_tbl[] =
     SD_ERR_RESERVED_ERROR18,            /* b18 : (reserved)                     */
     SD_ERR_RESERVED_ERROR17,            /* b17 : (reserved)                     */
     SD_ERR_OVERWRITE,                   /* b16 : CSD_OVERWRITE                  */
+};
+
+/* ==== IO errors ==== */
+static const int32_t s_io_err_tbl[] =
+{
+    SD_ERR_COM_CRC_ERROR,               /* b15 : COM_CRC_ERROR                  */
+    SD_ERR_ILLEGAL_COMMAND,             /* b14 : ILLEGAL_COMMAND                */
+    SD_ERR_INTERNAL,                    /* b13 : IO_CURRENT_STATE               */
+    SD_ERR_INTERNAL,                    /* b12 : IO_CURRENT_STATE               */
+    SD_ERR_ERROR,                       /* b11 : ERROR                          */
+    SD_ERR_INTERNAL,                    /* b10 : RFU                            */
+    SD_ERR_FUNCTION_NUMBER,             /* b9  : FUNCTION_NUMBER                */
+    SD_ERR_OUT_OF_RANGE,                /* b8  : OUT_OF_RANGE                   */
+    SD_ERR_HOST_CRC,                    /* b7  :                                */
+    SD_ERR_INTERNAL,                    /* b6  :                                */
+    SD_ERR_INTERNAL,                    /* b5  :                                */
+    SD_ERR_INTERNAL,                    /* b4  :                                */
+    SD_ERR_CARD_ERROR,                  /* b3  :                                */
+    SD_ERR_INTERNAL,                    /* b2  :                                */
+    SD_ERR_ILL_FUNC,                    /* b1  :                                */
+    SD_ERR_INTERNAL,                    /* b0  :                                */
 };
 
 /* ==== SD_INFO2 errors table ==== */
@@ -185,7 +209,7 @@ int32_t _sd_send_cmd(st_sdhndl_t *p_hndl, uint16_t cmd)
     {
 
         /* Cast to an appropriate type */
-        if (SD_INP(p_hndl, SD_INFO2) & SD_INFO2_MASK_SCLKDIVEN)
+        if (SDMMC.SD_INFO2.LONGLONG & SD_INFO2_MASK_SCLKDIVEN)
         {
             break;
         }
@@ -199,8 +223,8 @@ int32_t _sd_send_cmd(st_sdhndl_t *p_hndl, uint16_t cmd)
     /* ---- issue command ---- */
 
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_CMD, (uint64_t)cmd);
-
+    SDMMC.SD_CMD.LONGLONG = (uint64_t)cmd;
+    
     /* ---- wait resp end ---- */
     if (sddev_int_wait(p_hndl->sd_port, time) != SD_OK)
     {
@@ -296,7 +320,7 @@ int32_t _sd_send_mcmd(st_sdhndl_t *p_hndl, uint16_t cmd, uint32_t startaddr)
     {
 
         /* Cast to an appropriate type */
-        if (SD_INP(p_hndl, SD_INFO2) & SD_INFO2_MASK_SCLKDIVEN)
+        if (SDMMC.SD_INFO2.LONGLONG & SD_INFO2_MASK_SCLKDIVEN)
         {
             break;
         }
@@ -308,8 +332,8 @@ int32_t _sd_send_mcmd(st_sdhndl_t *p_hndl, uint16_t cmd, uint32_t startaddr)
     }
 
     /* ---- issue command ---- */
-    SD_OUTP(p_hndl, SD_CMD, (uint64_t)cmd);
-
+    SDMMC.SD_CMD.LONGLONG = (uint64_t)cmd;
+    
     /* ---- wait resp end ---- */
     if (sddev_int_wait(p_hndl->sd_port, SD_TIMEOUT_CMD) != SD_OK)
     {
@@ -341,6 +365,83 @@ int32_t _sd_send_mcmd(st_sdhndl_t *p_hndl, uint16_t cmd, uint32_t startaddr)
 }
 /******************************************************************************
  End of function _sd_send_mcmd
+ *****************************************************************************/
+
+/******************************************************************************
+ * Function Name: _sd_send_iocmd
+ * Description  : issue io access command (CMD52 or CMD53)
+ *                wait response
+ *                set access parameter by argument form
+ *                after this function finished, start data transfer
+ * Arguments    : st_sdhndl_t *p_hndl : SD handle
+ *                uint16_t cmd   : command code (CMD52 or CMD53)
+ *                uint32_t arg   : access parameter (command argument)
+ * Return Value : SD_OK : end of succeed
+ *                SD_ERR: end of error
+ *****************************************************************************/
+int32_t _sd_send_iocmd(st_sdhndl_t *p_hndl, uint16_t cmd, uint32_t arg)
+{
+    int32_t i;
+
+    p_hndl->error = SD_OK;
+
+    /* Cast to an appropriate type */
+    _sd_set_arg(p_hndl, (uint16_t)(arg >> 16), (uint16_t)arg);
+
+    /* enable resp end and illegal access interrupts */
+    _sd_set_int_mask(p_hndl, SD_INFO1_MASK_RESP, SD_INFO2_MASK_ILA);
+
+    for (i = 0; i < SCLKDIVEN_LOOP_COUNT; i++)
+    {
+        /* Cast to an appropriate type */
+        if (SDMMC.SD_INFO2.LONGLONG & SD_INFO2_MASK_SCLKDIVEN)
+        {
+            break;
+        }
+    }
+    if (SCLKDIVEN_LOOP_COUNT == i)
+    {
+        _sd_set_err(p_hndl, SD_ERR_CBSY_ERROR);       /* treate as CBSY ERROR */
+        return p_hndl->error;
+    }
+
+    /* ---- issue command ---- */
+    SDMMC.SD_CMD.LONGLONG = (uint64_t)cmd;
+    
+    /* ---- wait resp end ---- */
+    if (sddev_int_wait(p_hndl->sd_port, SD_TIMEOUT_CMD) != SD_OK)
+    {
+        _sd_set_err(p_hndl, SD_ERR_HOST_TOE);
+        return p_hndl->error;
+    }
+
+    /* disable resp end and illegal access interrupts */
+    _sd_clear_int_mask(p_hndl, SD_INFO1_MASK_RESP, SD_INFO2_MASK_ILA);
+
+    _sd_get_info2(p_hndl);    /* get SD_INFO2 register */
+
+    _sd_check_info2_err(p_hndl);  /* check SD_INFO2 error bits */
+
+    /* Cast to an appropriate type */
+    if (p_hndl->int_info1 & SD_INFO1_MASK_RESP)
+    {
+        if (!p_hndl->error)
+        {
+            _sd_get_resp(p_hndl, SD_RSP_R5); /* check R5 resp */
+        }
+    }
+    else
+    {
+        _sd_set_err(p_hndl, SD_ERR_INTERNAL); /* no response */
+    }
+
+    /* ---- clear previous errors ---- */
+    _sd_clear_info(p_hndl, SD_INFO1_MASK_RESP, SD_INFO2_MASK_ERR);
+
+    return p_hndl->error;
+}
+/******************************************************************************
+ End of function _sd_send_iocmd
  *****************************************************************************/
 
 /******************************************************************************
@@ -388,10 +489,10 @@ int32_t _sd_card_send_cmd_arg(st_sdhndl_t *p_hndl, uint16_t cmd, int32_t resp,
 void _sd_set_arg(st_sdhndl_t *p_hndl, uint16_t h_arg, uint16_t l_arg)
 {
     /* Cast to an appropriate type */
-    SD_OUTPLL(p_hndl, SD_ARG, l_arg);
-
+    SDMMC.SD_ARG.WORD.LL = l_arg;
+    
     /* Cast to an appropriate type */
-    SD_OUTPLL(p_hndl, SD_ARG1, h_arg);
+    SDMMC.SD_ARG1.WORD.LL = h_arg;
 }
 /******************************************************************************
  End of function _sd_set_arg
@@ -402,6 +503,7 @@ void _sd_set_arg(st_sdhndl_t *p_hndl, uint16_t h_arg, uint16_t l_arg)
  * Description  : get OCR register and check card operation voltage
  *              : if type is SD_MEDIA_SD, issue ACMD41
  *              : if type is SD_MEDIA_MMC, issue CMD1
+ *              : if type is SD_MEDIA_IO, issue CMD5
  * Arguments    : st_sdhndl_t *p_hndl : SD handle
  *              : int32_t type        : card type
  * Return Value : SD_OK : end of succeed
@@ -413,18 +515,42 @@ int32_t _sd_card_send_ocr(st_sdhndl_t *p_hndl, int32_t type)
     int32_t i;
     int32_t j = 0;
 
-    /* ===== distinguish card type issuing ACMD41 or CMD1 ==== */
+    /* ===== distinguish card type issuing CMD5, ACMD41 or CMD1 ==== */
     for (i = 0; i < 200; i++)
     {
         switch (type)
         {
+            case SD_MEDIA_UNKNOWN:  /* unknown media (read OCR) */
+
+                /* ---- issue CMD5 ---- */
+                _sd_set_arg(p_hndl, 0, 0);
+                ret = _sd_send_cmd(p_hndl, CMD5);
+                if (SD_OK == ret )
+                {
+                    return _sd_get_resp(p_hndl, SD_RSP_R4);
+                }
+                else
+                {
+                    return ret;
+                }
+                break;
+
+            case SD_MEDIA_IO:
+
+                /* ---- issue CMD5 ---- */
+                _sd_set_arg(p_hndl, (uint16_t)(p_hndl->voltage >> 16), (uint16_t)p_hndl->voltage);
+                ret = _sd_send_cmd(p_hndl, CMD5);
+                break;
+
             case SD_MEDIA_SD:
+            case SD_MEDIA_COMBO:
                 if (SD_MODE_VER2X == p_hndl->sup_ver)
                 {
                     if ( p_hndl->sd_spec & SD_SPEC_20 )
                     {
                         /* cmd8 have response   *//* set HCS bit */
                         p_hndl->voltage |= 0x40000000;
+
                     }
                 }
 
@@ -450,17 +576,35 @@ int32_t _sd_card_send_ocr(st_sdhndl_t *p_hndl, int32_t type)
 
         if (SD_OK == ret)
         {
-            _sd_get_resp(p_hndl, SD_RSP_R3); /* check R3 resp */
+            if (SD_MEDIA_IO == type)    /* IO */
+            {
+                _sd_get_resp(p_hndl, SD_RSP_R4); /* check R4 resp */
 
-            /* ---- polling busy bit ---- */
-            if (p_hndl->ocr[0] & 0x8000)  /* busy cleared */
-            {
-                break;
+                /* ---- polling busy bit ---- */
+                if (p_hndl->io_ocr[0] & 0x8000)  /* busy cleared */
+                {
+                    break;
+                }
+                else
+                {
+                    ret = SD_ERR;   /* busy */
+                    sddev_int_wait(p_hndl->sd_port, 5);   /* add wait function because retry interval is too short */
+                }
             }
-            else
+            else    /* memory */
             {
-                ret = SD_ERR;   /* busy */
-                sddev_int_wait(p_hndl->sd_port, 5);   /* add wait function because retry interval is too short */
+                _sd_get_resp(p_hndl, SD_RSP_R3); /* check R3 resp */
+
+                /* ---- polling busy bit ---- */
+                if (p_hndl->ocr[0] & 0x8000)  /* busy cleared */
+                {
+                    break;
+                }
+                else
+                {
+                    ret = SD_ERR;   /* busy */
+                    sddev_int_wait(p_hndl->sd_port, 5);   /* add wait function because retry interval is too short */
+                }
             }
         }
 
@@ -498,28 +642,45 @@ int32_t _sd_check_resp_error(st_sdhndl_t *p_hndl)
     int32_t  bit;
 
 
-    /* SD or MMC card */
-    status = (uint16_t)((p_hndl->resp_status >> 16 ) & 0xfdffu);
-
-    /* ---- search R1 error bit ---- */
-    bit = _sd_bit_search(status);
-
-    if ((-1) != bit)
+    if (SD_MEDIA_IO == p_hndl->media_type)
     {
-        /* R1 resp errors bits but for AKE_SEQ_ERROR */
-        _sd_set_err(p_hndl, s_resp_err_tbl[bit]);
-        return SD_ERR;
-    }
-    else if (p_hndl->resp_status & RES_AKE_SEQ_ERROR)
-    {
-        /* authentication process sequence error */
-        _sd_set_err(p_hndl, SD_ERR_AKE_SEQ);
-        return SD_ERR;
+        /* IO */
+        status = (uint16_t)(p_hndl->resp_status & 0xcb00u);
+
+        /* serch R5 error bit */
+        bit = _sd_bit_search(status);
+
+        if ((-1) != bit)
+        {
+            /* R5 resp errors bits */
+            _sd_set_err(p_hndl, s_io_err_tbl[bit]);
+        }
     }
     else
     {
-        /* DO NOTHING */
-        ;
+        /* SD or MMC card */
+        status = (uint16_t)((p_hndl->resp_status >> 16 ) & 0xfdffu);
+
+        /* ---- search R1 error bit ---- */
+        bit = _sd_bit_search(status);
+
+        if ((-1) != bit)
+        {
+            /* R1 resp errors bits but for AKE_SEQ_ERROR */
+            _sd_set_err(p_hndl, s_resp_err_tbl[bit]);
+            return SD_ERR;
+        }
+        else if (p_hndl->resp_status & RES_AKE_SEQ_ERROR)
+        {
+            /* authentication process sequence error */
+            _sd_set_err(p_hndl, SD_ERR_AKE_SEQ);
+            return SD_ERR;
+        }
+        else
+        {
+            /* DO NOTHING */
+            ;
+        }
     }
 
     return SD_OK;
@@ -557,11 +718,11 @@ int32_t _sd_get_resp(st_sdhndl_t *p_hndl, int32_t resp)
         case SD_RSP_R1B:   /* nomal response with an optional busy signal */
 
             /* Cast to an appropriate type */
-            status = SD_INPLL(p_hndl, SD_RSP1);
+            status = SDMMC.SD_RSP1.WORD.LL;
             status <<= 16;
 
             /* Cast to an appropriate type */
-            status |= SD_INPLL(p_hndl, SD_RSP10);
+            status |= SDMMC.SD_RSP10.WORD.LL;
             p_hndl->resp_status = status;
 
             if (status & 0xfdffe008)        /* ignore card locked status    */
@@ -575,93 +736,119 @@ int32_t _sd_get_resp(st_sdhndl_t *p_hndl, int32_t resp)
         case SD_RSP_R1_SCR:    /* nomal response with an optional busy signal */
 
             /* Cast to an appropriate type */
-            p_hndl->scr[0] = SD_INPLL(p_hndl, SD_RSP1);
+            p_hndl->scr[0] = SDMMC.SD_RSP1.WORD.LL;
 
             /* Cast to an appropriate type */
-            p_hndl->scr[1] = SD_INPLL(p_hndl, SD_RSP10);
+            p_hndl->scr[1] = SDMMC.SD_RSP10.WORD.LL;
             break;
 
         case SD_RSP_R2_CID:    /* CID register (128bits length) */
             p_ptr = p_hndl->cid;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP7);
+            *p_ptr++ = SDMMC.SD_RSP7.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP76);
+            *p_ptr++ = SDMMC.SD_RSP76.WORD.LL;
+            
+            /* Cast to an appropriate type */
+            *p_ptr++ = SDMMC.SD_RSP5.WORD.LL;
+            
+            /* Cast to an appropriate type */
+            *p_ptr++ = SDMMC.SD_RSP54.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP5);
+            *p_ptr++ = SDMMC.SD_RSP3.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP54);
+            *p_ptr++ = SDMMC.SD_RSP32.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP3);
+            *p_ptr++ = SDMMC.SD_RSP1.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP32);
-
-            /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP1);
-
-            /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP10);
+            *p_ptr++ = SDMMC.SD_RSP10.WORD.LL;
             break;
 
         case SD_RSP_R2_CSD:    /* CSD register (128bits length) */
             p_ptr = p_hndl->csd;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP7);
+            *p_ptr++ = SDMMC.SD_RSP7.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP76);
+            *p_ptr++ = SDMMC.SD_RSP76.WORD.LL;
+            
+            /* Cast to an appropriate type */
+            *p_ptr++ = SDMMC.SD_RSP5.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP5);
+            *p_ptr++ = SDMMC.SD_RSP54.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP54);
+            *p_ptr++ = SDMMC.SD_RSP3.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP3);
+            *p_ptr++ = SDMMC.SD_RSP32.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP32);
+            *p_ptr++ = SDMMC.SD_RSP1.WORD.LL;
 
             /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP1);
-
-            /* Cast to an appropriate type */
-            *p_ptr++ = SD_INPLL(p_hndl, SD_RSP10);
+            *p_ptr++ = SDMMC.SD_RSP10.WORD.LL;
             break;
 
         case SD_RSP_R3:    /* OCR register (32bits length) */
 
             /* Cast to an appropriate type */
-            p_hndl->ocr[0] = SD_INPLL(p_hndl, SD_RSP1);
+            p_hndl->ocr[0] = SDMMC.SD_RSP1.WORD.LL;
 
             /* Cast to an appropriate type */
-            p_hndl->ocr[1] = SD_INPLL(p_hndl, SD_RSP10);
+            p_hndl->ocr[1] = SDMMC.SD_RSP10.WORD.LL;
+            break;
+
+        case SD_RSP_R4:    /* IO OCR register (24bits length) */
+
+            /* Cast to an appropriate type */
+            p_hndl->io_ocr[0] = SDMMC.SD_RSP1.WORD.LL;
+
+            /* Cast to an appropriate type */
+            p_hndl->io_ocr[1] = SDMMC.SD_RSP10.WORD.LL;
             break;
 
         case SD_RSP_R6:        /* Published RCA response (32bits length) */
 
             /* Cast to an appropriate type */
-            p_hndl->rca[0] = SD_INPLL(p_hndl, SD_RSP1);
+            p_hndl->rca[0] = SDMMC.SD_RSP1.WORD.LL;
 
             /* Cast to an appropriate type */
-            p_hndl->rca[1] = SD_INPLL(p_hndl, SD_RSP10);
+            p_hndl->rca[1] = SDMMC.SD_RSP10.WORD.LL;
+            break;
+
+        case SD_RSP_R5:        /* IO RW response */
+
+            /* Cast to an appropriate type */
+            status = SDMMC.SD_RSP1.WORD.LL;
+            status <<= 16;
+
+            /* Cast to an appropriate type */
+            status |= SDMMC.SD_RSP10.WORD.LL;
+            p_hndl->resp_status = status;
+
+            if (status & 0xcb00)
+            {
+                /* any status error */
+                return _sd_check_resp_error(p_hndl);
+            }
             break;
 
         case SD_RSP_R7:       /* IF_COND response */
 
             /* Cast to an appropriate type */
-            p_hndl->if_cond[0] = SD_INPLL(p_hndl, SD_RSP1);
+            p_hndl->if_cond[0] = SDMMC.SD_RSP1.WORD.LL;
 
             /* Cast to an appropriate type */
-            p_hndl->if_cond[1] = SD_INPLL(p_hndl, SD_RSP10);
+            p_hndl->if_cond[1] = SDMMC.SD_RSP10.WORD.LL;
             break;
 
         default:
@@ -761,7 +948,7 @@ int32_t _sd_check_csd(st_sdhndl_t *p_hndl)
 
     /* ---- CCC  ---- */
     p_hndl->csd_ccc = (uint16_t)(((p_hndl->csd[2] & 0x00ffu) << 4u) |
-                                ((p_hndl->csd[3] & 0xf000u) >> 12u));
+                                    ((p_hndl->csd[3] & 0xf000u) >> 12u));
 
 
     /* ---- COPY ---- */
@@ -840,10 +1027,10 @@ static void _sd_get_info2(st_sdhndl_t *p_hndl)
     uint64_t info2_reg;
 
     /* Cast to an appropriate type */
-    info2_reg = (uint64_t)((SD_INP(p_hndl, SD_INFO2) & SD_INFO2_MASK_ERR));
-
+    info2_reg = (uint64_t)(SDMMC.SD_INFO2.LONGLONG & SD_INFO2_MASK_ERR);
+    
     /* Cast to an appropriate type */
-    SD_OUTP(p_hndl, SD_INFO2, (uint64_t)~info2_reg);
+    SDMMC.SD_INFO2.LONGLONG =(uint64_t)~info2_reg;
 
     /* Cast to an appropriate type */
     p_hndl->int_info2 = (uint64_t)(p_hndl->int_info2 | info2_reg);

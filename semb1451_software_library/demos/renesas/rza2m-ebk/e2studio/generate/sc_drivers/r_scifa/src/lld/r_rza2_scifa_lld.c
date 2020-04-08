@@ -692,7 +692,7 @@ int_t R_SCIFA_ChannelConfigure (r_channel_t channel, const scifa_config_t *p_con
     uint32_t current_clk_hz;
 
     /* open the CPG driver */
-    cpg_handle = direct_open("cpg", O_RDWR);
+    cpg_handle = direct_open("cpg", O_RDONLY);
     if (cpg_handle < 0)
     {
         return (DRV_ERROR);
@@ -824,6 +824,9 @@ int_t R_SCIFA_StopTransmit (r_channel_t channel)
 
     /* disable transmit end interrupt enable */
     RZA_IO_RegWrite_16((volatile uint16_t *) &gsp_scifa[channel]->SCR.WORD, 0, SCIFA_SCR_TEIE_SHIFT, SCIFA_SCR_TEIE);
+
+    /* clear the TEND bit */
+     RZA_IO_RegWrite_16((volatile uint16_t *) &gsp_scifa[channel]->FSR.WORD, 0, SCIFA_FSR_TEND_SHIFT, SCIFA_FSR_TEND);
 
     /* flush the transmit FIFO */
     gsp_scifa[channel]->FCR.BIT.TFRST = 1;

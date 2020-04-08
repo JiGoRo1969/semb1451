@@ -19,7 +19,7 @@
 /*******************************************************************************
 * System Name  : SDHI Driver
 * File Name    : sd_trns.c
-* Version      : 1.20
+* Version      : 1.31
 * Device(s)    : RZ/A2M
 * Tool-Chain   : e2 studio (GCC ARM Embedded)
 * OS           : None
@@ -32,6 +32,7 @@
 * History : DD.MM.YYYY Version  Description
 *         : 16.03.2018 1.00     First Release
 *         : 29.05.2019 1.20     Correspond to internal coding rules
+*         : 12.11.2019 1.31     Replaces the register access with iodefine
 ******************************************************************************/
 
 /******************************************************************************
@@ -40,6 +41,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_typedefs.h"
 #include "r_sdif.h"
 #include "sd.h"
+#include "iodefine.h"
 
 #ifdef __CC_ARM
 #pragma arm section code = "CODE_SDHI"
@@ -126,7 +128,8 @@ int32_t _sd_software_trans(st_sdhndl_t *p_hndl, uint8_t *buff, int32_t cnt, int3
         }
 
         /* write/read to/from SD_BUF by 1 sector */
-        if ((*func)(p_hndl->sd_port, buff, (uint32_t)p_hndl->reg_base + SD_BUF0, 512) != SD_OK)
+
+        if ((*func)(p_hndl->sd_port, buff, (uint32_t)(&SDMMC.SD_BUF0.LONGLONG), 512) != SD_OK)
         {
             _sd_set_err(p_hndl, SD_ERR_CPU_IF);
             break;
