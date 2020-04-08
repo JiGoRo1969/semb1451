@@ -58,7 +58,3 @@ Please don't change L1 cache setting for Internal memory (0x80000000-).
 |USB Function         |USB1             | N.A.   | underdevelopment |
 |micro SD slot        |SDHI0            | ready  | |
 |CAN(FD) I/F          |CAN(FD)          | N.A.   | underdevelopment |
-
-## License
-[Apache Licence Ver.2](http://www.apache.org/licenses/)
-except included source codes created by the another one.
