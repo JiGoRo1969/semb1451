@@ -4,9 +4,7 @@
 <configuration active="true" id="com.renesas.smc.toolchain.gnuarm.configuration.release">
 <property id="com.renesas.smc.service.project.buildArtefactType" values="com.renesas.smc.service.project.buildArtefactType.exe"/>
 <toolchain id="com.renesas.smc.toolchain.gnuarm.noneeabi">
-<option id="com.renesas.smc.toolchain.option.rtos" key="com.renesas.smc.toolchain.option.rtos.none">
-<item id="com.renesas.smc.toolchain.option.rtos.freertos" value=""/>
-</option>
+<option id="com.renesas.smc.toolchain.option.rtos" key="com.renesas.smc.toolchain.option.rtos.none"/>
 </toolchain>
 </configuration>
 <platform id="R7S921053"/>
@@ -175,69 +173,75 @@
 <extendedItem direction="I" drvctrl="4mA" id="C9" initSource="ByDriver" interrupt="Disabled" outdt="Low"/>
 <extendedItem direction="I" drvctrl="4mA" id="L19" initSource="ByDriver" interrupt="Disabled" outdt="Low"/>
 <extendedItem direction="O" drvctrl="4mA" id="L21" initSource="ByDriver" interrupt="Disabled" outdt="Low"/>
-<pinItem allocation="M20" comments="" direction="None" id="P6_0" locked="false" status="0"/>
-<pinItem allocation="AA6" comments="" direction="None" id="PC_1" locked="false" status="0"/>
-<pinItem allocation="A16" comments="" direction="None" id="RxD4" locked="false" status="0"/>
-<pinItem allocation="C15" comments="" direction="None" id="TxD4" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="CTS0#" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="RTS0#" locked="false" status="0"/>
-<pinItem allocation="J20" comments="" direction="None" id="RxD0" locked="false" status="0"/>
-<pinItem allocation="H21" comments="" direction="None" id="TxD0" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="SCK0" locked="false" status="0"/>
-<pinItem allocation="D14" comments="" direction="None" id="PF_0" locked="false" status="0"/>
-<pinItem allocation="D11" comments="" direction="None" id="PF_3" locked="false" status="0"/>
-<pinItem allocation="AA19" comments="" direction="None" id="PC_4" locked="false" status="0"/>
-<pinItem allocation="G20" comments="" direction="None" id="PB_2" locked="false" status="0"/>
-<pinItem allocation="F22" comments="" direction="None" id="PB_1" locked="false" status="0"/>
-<pinItem allocation="H19" comments="" direction="None" id="PB_4" locked="false" status="0"/>
-<pinItem allocation="G21" comments="" direction="None" id="PB_3" locked="false" status="0"/>
-<pinItem allocation="C19" comments="" direction="None" id="PB_0" locked="false" status="0"/>
-<pinItem allocation="AB5" comments="" direction="None" id="P2_1" locked="false" status="0"/>
-<pinItem allocation="AB6" comments="" direction="None" id="P2_3" locked="false" status="0"/>
-<pinItem allocation="C17" comments="" direction="None" id="PA_2" locked="false" status="0"/>
-<pinItem allocation="D17" comments="" direction="None" id="PA_7" locked="false" status="0"/>
-<pinItem allocation="B20" comments="" direction="None" id="PA_6" locked="false" status="0"/>
-<pinItem allocation="AA22" comments="" direction="None" id="AN005" locked="false" status="0"/>
-<pinItem allocation="W20" comments="" direction="None" id="AN006" locked="false" status="0"/>
-<pinItem allocation="Y21" comments="" direction="None" id="AN007" locked="false" status="0"/>
-<pinItem allocation="W19" comments="" direction="None" id="AN002" locked="false" status="0"/>
-<pinItem allocation="V19" comments="" direction="None" id="AN004" locked="false" status="0"/>
-<pinItem allocation="C9" comments="" direction="None" id="RxD3" locked="false" status="0"/>
-<pinItem allocation="A9" comments="" direction="None" id="RxD2" locked="false" status="0"/>
-<pinItem allocation="L19" comments="" direction="None" id="RxD1" locked="false" status="0"/>
-<pinItem allocation="B9" comments="" direction="None" id="TxD3" locked="false" status="0"/>
-<pinItem allocation="B8" comments="" direction="None" id="TxD2" locked="false" status="0"/>
-<pinItem allocation="L21" comments="" direction="None" id="TxD1" locked="false" status="0"/>
-<pinItem allocation="K2" comments="" direction="None" id="PJ_6" locked="false" status="0"/>
-<pinItem allocation="C1" comments="" direction="None" id="PH_2" locked="false" status="0"/>
-<pinItem allocation="J21" comments="" direction="None" id="P7_6" locked="false" status="0"/>
-<pinItem allocation="L22" comments="" direction="None" id="P7_2" locked="false" status="0"/>
-<pinItem allocation="C21" comments="" direction="None" id="RIIC3SDA" locked="false" status="0"/>
-<pinItem allocation="U21" comments="" direction="None" id="SD0_CMD" locked="false" status="0"/>
-<pinItem allocation="T21" comments="" direction="None" id="SD0_DAT3" locked="false" status="0"/>
-<pinItem allocation="T19" comments="" direction="None" id="SD0_DAT0" locked="false" status="0"/>
-<pinItem allocation="T20" comments="" direction="None" id="SD0_DAT1" locked="false" status="0"/>
-<pinItem allocation="R19" comments="" direction="None" id="SD0_DAT2" locked="false" status="0"/>
-<pinItem allocation="U22" comments="" direction="None" id="SD0_CLK" locked="false" status="0"/>
-<pinItem allocation="E2" comments="" direction="None" id="SD0_CD" locked="false" status="0"/>
-<pinItem allocation="K3" comments="" direction="None" id="SD0_WP" locked="false" status="0"/>
-<pinItem allocation="D22" comments="" direction="None" id="RIIC0SDA" locked="false" status="0"/>
-<pinItem allocation="F19" comments="" direction="None" id="RIIC0SCL" locked="false" status="0"/>
-<pinItem allocation="E20" comments="" direction="None" id="RIIC1SCL" locked="false" status="0"/>
-<pinItem allocation="C22" comments="" direction="None" id="RIIC1SDA" locked="false" status="0"/>
-<pinItem allocation="D20" comments="" direction="None" id="RIIC3SCL" locked="false" status="0"/>
-<pinItem allocation="AB17" comments="" direction="None" id="PC_3" locked="false" status="0"/>
-<pinItem allocation="W7" comments="" direction="None" id="P2_0" locked="false" status="0"/>
-<pinItem allocation="K4" comments="" direction="None" id="PJ_0" locked="false" status="0"/>
-<pinItem allocation="R3" comments="" direction="None" id="PJ_5" locked="false" status="0"/>
-<pinItem allocation="N20" comments="" direction="None" id="SSL00" locked="false" status="0"/>
-<pinItem allocation="C18" comments="" direction="None" id="RSPCK0" locked="false" status="0"/>
-<pinItem allocation="V3" comments="" direction="None" id="RSPCK1" locked="false" status="0"/>
-<pinItem allocation="AB3" comments="" direction="None" id="SSL10" locked="false" status="0"/>
-<pinItem allocation="W4" comments="" direction="None" id="MISO1" locked="false" status="0"/>
-<pinItem allocation="K22" comments="" direction="None" id="MISO0" locked="false" status="0"/>
-<pinItem allocation="K20" comments="" direction="None" id="MOSI0" locked="false" status="0"/>
-<pinItem allocation="AB2" comments="" direction="None" id="MOSI1" locked="false" status="0"/>
+<extendedItem direction="IO" drvctrl="" id="E19" initSource="ByGPIOInit" interrupt="Disabled" outdt="Low"/>
+<extendedItem direction="IO" drvctrl="" id="D21" initSource="ByGPIOInit" interrupt="Disabled" outdt="Low"/>
+<pinItem allocation="M20" comments="" direction="None" id="P6_0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AA6" comments="" direction="None" id="PC_1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="A16" comments="" direction="None" id="RxD4" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C15" comments="" direction="None" id="TxD4" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="" comments="" direction="None" id="CTS0#" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="" comments="" direction="None" id="RTS0#" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="J20" comments="" direction="None" id="RxD0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="H21" comments="" direction="None" id="TxD0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="" comments="" direction="None" id="SCK0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="D14" comments="" direction="None" id="PF_0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="D11" comments="" direction="None" id="PF_3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AA19" comments="" direction="None" id="PC_4" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="G20" comments="" direction="None" id="PB_2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="F22" comments="" direction="None" id="PB_1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="H19" comments="" direction="None" id="PB_4" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="G21" comments="" direction="None" id="PB_3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C19" comments="" direction="None" id="PB_0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="" comments="" direction="None" id="P2_1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AB6" comments="" direction="None" id="P2_3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C17" comments="" direction="None" id="PA_2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="D17" comments="" direction="None" id="PA_7" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="B20" comments="" direction="None" id="PA_6" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AA22" comments="" direction="None" id="AN005" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="W20" comments="" direction="None" id="AN006" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="Y21" comments="" direction="None" id="AN007" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="W19" comments="" direction="None" id="AN002" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="V19" comments="" direction="None" id="AN004" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C14" comments="" direction="None" id="RxD3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="A9" comments="" direction="None" id="RxD2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="N2" comments="" direction="None" id="RxD1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="B14" comments="" direction="None" id="TxD3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="B8" comments="" direction="None" id="TxD2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="N4" comments="" direction="None" id="TxD1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="K2" comments="" direction="None" id="PJ_6" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C1" comments="" direction="None" id="PH_2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="J21" comments="" direction="None" id="P7_6" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="L22" comments="" direction="None" id="P7_2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C21" comments="" direction="None" id="RIIC3SDA" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="U21" comments="" direction="None" id="SD0_CMD" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="T21" comments="" direction="None" id="SD0_DAT3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="T19" comments="" direction="None" id="SD0_DAT0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="T20" comments="" direction="None" id="SD0_DAT1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="R19" comments="" direction="None" id="SD0_DAT2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="U22" comments="" direction="None" id="SD0_CLK" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="E2" comments="" direction="None" id="SD0_CD" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="K3" comments="" direction="None" id="SD0_WP" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="D22" comments="" direction="None" id="RIIC0SDA" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="F19" comments="" direction="None" id="RIIC0SCL" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="E20" comments="" direction="None" id="RIIC1SCL" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C22" comments="" direction="None" id="RIIC1SDA" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="D20" comments="" direction="None" id="RIIC3SCL" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AB17" comments="" direction="None" id="PC_3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="W7" comments="" direction="None" id="P2_0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="K4" comments="" direction="None" id="PJ_0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="R3" comments="" direction="None" id="PJ_5" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="N20" comments="" direction="None" id="SSL00" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="C18" comments="" direction="None" id="RSPCK0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="V3" comments="" direction="None" id="RSPCK1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AB3" comments="" direction="None" id="SSL10" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="W4" comments="" direction="None" id="MISO1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="K22" comments="" direction="None" id="MISO0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="K20" comments="" direction="None" id="MOSI0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AB2" comments="" direction="None" id="MOSI1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="Y10" comments="" direction="None" id="NMI" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="E19" comments="" direction="None" id="RIIC2SDA" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="D21" comments="" direction="None" id="RIIC2SCL" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="AB5" comments="" direction="None" id="IRQ6" isUsedBySoftware="false" locked="false" status="0"/>
 </tool>
 <tool enable="true" id="Mmu" import="resources\importtemplate\bootmode.xml" version="1.0.0.0">
 <entry attribute="1" id="" name="CS0 space" physicalAddress="0x00000000" size="64" virtualAddress="0x00000000"/>
@@ -254,7 +258,7 @@
 <entry attribute="7" id="" name="Octa Flash area" physicalAddress="0x50000000" size="256" virtualAddress="0x50000000"/>
 <entry attribute="7" id="" name="Octa RAM area" physicalAddress="0x60000000" size="256" virtualAddress="0x60000000"/>
 <entry attribute="2" id="" name="SPI multi I/O bus area" physicalAddress="0x20000000" size="256" virtualAddress="0x70000000"/>
-<entry attribute="8" id="" name="Internal RAM area" physicalAddress="0x80000000" size="4" virtualAddress="0x80000000"/>
+<entry attribute="5" id="" name="Internal RAM area" physicalAddress="0x80000000" size="4" virtualAddress="0x80000000"/>
 <entry attribute="9" id="" name="Reserved" physicalAddress="0x80400000" size="28" virtualAddress="0x80400000"/>
 <entry attribute="8" id="" name="Internal RAM area" physicalAddress="0x80000000" size="4" virtualAddress="0x82000000"/>
 <entry attribute="9" id="" name="Reserved" physicalAddress="0x82400000" size="92" virtualAddress="0x82400000"/>
@@ -272,163 +276,9 @@
 <entry attribute="0" id="" name="Peripheral I/O" physicalAddress="0xE8000000" size="384" virtualAddress="0xE8000000"/>
 </tool>
 <tool id="SWComponent" version="1.0.0.0">
-<configuration channel="r_cbuffer" inuse="true" name="cbuffer0">
-<component description="依存モジュール: なし&#10;Common software for buffer processing" detailDescription="" display="r_cbuffer" id="r_cbuffer1.03" version="1.03"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="r_cache" inuse="true" name="cache">
-<component description="依存モジュール: なし&#10;Cache Module (Configure Memory using MMU TAB)" detailDescription="" display="r_cache" id="r_cache1.03" version="1.03"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="r_gpio" inuse="true" name="gpio">
-<component description="依存モジュール: なし&#10;General Purpose Input/Output Pin Module (Configure using Pins TAB)" detailDescription="" display="r_gpio" id="r_gpio1.04" version="1.04"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="r_intc" inuse="true" name="intc">
-<component description="依存モジュール: なし&#10;Interrupt Controller Module" detailDescription="" display="r_intc" id="r_intc1.04" version="1.04"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="r_mmu" inuse="true" name="mmu">
-<component description="依存モジュール: なし&#10;Memory Management Module (Configure Memory using MMU TAB)" detailDescription="" display="r_mmu" id="r_mmu1.03" version="1.03"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="r_stb" inuse="true" name="stb">
-<component description="依存モジュール: なし&#10;Standby control Management Module" detailDescription="" display="r_stb" id="r_stb1.03" version="1.03"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="fatfs" inuse="true" name="fatfs0">
-<component description="依存モジュール: なし&#10;fatfs&#10;Note: documents.zip includes *.c files. If you unzipped the zip file, exclude the documents\res from your build." detailDescription="" display="fatfs" id="fatfs0.133" version="0.133"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="DMAC9" inuse="true" name="dmac9_rs_txi4">
-<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
-<gridItem id="DMAC_RESOURCE" selectedIndex="170"/>
-<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="1"/>
-<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
-<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="DMAC3" inuse="true" name="dmac3_rs_txi1">
-<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
-<gridItem id="DMAC_RESOURCE" selectedIndex="164"/>
-<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="1"/>
-<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
-<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="DMAC7" inuse="true" name="dmac7_rs_txi3">
-<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
-<gridItem id="DMAC_RESOURCE" selectedIndex="168"/>
-<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="1"/>
-<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
-<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="DMAC5" inuse="true" name="dmac5_rs_txi2">
-<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
-<gridItem id="DMAC_RESOURCE" selectedIndex="166"/>
-<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="1"/>
-<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
-<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="DMAC4" inuse="true" name="dmac4_rs_rxi2">
-<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
-<gridItem id="DMAC_RESOURCE" selectedIndex="165"/>
-<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="1"/>
-<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="0"/>
-<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
-<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="DMAC2" inuse="true" name="dmac2_rs_rxi1">
-<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
-<gridItem id="DMAC_RESOURCE" selectedIndex="163"/>
-<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="1"/>
-<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="0"/>
-<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
-<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration channel="DMAC0" inuse="true" name="dmac0_rs_rxi0">
 <component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
 <gridItem id="DMAC_RESOURCE" selectedIndex="161"/>
-<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
-<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="1"/>
-<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="0"/>
-<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
-<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
-<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="DMAC8" inuse="true" name="dmac8_rs_rxi4">
-<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
-<gridItem id="DMAC_RESOURCE" selectedIndex="169"/>
 <gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
 <gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
 <gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="1"/>
@@ -460,6 +310,74 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
+<configuration channel="DMAC2" inuse="true" name="dmac2_rs_rxi1">
+<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
+<gridItem id="DMAC_RESOURCE" selectedIndex="163"/>
+<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="1"/>
+<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="0"/>
+<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
+<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="DMAC3" inuse="true" name="dmac3_rs_txi1">
+<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
+<gridItem id="DMAC_RESOURCE" selectedIndex="164"/>
+<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="1"/>
+<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
+<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="DMAC4" inuse="true" name="dmac4_rs_rxi2">
+<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
+<gridItem id="DMAC_RESOURCE" selectedIndex="165"/>
+<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="1"/>
+<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="0"/>
+<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
+<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="DMAC5" inuse="true" name="dmac5_rs_txi2">
+<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
+<gridItem id="DMAC_RESOURCE" selectedIndex="166"/>
+<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="1"/>
+<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
+<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
 <configuration channel="DMAC6" inuse="true" name="dmac6_rs_rxi3">
 <component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
 <gridItem id="DMAC_RESOURCE" selectedIndex="167"/>
@@ -477,45 +395,19 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration channel="SDMMC1" inuse="true" name="sdhi_simplified1">
-<component description="依存モジュール: fatfs バージョン 0.133&#10;SDHI Driver&#10;SD Host/Ancillary Product License Agreement (SD HALA) is required to develop SD host-related products. Refer https://www.sdcard.org/developers/licensing/ for detail:&#10;[Updates:1.20]&#10;- Implement the configurations of &quot;SD card detection callback function setting&quot;.&#10;- Implement the configurations of &quot;SD card detection callback function&quot;.&#10;- Update the default value of &quot;SD write protection signal detection option&quot; from SD_WP_ENABLED to SD_WP_DISABLED.&#10;[Update:1.50]&#10;- Support SDIO" detailDescription="" display="r_sdhi_simplified" id="r_sdhi_simplified1.50" version="1.50">
-<gridItem id="SD1_CD" selectedIndex="1"/>
-<gridItem id="SD1_CLK" selectedIndex="1"/>
-<gridItem id="SD1_CMD" selectedIndex="1"/>
-<gridItem id="SD1_DAT0" selectedIndex="1"/>
-<gridItem id="SD1_DAT1" selectedIndex="1"/>
-<gridItem id="SD1_DAT2" selectedIndex="1"/>
-<gridItem id="SD1_DAT3" selectedIndex="1"/>
-<gridItem id="SD1_WP" selectedIndex="1"/>
-<gridItem id="SDMMC1" selectedIndex="0"/>
-<gridItem id="SDHI_CD_LAYOUT" selectedIndex="0"/>
-<gridItem id="SDHI_WP_LAYOUT" selectedIndex="0"/>
-<gridItem id="SDHI_CB_SETTING" selectedIndex="0"/>
-<gridItem id="SDHI_CB_FUNCTION" selectedIndex="NULL"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="SDMMC0" inuse="true" name="sdhi_simplified0">
-<component description="依存モジュール: fatfs バージョン 0.133&#10;SDHI Driver&#10;SD Host/Ancillary Product License Agreement (SD HALA) is required to develop SD host-related products. Refer https://www.sdcard.org/developers/licensing/ for detail:&#10;[Updates:1.20]&#10;- Implement the configurations of &quot;SD card detection callback function setting&quot;.&#10;- Implement the configurations of &quot;SD card detection callback function&quot;.&#10;- Update the default value of &quot;SD write protection signal detection option&quot; from SD_WP_ENABLED to SD_WP_DISABLED.&#10;[Update:1.50]&#10;- Support SDIO" detailDescription="" display="r_sdhi_simplified" id="r_sdhi_simplified1.50" version="1.50">
-<gridItem id="SD0_CD" selectedIndex="1"/>
-<gridItem id="SD0_CLK" selectedIndex="1"/>
-<gridItem id="SD0_CMD" selectedIndex="1"/>
-<gridItem id="SD0_DAT0" selectedIndex="1"/>
-<gridItem id="SD0_DAT1" selectedIndex="1"/>
-<gridItem id="SD0_DAT2" selectedIndex="1"/>
-<gridItem id="SD0_DAT3" selectedIndex="1"/>
-<gridItem id="SD0_DAT4" selectedIndex="0"/>
-<gridItem id="SD0_DAT5" selectedIndex="0"/>
-<gridItem id="SD0_DAT6" selectedIndex="0"/>
-<gridItem id="SD0_DAT7" selectedIndex="0"/>
-<gridItem id="SD0_RST#" selectedIndex="0"/>
-<gridItem id="SD0_WP" selectedIndex="1"/>
-<gridItem id="SDMMC0" selectedIndex="1"/>
-<gridItem id="SDHI_CD_LAYOUT" selectedIndex="0"/>
-<gridItem id="SDHI_WP_LAYOUT" selectedIndex="1"/>
-<gridItem id="SDHI_CB_SETTING" selectedIndex="1"/>
-<gridItem id="SDHI_CB_FUNCTION" selectedIndex="fat_cd_int_cb_function"/>
+<configuration channel="DMAC7" inuse="true" name="dmac7_rs_txi3">
+<component description="依存モジュール: なし&#10;DMA Controller Driver" detailDescription="" display="r_dmac" id="r_dmac2.03" version="2.03">
+<gridItem id="DMAC_RESOURCE" selectedIndex="168"/>
+<gridItem id="DMAC_SOURCE_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_DESTINATION_UNIT" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_SOURCE" selectedIndex="0"/>
+<gridItem id="DMAC_ADDR_TYPE_DESTINATION" selectedIndex="1"/>
+<gridItem id="DMAC_DIRECTION" selectedIndex="1"/>
+<gridItem id="DMAC_COMPLETE_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_ERROR_CALLBACK_FUNCTION" selectedIndex="NULL"/>
+<gridItem id="DMAC_SOURCE_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DESTINATION_ADDR" selectedIndex="0x00000000"/>
+<gridItem id="DMAC_DATA_LENGTH" selectedIndex="1024"/>
 </component>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
@@ -540,41 +432,6 @@
 <gridItem id="RIIC0SCL" selectedIndex="1"/>
 <gridItem id="RIIC0SDA" selectedIndex="1"/>
 <gridItem id="RIIC0" selectedIndex="1"/>
-<gridItem id="RIIC_OPERATION_MODE" selectedIndex="0"/>
-<gridItem id="RIIC_SLAVE_ADDRESS0_ENABLE" selectedIndex="1"/>
-<gridItem id="RIIC_SLAVE_ADDRESS1_ENABLE" selectedIndex="0"/>
-<gridItem id="RIIC_SLAVE_ADDRESS2_ENABLE" selectedIndex="0"/>
-<gridItem id="RIIC_SLAVE_ADDRESS0" selectedIndex="1"/>
-<gridItem id="RIIC_SLAVE_ADDRESS1" selectedIndex="1"/>
-<gridItem id="RIIC_SLAVE_ADDRESS2" selectedIndex="1"/>
-<gridItem id="RIIC_SLAVE_ADDRESS0_LENGTH" selectedIndex="0"/>
-<gridItem id="RIIC_SLAVE_ADDRESS1_LENGTH" selectedIndex="0"/>
-<gridItem id="RIIC_SLAVE_ADDRESS2_LENGTH" selectedIndex="0"/>
-<gridItem id="RIIC_FREQUENCY" selectedIndex="1"/>
-<gridItem id="RIIC_DUTY" selectedIndex="4"/>
-<gridItem id="RIIC_SCL_RISE_TIME" selectedIndex="0"/>
-<gridItem id="RIIC_SCL_FALL_TIME" selectedIndex="0"/>
-<gridItem id="RIIC_FILTER_STAGE" selectedIndex="0"/>
-<gridItem id="RIIC_TIMEOUT" selectedIndex="0"/>
-<gridItem id="RIIC_BUS_FORMAT" selectedIndex="0"/>
-<gridItem id="RIIC_HOST_ADDRESS_DETECTION" selectedIndex="0"/>
-<gridItem id="RIIC_TEND_INTERRUPT_PRIORITY" selectedIndex="9"/>
-<gridItem id="RIIC_RDRF_INTERRUPT_PRIORITY" selectedIndex="9"/>
-<gridItem id="RIIC_TDRE_INTERRUPT_PRIORITY" selectedIndex="9"/>
-<gridItem id="RIIC_STOP_INTERRUPT_PRIORITY" selectedIndex="9"/>
-<gridItem id="RIIC_START_INTERRUPT_PRIORITY" selectedIndex="9"/>
-<gridItem id="RIIC_NACKF_INTERRUPT_PRIORITY" selectedIndex="9"/>
-<gridItem id="RIIC_AL_INTERRUPT_PRIORITY" selectedIndex="9"/>
-<gridItem id="RIIC_TMOF_INTERRUPT_PRIORITY" selectedIndex="9"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="RIIC2" inuse="true" name="riic2">
-<component description="依存モジュール: r_cpg バージョン 1.04&#10;RIIC Driver" detailDescription="" display="r_riic" id="r_riic1.05" version="1.05">
-<gridItem id="RIIC2SCL" selectedIndex="0"/>
-<gridItem id="RIIC2SDA" selectedIndex="0"/>
-<gridItem id="RIIC2" selectedIndex="0"/>
 <gridItem id="RIIC_OPERATION_MODE" selectedIndex="0"/>
 <gridItem id="RIIC_SLAVE_ADDRESS0_ENABLE" selectedIndex="1"/>
 <gridItem id="RIIC_SLAVE_ADDRESS1_ENABLE" selectedIndex="0"/>
@@ -640,6 +497,41 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
+<configuration channel="RIIC2" inuse="true" name="riic2">
+<component description="依存モジュール: r_cpg バージョン 1.04&#10;RIIC Driver" detailDescription="" display="r_riic" id="r_riic1.05" version="1.05">
+<gridItem id="RIIC2SCL" selectedIndex="0"/>
+<gridItem id="RIIC2SDA" selectedIndex="0"/>
+<gridItem id="RIIC2" selectedIndex="0"/>
+<gridItem id="RIIC_OPERATION_MODE" selectedIndex="0"/>
+<gridItem id="RIIC_SLAVE_ADDRESS0_ENABLE" selectedIndex="1"/>
+<gridItem id="RIIC_SLAVE_ADDRESS1_ENABLE" selectedIndex="0"/>
+<gridItem id="RIIC_SLAVE_ADDRESS2_ENABLE" selectedIndex="0"/>
+<gridItem id="RIIC_SLAVE_ADDRESS0" selectedIndex="1"/>
+<gridItem id="RIIC_SLAVE_ADDRESS1" selectedIndex="1"/>
+<gridItem id="RIIC_SLAVE_ADDRESS2" selectedIndex="1"/>
+<gridItem id="RIIC_SLAVE_ADDRESS0_LENGTH" selectedIndex="0"/>
+<gridItem id="RIIC_SLAVE_ADDRESS1_LENGTH" selectedIndex="0"/>
+<gridItem id="RIIC_SLAVE_ADDRESS2_LENGTH" selectedIndex="0"/>
+<gridItem id="RIIC_FREQUENCY" selectedIndex="1"/>
+<gridItem id="RIIC_DUTY" selectedIndex="4"/>
+<gridItem id="RIIC_SCL_RISE_TIME" selectedIndex="0"/>
+<gridItem id="RIIC_SCL_FALL_TIME" selectedIndex="0"/>
+<gridItem id="RIIC_FILTER_STAGE" selectedIndex="0"/>
+<gridItem id="RIIC_TIMEOUT" selectedIndex="0"/>
+<gridItem id="RIIC_BUS_FORMAT" selectedIndex="0"/>
+<gridItem id="RIIC_HOST_ADDRESS_DETECTION" selectedIndex="0"/>
+<gridItem id="RIIC_TEND_INTERRUPT_PRIORITY" selectedIndex="9"/>
+<gridItem id="RIIC_RDRF_INTERRUPT_PRIORITY" selectedIndex="9"/>
+<gridItem id="RIIC_TDRE_INTERRUPT_PRIORITY" selectedIndex="9"/>
+<gridItem id="RIIC_STOP_INTERRUPT_PRIORITY" selectedIndex="9"/>
+<gridItem id="RIIC_START_INTERRUPT_PRIORITY" selectedIndex="9"/>
+<gridItem id="RIIC_NACKF_INTERRUPT_PRIORITY" selectedIndex="9"/>
+<gridItem id="RIIC_AL_INTERRUPT_PRIORITY" selectedIndex="9"/>
+<gridItem id="RIIC_TMOF_INTERRUPT_PRIORITY" selectedIndex="9"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
 <configuration channel="RIIC3" inuse="true" name="riic3">
 <component description="依存モジュール: r_cpg バージョン 1.04&#10;RIIC Driver" detailDescription="" display="r_riic" id="r_riic1.05" version="1.05">
 <gridItem id="RIIC3SCL" selectedIndex="1"/>
@@ -675,49 +567,6 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration channel="SCIFA4" inuse="true" name="scifa4">
-<component description="依存モジュール: r_cbuffer バージョン 1.03&#10;依存モジュール: r_cpg バージョン 1.03&#10;依存モジュール: r_os_abstraction_osless バージョン 3.03&#10;依存モジュール: r_os_abstraction_freertos バージョン 3.03&#10;依存モジュール: r_os_abstraction_amazon バージョン 3.03&#10;SCIFA Driver IMPORTANT - Prior to using this module please ensure os_abstraction &#10;&#9;  driver version 3.03 (or later) is included in your project (any variant)" detailDescription="" display="r_scifa" id="r_scifa2.02" version="2.02">
-<gridItem id="TxD4" selectedIndex="1"/>
-<gridItem id="RxD4" selectedIndex="1"/>
-<gridItem id="SCK4" selectedIndex="0"/>
-<gridItem id="SCIFA4" selectedIndex="1"/>
-<gridItem id="SCIFA_OPERATION_MODE" selectedIndex="0"/>
-<gridItem id="SCIFA_CFG_BITRATE_BPS" selectedIndex="1000000"/>
-<gridItem id="SCIFA_TRANSFER_CLOCK" selectedIndex="0"/>
-<gridItem id="SCIFA_BASE_CLOCK_SELECT" selectedIndex="0"/>
-<gridItem id="SCIFA_DATA_BIT_LENGTH" selectedIndex="1"/>
-<gridItem id="SCIFA_PARITY_ENABLE" selectedIndex="0"/>
-<gridItem id="SCIFA_PARITY_TYPE" selectedIndex="0"/>
-<gridItem id="SCIFA_STOP" selectedIndex="0"/>
-<gridItem id="SCIFA_NOISE_FILTER" selectedIndex="0"/>
-<gridItem id="SCIFA_TRANSFER_DIRECTION" selectedIndex="0"/>
-<gridItem id="SCIFA_FIFO_DATA_SETTING" selectedIndex="0"/>
-<gridItem id="SCIFA_MODULATION_DUTY_CORRECTON" selectedIndex="0"/>
-<gridItem id="SCIFA_RTS_TRIGGER_NUMBER" selectedIndex="0"/>
-<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
-<gridItem id="SCIFA_RX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
-<gridItem id="SCIFA_SERIAL_PORT_BREAK_DATA" selectedIndex="1"/>
-<gridItem id="SCIFA_SCK_PORT_DATA_SELECT" selectedIndex="1"/>
-<gridItem id="SCIFA_CTS_PORT_DATA_SELECT" selectedIndex="1"/>
-<gridItem id="SCIFA_RTS_PORT_DATA_SELECT" selectedIndex="1"/>
-<gridItem id="SCIFA_TX_DATA_MODE" selectedIndex="2"/>
-<gridItem id="SCIFA_RX_DATA_MODE" selectedIndex="2"/>
-<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="9"/>
-<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="9"/>
-<gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa4_teie"/>
-<gridItem id="SCIFA_RX_DMA_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="&quot;dmac9_rs_txi4&quot;"/>
-<gridItem id="SCIFA_RX_DMA_MODULE" selectedIndex="NULL"/>
-<gridItem id="SCIFA_READ_BLOCKING_MODE_SELECT" selectedIndex="0"/>
-<gridItem id="SCIFA_WRITE_BLOCKING_MODE_SELECT" selectedIndex="0"/>
-<gridItem id="SCIFA_RXI_DRIVER_BUFFER" selectedIndex="1024"/>
-<gridItem id="SCIFA_TXI_DRIVER_BUFFER" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration channel="SCIFA0" inuse="true" name="scifa0">
 <component description="依存モジュール: r_cbuffer バージョン 1.03&#10;依存モジュール: r_cpg バージョン 1.03&#10;依存モジュール: r_os_abstraction_osless バージョン 3.03&#10;依存モジュール: r_os_abstraction_freertos バージョン 3.03&#10;依存モジュール: r_os_abstraction_amazon バージョン 3.03&#10;SCIFA Driver IMPORTANT - Prior to using this module please ensure os_abstraction &#10;&#9;  driver version 3.03 (or later) is included in your project (any variant)" detailDescription="" display="r_scifa" id="r_scifa2.02" version="2.02">
 <gridItem id="TxD0" selectedIndex="1"/>
@@ -739,7 +588,7 @@
 <gridItem id="SCIFA_FIFO_DATA_SETTING" selectedIndex="0"/>
 <gridItem id="SCIFA_MODULATION_DUTY_CORRECTON" selectedIndex="0"/>
 <gridItem id="SCIFA_RTS_TRIGGER_NUMBER" selectedIndex="0"/>
-<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
+<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="0"/>
 <gridItem id="SCIFA_RX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
 <gridItem id="SCIFA_SERIAL_PORT_BREAK_DATA" selectedIndex="1"/>
 <gridItem id="SCIFA_SCK_PORT_DATA_SELECT" selectedIndex="1"/>
@@ -747,57 +596,14 @@
 <gridItem id="SCIFA_RTS_PORT_DATA_SELECT" selectedIndex="1"/>
 <gridItem id="SCIFA_TX_DATA_MODE" selectedIndex="3"/>
 <gridItem id="SCIFA_RX_DATA_MODE" selectedIndex="3"/>
-<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="9"/>
-<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="9"/>
+<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="0"/>
+<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="0"/>
 <gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa0_teie"/>
 <gridItem id="SCIFA_RX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa0_reie"/>
 <gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="&quot;dmac1_rs_txi0&quot;"/>
 <gridItem id="SCIFA_RX_DMA_MODULE" selectedIndex="&quot;dmac0_rs_rxi0&quot;"/>
-<gridItem id="SCIFA_READ_BLOCKING_MODE_SELECT" selectedIndex="0"/>
-<gridItem id="SCIFA_WRITE_BLOCKING_MODE_SELECT" selectedIndex="0"/>
-<gridItem id="SCIFA_RXI_DRIVER_BUFFER" selectedIndex="1024"/>
-<gridItem id="SCIFA_TXI_DRIVER_BUFFER" selectedIndex="1024"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration channel="SCIFA3" inuse="true" name="scifa3">
-<component description="依存モジュール: r_cbuffer バージョン 1.03&#10;依存モジュール: r_cpg バージョン 1.03&#10;依存モジュール: r_os_abstraction_osless バージョン 3.03&#10;依存モジュール: r_os_abstraction_freertos バージョン 3.03&#10;依存モジュール: r_os_abstraction_amazon バージョン 3.03&#10;SCIFA Driver IMPORTANT - Prior to using this module please ensure os_abstraction &#10;&#9;  driver version 3.03 (or later) is included in your project (any variant)" detailDescription="" display="r_scifa" id="r_scifa2.02" version="2.02">
-<gridItem id="TxD3" selectedIndex="1"/>
-<gridItem id="RxD3" selectedIndex="1"/>
-<gridItem id="SCK3" selectedIndex="0"/>
-<gridItem id="SCIFA3" selectedIndex="1"/>
-<gridItem id="SCIFA_OPERATION_MODE" selectedIndex="0"/>
-<gridItem id="SCIFA_CFG_BITRATE_BPS" selectedIndex="1000000"/>
-<gridItem id="SCIFA_TRANSFER_CLOCK" selectedIndex="0"/>
-<gridItem id="SCIFA_BASE_CLOCK_SELECT" selectedIndex="0"/>
-<gridItem id="SCIFA_DATA_BIT_LENGTH" selectedIndex="1"/>
-<gridItem id="SCIFA_PARITY_ENABLE" selectedIndex="0"/>
-<gridItem id="SCIFA_PARITY_TYPE" selectedIndex="0"/>
-<gridItem id="SCIFA_STOP" selectedIndex="0"/>
-<gridItem id="SCIFA_NOISE_FILTER" selectedIndex="0"/>
-<gridItem id="SCIFA_TRANSFER_DIRECTION" selectedIndex="0"/>
-<gridItem id="SCIFA_FIFO_DATA_SETTING" selectedIndex="0"/>
-<gridItem id="SCIFA_MODULATION_DUTY_CORRECTON" selectedIndex="0"/>
-<gridItem id="SCIFA_RTS_TRIGGER_NUMBER" selectedIndex="0"/>
-<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
-<gridItem id="SCIFA_RX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
-<gridItem id="SCIFA_SERIAL_PORT_BREAK_DATA" selectedIndex="1"/>
-<gridItem id="SCIFA_SCK_PORT_DATA_SELECT" selectedIndex="1"/>
-<gridItem id="SCIFA_CTS_PORT_DATA_SELECT" selectedIndex="1"/>
-<gridItem id="SCIFA_RTS_PORT_DATA_SELECT" selectedIndex="1"/>
-<gridItem id="SCIFA_TX_DATA_MODE" selectedIndex="3"/>
-<gridItem id="SCIFA_RX_DATA_MODE" selectedIndex="2"/>
-<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="9"/>
-<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="9"/>
-<gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa3_teie"/>
-<gridItem id="SCIFA_RX_DMA_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="&quot;dmac7_rs_txi3&quot;"/>
-<gridItem id="SCIFA_RX_DMA_MODULE" selectedIndex="NULL"/>
 <gridItem id="SCIFA_READ_BLOCKING_MODE_SELECT" selectedIndex="0"/>
 <gridItem id="SCIFA_WRITE_BLOCKING_MODE_SELECT" selectedIndex="0"/>
 <gridItem id="SCIFA_RXI_DRIVER_BUFFER" selectedIndex="1024"/>
@@ -827,7 +633,7 @@
 <gridItem id="SCIFA_FIFO_DATA_SETTING" selectedIndex="0"/>
 <gridItem id="SCIFA_MODULATION_DUTY_CORRECTON" selectedIndex="0"/>
 <gridItem id="SCIFA_RTS_TRIGGER_NUMBER" selectedIndex="0"/>
-<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
+<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="0"/>
 <gridItem id="SCIFA_RX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
 <gridItem id="SCIFA_SERIAL_PORT_BREAK_DATA" selectedIndex="1"/>
 <gridItem id="SCIFA_SCK_PORT_DATA_SELECT" selectedIndex="1"/>
@@ -835,10 +641,10 @@
 <gridItem id="SCIFA_RTS_PORT_DATA_SELECT" selectedIndex="1"/>
 <gridItem id="SCIFA_TX_DATA_MODE" selectedIndex="3"/>
 <gridItem id="SCIFA_RX_DATA_MODE" selectedIndex="3"/>
-<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="9"/>
-<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="10"/>
-<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="9"/>
+<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="0"/>
+<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="0"/>
 <gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa1_teie"/>
 <gridItem id="SCIFA_RX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa1_reie"/>
 <gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="&quot;dmac3_rs_txi1&quot;"/>
@@ -872,26 +678,190 @@
 <gridItem id="SCIFA_FIFO_DATA_SETTING" selectedIndex="0"/>
 <gridItem id="SCIFA_MODULATION_DUTY_CORRECTON" selectedIndex="0"/>
 <gridItem id="SCIFA_RTS_TRIGGER_NUMBER" selectedIndex="0"/>
-<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
+<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="0"/>
 <gridItem id="SCIFA_RX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
 <gridItem id="SCIFA_SERIAL_PORT_BREAK_DATA" selectedIndex="1"/>
 <gridItem id="SCIFA_SCK_PORT_DATA_SELECT" selectedIndex="1"/>
 <gridItem id="SCIFA_CTS_PORT_DATA_SELECT" selectedIndex="1"/>
 <gridItem id="SCIFA_RTS_PORT_DATA_SELECT" selectedIndex="1"/>
 <gridItem id="SCIFA_TX_DATA_MODE" selectedIndex="3"/>
+<gridItem id="SCIFA_RX_DATA_MODE" selectedIndex="3"/>
+<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="0"/>
+<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="0"/>
+<gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa2_teie"/>
+<gridItem id="SCIFA_RX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa2_reie"/>
+<gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="&quot;dmac5_rs_txi2&quot;"/>
+<gridItem id="SCIFA_RX_DMA_MODULE" selectedIndex="&quot;dmac4_rs_rxi2&quot;"/>
+<gridItem id="SCIFA_READ_BLOCKING_MODE_SELECT" selectedIndex="0"/>
+<gridItem id="SCIFA_WRITE_BLOCKING_MODE_SELECT" selectedIndex="0"/>
+<gridItem id="SCIFA_RXI_DRIVER_BUFFER" selectedIndex="1024"/>
+<gridItem id="SCIFA_TXI_DRIVER_BUFFER" selectedIndex="1024"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="SCIFA3" inuse="true" name="scifa3">
+<component description="依存モジュール: r_cbuffer バージョン 1.03&#10;依存モジュール: r_cpg バージョン 1.03&#10;依存モジュール: r_os_abstraction_osless バージョン 3.03&#10;依存モジュール: r_os_abstraction_freertos バージョン 3.03&#10;依存モジュール: r_os_abstraction_amazon バージョン 3.03&#10;SCIFA Driver IMPORTANT - Prior to using this module please ensure os_abstraction &#10;&#9;  driver version 3.03 (or later) is included in your project (any variant)" detailDescription="" display="r_scifa" id="r_scifa2.02" version="2.02">
+<gridItem id="TxD3" selectedIndex="1"/>
+<gridItem id="RxD3" selectedIndex="1"/>
+<gridItem id="SCK3" selectedIndex="0"/>
+<gridItem id="SCIFA3" selectedIndex="1"/>
+<gridItem id="SCIFA_OPERATION_MODE" selectedIndex="0"/>
+<gridItem id="SCIFA_CFG_BITRATE_BPS" selectedIndex="1000000"/>
+<gridItem id="SCIFA_TRANSFER_CLOCK" selectedIndex="0"/>
+<gridItem id="SCIFA_BASE_CLOCK_SELECT" selectedIndex="0"/>
+<gridItem id="SCIFA_DATA_BIT_LENGTH" selectedIndex="1"/>
+<gridItem id="SCIFA_PARITY_ENABLE" selectedIndex="0"/>
+<gridItem id="SCIFA_PARITY_TYPE" selectedIndex="0"/>
+<gridItem id="SCIFA_STOP" selectedIndex="0"/>
+<gridItem id="SCIFA_NOISE_FILTER" selectedIndex="0"/>
+<gridItem id="SCIFA_TRANSFER_DIRECTION" selectedIndex="0"/>
+<gridItem id="SCIFA_FIFO_DATA_SETTING" selectedIndex="0"/>
+<gridItem id="SCIFA_MODULATION_DUTY_CORRECTON" selectedIndex="0"/>
+<gridItem id="SCIFA_RTS_TRIGGER_NUMBER" selectedIndex="0"/>
+<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="0"/>
+<gridItem id="SCIFA_RX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
+<gridItem id="SCIFA_SERIAL_PORT_BREAK_DATA" selectedIndex="1"/>
+<gridItem id="SCIFA_SCK_PORT_DATA_SELECT" selectedIndex="1"/>
+<gridItem id="SCIFA_CTS_PORT_DATA_SELECT" selectedIndex="1"/>
+<gridItem id="SCIFA_RTS_PORT_DATA_SELECT" selectedIndex="1"/>
+<gridItem id="SCIFA_TX_DATA_MODE" selectedIndex="3"/>
+<gridItem id="SCIFA_RX_DATA_MODE" selectedIndex="3"/>
+<gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="0"/>
+<gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="30"/>
+<gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="0"/>
+<gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa3_teie"/>
+<gridItem id="SCIFA_RX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa3_reie"/>
+<gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="&quot;dmac7_rs_txi3&quot;"/>
+<gridItem id="SCIFA_RX_DMA_MODULE" selectedIndex="&quot;dmac6_rs_rxi3&quot;"/>
+<gridItem id="SCIFA_READ_BLOCKING_MODE_SELECT" selectedIndex="0"/>
+<gridItem id="SCIFA_WRITE_BLOCKING_MODE_SELECT" selectedIndex="0"/>
+<gridItem id="SCIFA_RXI_DRIVER_BUFFER" selectedIndex="1024"/>
+<gridItem id="SCIFA_TXI_DRIVER_BUFFER" selectedIndex="1024"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="SCIFA4" inuse="true" name="scifa4">
+<component description="依存モジュール: r_cbuffer バージョン 1.03&#10;依存モジュール: r_cpg バージョン 1.03&#10;依存モジュール: r_os_abstraction_osless バージョン 3.03&#10;依存モジュール: r_os_abstraction_freertos バージョン 3.03&#10;依存モジュール: r_os_abstraction_amazon バージョン 3.03&#10;SCIFA Driver IMPORTANT - Prior to using this module please ensure os_abstraction &#10;&#9;  driver version 3.03 (or later) is included in your project (any variant)" detailDescription="" display="r_scifa" id="r_scifa2.02" version="2.02">
+<gridItem id="TxD4" selectedIndex="1"/>
+<gridItem id="RxD4" selectedIndex="1"/>
+<gridItem id="SCK4" selectedIndex="0"/>
+<gridItem id="SCIFA4" selectedIndex="1"/>
+<gridItem id="SCIFA_OPERATION_MODE" selectedIndex="0"/>
+<gridItem id="SCIFA_CFG_BITRATE_BPS" selectedIndex="1000000"/>
+<gridItem id="SCIFA_TRANSFER_CLOCK" selectedIndex="0"/>
+<gridItem id="SCIFA_BASE_CLOCK_SELECT" selectedIndex="0"/>
+<gridItem id="SCIFA_DATA_BIT_LENGTH" selectedIndex="1"/>
+<gridItem id="SCIFA_PARITY_ENABLE" selectedIndex="0"/>
+<gridItem id="SCIFA_PARITY_TYPE" selectedIndex="0"/>
+<gridItem id="SCIFA_STOP" selectedIndex="0"/>
+<gridItem id="SCIFA_NOISE_FILTER" selectedIndex="0"/>
+<gridItem id="SCIFA_TRANSFER_DIRECTION" selectedIndex="0"/>
+<gridItem id="SCIFA_FIFO_DATA_SETTING" selectedIndex="0"/>
+<gridItem id="SCIFA_MODULATION_DUTY_CORRECTON" selectedIndex="0"/>
+<gridItem id="SCIFA_RTS_TRIGGER_NUMBER" selectedIndex="0"/>
+<gridItem id="SCIFA_TX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
+<gridItem id="SCIFA_RX_FIFO_DATA_TRIGGER" selectedIndex="1"/>
+<gridItem id="SCIFA_SERIAL_PORT_BREAK_DATA" selectedIndex="1"/>
+<gridItem id="SCIFA_SCK_PORT_DATA_SELECT" selectedIndex="1"/>
+<gridItem id="SCIFA_CTS_PORT_DATA_SELECT" selectedIndex="1"/>
+<gridItem id="SCIFA_RTS_PORT_DATA_SELECT" selectedIndex="1"/>
+<gridItem id="SCIFA_TX_DATA_MODE" selectedIndex="2"/>
 <gridItem id="SCIFA_RX_DATA_MODE" selectedIndex="2"/>
 <gridItem id="SCIFA_ERI_BRI_INTERRUPT_PRORITY" selectedIndex="9"/>
 <gridItem id="SCIFA_RX_INTERRUPT_PRORITY" selectedIndex="10"/>
 <gridItem id="SCIFA_TXI_INTERRUPT_PRORITY" selectedIndex="10"/>
 <gridItem id="SCIFA_TEI_DRI_INTERRUPT_PRORITY" selectedIndex="9"/>
-<gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="r_callback_scifa2_teie"/>
+<gridItem id="SCIFA_TX_DMA_CALLBACK_FUNCTION" selectedIndex="NULL"/>
 <gridItem id="SCIFA_RX_DMA_CALLBACK_FUNCTION" selectedIndex="NULL"/>
-<gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="&quot;dmac5_rs_txi2&quot;"/>
+<gridItem id="SCIFA_TX_DMA_MODULE" selectedIndex="NULL"/>
 <gridItem id="SCIFA_RX_DMA_MODULE" selectedIndex="NULL"/>
 <gridItem id="SCIFA_READ_BLOCKING_MODE_SELECT" selectedIndex="0"/>
 <gridItem id="SCIFA_WRITE_BLOCKING_MODE_SELECT" selectedIndex="0"/>
 <gridItem id="SCIFA_RXI_DRIVER_BUFFER" selectedIndex="1024"/>
 <gridItem id="SCIFA_TXI_DRIVER_BUFFER" selectedIndex="1024"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="r_cbuffer" inuse="true" name="cbuffer0">
+<component description="依存モジュール: なし&#10;Common software for buffer processing" detailDescription="" display="r_cbuffer" id="r_cbuffer1.03" version="1.03"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="r_cache" inuse="true" name="cache">
+<component description="依存モジュール: なし&#10;Cache Module (Configure Memory using MMU TAB)" detailDescription="" display="r_cache" id="r_cache1.03" version="1.03"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="r_gpio" inuse="true" name="gpio">
+<component description="依存モジュール: なし&#10;General Purpose Input/Output Pin Module (Configure using Pins TAB)" detailDescription="" display="r_gpio" id="r_gpio1.04" version="1.04"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="r_intc" inuse="true" name="intc">
+<component description="依存モジュール: なし&#10;Interrupt Controller Module" detailDescription="" display="r_intc" id="r_intc1.04" version="1.04"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="r_mmu" inuse="true" name="mmu">
+<component description="依存モジュール: なし&#10;Memory Management Module (Configure Memory using MMU TAB)" detailDescription="" display="r_mmu" id="r_mmu1.03" version="1.03"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="r_stb" inuse="true" name="stb">
+<component description="依存モジュール: なし&#10;Standby control Management Module" detailDescription="" display="r_stb" id="r_stb1.03" version="1.03"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="fatfs" inuse="true" name="fatfs0">
+<component description="依存モジュール: なし&#10;fatfs&#10;Note: documents.zip includes *.c files. If you unzipped the zip file, exclude the documents\res from your build." detailDescription="" display="fatfs" id="fatfs0.133" version="0.133"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="SDMMC0" inuse="true" name="sdhi_simplified0">
+<component description="依存モジュール: fatfs バージョン 0.133&#10;SDHI Driver&#10;SD Host/Ancillary Product License Agreement (SD HALA) is required to develop SD host-related products. Refer https://www.sdcard.org/developers/licensing/ for detail:&#10;[Updates:1.20]&#10;- Implement the configurations of &quot;SD card detection callback function setting&quot;.&#10;- Implement the configurations of &quot;SD card detection callback function&quot;.&#10;- Update the default value of &quot;SD write protection signal detection option&quot; from SD_WP_ENABLED to SD_WP_DISABLED.&#10;[Update:1.50]&#10;- Support SDIO" detailDescription="" display="r_sdhi_simplified" id="r_sdhi_simplified1.50" version="1.50">
+<gridItem id="SD0_CD" selectedIndex="1"/>
+<gridItem id="SD0_CLK" selectedIndex="1"/>
+<gridItem id="SD0_CMD" selectedIndex="1"/>
+<gridItem id="SD0_DAT0" selectedIndex="1"/>
+<gridItem id="SD0_DAT1" selectedIndex="1"/>
+<gridItem id="SD0_DAT2" selectedIndex="1"/>
+<gridItem id="SD0_DAT3" selectedIndex="1"/>
+<gridItem id="SD0_DAT4" selectedIndex="0"/>
+<gridItem id="SD0_DAT5" selectedIndex="0"/>
+<gridItem id="SD0_DAT6" selectedIndex="0"/>
+<gridItem id="SD0_DAT7" selectedIndex="0"/>
+<gridItem id="SD0_RST#" selectedIndex="0"/>
+<gridItem id="SD0_WP" selectedIndex="1"/>
+<gridItem id="SDMMC0" selectedIndex="1"/>
+<gridItem id="SDHI_CD_LAYOUT" selectedIndex="0"/>
+<gridItem id="SDHI_WP_LAYOUT" selectedIndex="1"/>
+<gridItem id="SDHI_CB_SETTING" selectedIndex="1"/>
+<gridItem id="SDHI_CB_FUNCTION" selectedIndex="fat_cd_int_cb_function"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="SDMMC1" inuse="true" name="sdhi_simplified1">
+<component description="依存モジュール: fatfs バージョン 0.133&#10;SDHI Driver&#10;SD Host/Ancillary Product License Agreement (SD HALA) is required to develop SD host-related products. Refer https://www.sdcard.org/developers/licensing/ for detail:&#10;[Updates:1.20]&#10;- Implement the configurations of &quot;SD card detection callback function setting&quot;.&#10;- Implement the configurations of &quot;SD card detection callback function&quot;.&#10;- Update the default value of &quot;SD write protection signal detection option&quot; from SD_WP_ENABLED to SD_WP_DISABLED.&#10;[Update:1.50]&#10;- Support SDIO" detailDescription="" display="r_sdhi_simplified" id="r_sdhi_simplified1.50" version="1.50">
+<gridItem id="SD1_CD" selectedIndex="1"/>
+<gridItem id="SD1_CLK" selectedIndex="1"/>
+<gridItem id="SD1_CMD" selectedIndex="1"/>
+<gridItem id="SD1_DAT0" selectedIndex="1"/>
+<gridItem id="SD1_DAT1" selectedIndex="1"/>
+<gridItem id="SD1_DAT2" selectedIndex="1"/>
+<gridItem id="SD1_DAT3" selectedIndex="1"/>
+<gridItem id="SD1_WP" selectedIndex="1"/>
+<gridItem id="SDMMC1" selectedIndex="0"/>
+<gridItem id="SDHI_CD_LAYOUT" selectedIndex="0"/>
+<gridItem id="SDHI_WP_LAYOUT" selectedIndex="0"/>
+<gridItem id="SDHI_CB_SETTING" selectedIndex="0"/>
+<gridItem id="SDHI_CB_FUNCTION" selectedIndex="NULL"/>
 </component>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
@@ -906,19 +876,6 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration channel="OSTM1" inuse="true" name="ostm1">
-<component description="依存モジュール: r_cpg バージョン 1.04&#10;OS Timer Driver" detailDescription="" display="r_ostm" id="r_ostm1.06" version="1.06">
-<gridItem id="OSTM_MODE" selectedIndex="0"/>
-<gridItem id="OSTM_COUNTER_FORMAT" selectedIndex="0"/>
-<gridItem id="OSTM_TIME" selectedIndex="17"/>
-<gridItem id="OSTM_START_GENERATE_INTERRUPT" selectedIndex="0"/>
-<gridItem id="OSTM_INTC_SETTING" selectedIndex="0"/>
-<gridItem id="OSTM_INTC_PRIORITY" selectedIndex="0"/>
-<gridItem id="OSTM_INTC_FUNCTION" selectedIndex=""/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration channel="OSTM0" inuse="true" name="ostm0">
 <component description="依存モジュール: r_cpg バージョン 1.04&#10;OS Timer Driver" detailDescription="" display="r_ostm" id="r_ostm1.06" version="1.06">
 <gridItem id="OSTM_MODE" selectedIndex="0"/>
@@ -928,6 +885,19 @@
 <gridItem id="OSTM_INTC_SETTING" selectedIndex="1"/>
 <gridItem id="OSTM_INTC_PRIORITY" selectedIndex="31"/>
 <gridItem id="OSTM_INTC_FUNCTION" selectedIndex="FreeRTOS_Tick_Handler"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration channel="OSTM1" inuse="true" name="ostm1">
+<component description="依存モジュール: r_cpg バージョン 1.04&#10;OS Timer Driver" detailDescription="" display="r_ostm" id="r_ostm1.06" version="1.06">
+<gridItem id="OSTM_MODE" selectedIndex="0"/>
+<gridItem id="OSTM_COUNTER_FORMAT" selectedIndex="0"/>
+<gridItem id="OSTM_TIME" selectedIndex="17"/>
+<gridItem id="OSTM_START_GENERATE_INTERRUPT" selectedIndex="0"/>
+<gridItem id="OSTM_INTC_SETTING" selectedIndex="0"/>
+<gridItem id="OSTM_INTC_PRIORITY" selectedIndex="0"/>
+<gridItem id="OSTM_INTC_FUNCTION" selectedIndex=""/>
 </component>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>

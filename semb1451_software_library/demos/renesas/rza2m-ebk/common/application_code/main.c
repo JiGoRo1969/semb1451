@@ -120,6 +120,9 @@ int_t	main(void);
 
 int_t	g_handle_gpio;
 
+volatile uint16_t	g_nmi_cnt = 0;
+volatile uint16_t	g_irq6_cnt = 0;
+
 st_r_drv_gpio_pin_rw_t	gs_p76[2] = {{GPIO_PORT_7_PIN_6, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
 									 {GPIO_PORT_7_PIN_6, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
 						gs_pA6[2] = {{GPIO_PORT_A_PIN_6, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
@@ -127,8 +130,7 @@ st_r_drv_gpio_pin_rw_t	gs_p76[2] = {{GPIO_PORT_7_PIN_6, GPIO_LEVEL_LOW,  GPIO_SU
 						gs_p23[2] = {{GPIO_PORT_2_PIN_3, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
 									 {GPIO_PORT_2_PIN_3, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
 						gs_p60[2] = {{GPIO_PORT_6_PIN_0, GPIO_LEVEL_LOW,  GPIO_SUCCESS},
-									 {GPIO_PORT_6_PIN_0, GPIO_LEVEL_HIGH, GPIO_SUCCESS}},
-						gs_p21	   = { GPIO_PORT_2_PIN_1, GPIO_LEVEL_SC_DEFAULT, GPIO_SUCCESS };
+									 {GPIO_PORT_6_PIN_0, GPIO_LEVEL_HIGH, GPIO_SUCCESS}};
 
 /******************************************************************************
  * Local functions
@@ -142,7 +144,6 @@ st_r_drv_gpio_pin_rw_t	gs_p76[2] = {{GPIO_PORT_7_PIN_6, GPIO_LEVEL_LOW,  GPIO_SU
  * Imported global functions
  *****************************************************************************/
 
-//extern	void	r_scifa_init(void);
 extern	void	r_sample_servo_init(void);
 extern	void	r_sample_servo_goto_home_position(void);
 extern	void	r_adc_gets(void);
@@ -157,9 +158,39 @@ extern	void	fat_led_error(void);
  * Imported global variables
  *****************************************************************************/
 
-//extern e_fat_event_t	s_fat_isr_event[];
 extern p_os_msg_queue_handle_t	s_fat_queue_handle[];
 extern uint32_t					s_fat_sem_key_input[];
+
+/******************************************************************************
+* Function Name: r_intc_nmi_handler
+* Description  : NMI interrupt handler
+* Arguments    : unt32_t int_sense (unused)
+* Return Value : none
+******************************************************************************/
+void	r_intc_nmi_handler(uint32_t int_sense)
+{
+	/* avoid unused parameter warning */
+	(void)int_sense;
+
+	g_nmi_cnt++;
+    R_COMPILER_Nop();
+}
+
+/******************************************************************************
+* Function Name: r_intc_irq6_handler
+* Description  : IRQ6 interrupt handler
+* Arguments    : unt32_t int_sense (unused)
+* Return Value : none
+******************************************************************************/
+void	r_intc_irq6_handler(uint32_t int_sense)
+{
+	/* avoid unused parameter warning */
+	(void)int_sense;
+
+	g_irq6_cnt++;
+	INTC.IRQRR.BIT.IRQ6F = 0;	// clear interrupt flag
+    R_COMPILER_Nop();
+}
 
 /******************************************************************************
 * Function Name: os_console_task_t
@@ -174,8 +205,6 @@ int_t	os_console_task_t(void)
 	//
 	r_eeprom_init();
 	r_bmx055_init();
-	//
-	//
 	//
 	printf("\r\nSEMB-1451/1452 software library - simple console\r\n\r\n");
 	while(1)
@@ -402,6 +431,25 @@ int_t	os_main_task_t(void)
 	/* Cast to an appropriate type */
 	R_OS_TaskCreate("Fat sample main", os_fat_main_task_t, NULL,
 			R_OS_ABSTRACTION_DEFAULT_STACK_SIZE, TASK_FAT_MAIN_TASK_PRI);
+	//
+	// Enable NMI
+	//
+	static st_r_drv_nmi_cfg_t s_nmi_config;
+
+	s_nmi_config.edge = NMI_SENSE_FALLINGEDGE;
+	R_INTC_SetNMIConfig(&s_nmi_config);
+	R_INTC_RegistIntFunc(INTC_VID_NMI, r_intc_nmi_handler);
+	R_INTC_SetPriority(INTC_VID_NMI, INTC_PRIORITY_20);
+	R_INTC_Enable(INTC_VID_NMI);
+
+	//
+	// Enable IRQ6
+	//
+	R_IRQ_SetSense(INTC_IRQ6, IRQ_SENSE_FALLINGEDGE);
+	R_INTC_RegistIntFunc(INTC_ID_IRQ_IRQ6, r_intc_irq6_handler);
+	R_INTC_SetPriority(INTC_ID_IRQ_IRQ6, INTC_PRIORITY_20);
+	R_INTC_Enable(INTC_ID_IRQ_IRQ6);
+
 	//
 	//	Start blinking LEDs as heart-beat
 	//

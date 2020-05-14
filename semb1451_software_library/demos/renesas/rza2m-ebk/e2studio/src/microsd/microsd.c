@@ -150,19 +150,7 @@ p_os_msg_queue_handle_t	s_fat_queue_handle[FAT_PRV_CH_NUM];
 ******************************************************************************/
 static e_r_drv_gpio_level_t fat_key_input(void)
 {
-	int_t gpio_err;
-	e_r_drv_gpio_level_t ret;
-
-	gpio_err = direct_control(g_handle_gpio, CTL_GPIO_PIN_READ, &gs_p21);
-	if (gpio_err < 0)
-	{
-		ret = GPIO_LEVEL_SC_DEFAULT;
-	}
-	else
-	{
-		ret = gs_p21.level;
-	}
-	return ret;
+	return 1;
 }
 /*******************************************************************************
  End of function fat_key_input

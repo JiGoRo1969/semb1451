@@ -22,6 +22,8 @@
 #include	"r_typedefs.h"
 #include	"r_scifa_drv_api.h"
 #include	"r_os_abstraction_api.h"
+#include	"r_cache_lld_rza2m.h"
+#include	"r_mmu_lld_rza2m.h"
 #include	"r_gpio_drv_api.h"
 #include	"scifa.h"
 #include	<math.h>
@@ -29,9 +31,6 @@
 /******************************************************************************
  * Definition for Function Selection
  *****************************************************************************/
-
-//#define 	USE_DEBUG_PRINTF_INFORMATION
-//#define 	USE_DEBUG_SCIFA1_WITH_SCIFA0
 
 /******************************************************************************
  * Macro definitions (Register bit)
@@ -186,8 +185,6 @@ void	r_sample_servo_init( void )
 {
 	uint16_u	sum;
 
-	r_nop();
-	//
 	for(int i = 0; i < D_CNT_SERVO; i++)
 	{
 		g_angle_init[i] = DYNAPARA_ANGLE_CENTER;
@@ -222,9 +219,7 @@ void	r_sample_servo_init( void )
 	g_scifa_txd[T_LEN-2] = sum.b[0];
 	g_scifa_txd[T_LEN-1] = sum.b[1];
 	//
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-	r_scifa_read(0, T_LEN);
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
+	R_CACHE_L1DataCleanLine((uint8_t *)g_scifa_txd, T_LEN);
 	//
 	r_scifa_write(0, T_LEN);
 	r_scifa_write(1, T_LEN);
@@ -238,9 +233,6 @@ void	r_sample_servo_init( void )
 	r_scifa_waiting_write_completed(3);
 	r_scifa_waiting_write_completed(4);
 	//
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-	r_scifa_waiting_read_completed(0);
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 #ifdef	USE_DEBUG_PRINTF_INFORMATION
 	fprintf(stdout, "init:%02lX", g_scifa_rxd[0][0]);
 	for(int i = 1; i < T_LEN; i++)
@@ -281,15 +273,13 @@ void	r_sample_servo_init( void )
 	g_scifa_txd[T_LEN-2] = sum.b[0];
 	g_scifa_txd[T_LEN-1] = sum.b[1];
 	//
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-	r_scifa_read(0, T_LEN);
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
+	R_CACHE_L1DataCleanLine((uint8_t *)g_scifa_txd, T_LEN);
 	//
-	r_scifa_write(0, T_LEN+2);
-	r_scifa_write(1, T_LEN+2);
-	r_scifa_write(2, T_LEN+2);
-	r_scifa_write(3, T_LEN+2);
-	r_scifa_write(4, T_LEN+2);
+	r_scifa_write(0, T_LEN);
+	r_scifa_write(1, T_LEN);
+	r_scifa_write(2, T_LEN);
+	r_scifa_write(3, T_LEN);
+	r_scifa_write(4, T_LEN);
 	//
 	r_scifa_waiting_write_completed(0);
 	r_scifa_waiting_write_completed(1);
@@ -297,9 +287,6 @@ void	r_sample_servo_init( void )
 	r_scifa_waiting_write_completed(3);
 	r_scifa_waiting_write_completed(4);
 	//
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-	r_scifa_waiting_read_completed(0);
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 #ifdef	USE_DEBUG_PRINTF_INFORMATION
 	fprintf(stdout, "init:%02lX", g_scifa_rxd[0][0]);
 	for(int i = 1; i < T_LEN; i++)
@@ -321,8 +308,6 @@ void	r_sample_servo_send( void )
 {
 	uint16_u	sum;
 
-	r_nop();
-	//
 #undef	T_LEN
 #define	T_LEN	(39)
 	//
@@ -367,15 +352,13 @@ void	r_sample_servo_send( void )
 	g_scifa_txd[T_LEN-2] = sum.b[0];
 	g_scifa_txd[T_LEN-1] = sum.b[1];
 	//
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-	r_scifa_read(0, T_LEN);
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
+	R_CACHE_L1DataCleanLine((uint8_t *)g_scifa_txd, T_LEN);
 	//
-	r_scifa_write(0, T_LEN+2);
-	r_scifa_write(1, T_LEN+2);
-	r_scifa_write(2, T_LEN+2);
-	r_scifa_write(3, T_LEN+2);
-	r_scifa_write(4, T_LEN+2);
+	r_scifa_write(0, T_LEN);
+	r_scifa_write(1, T_LEN);
+	r_scifa_write(2, T_LEN);
+	r_scifa_write(3, T_LEN);
+	r_scifa_write(4, T_LEN);
 	//
 	r_scifa_waiting_write_completed(0);
 	r_scifa_waiting_write_completed(1);
@@ -383,9 +366,6 @@ void	r_sample_servo_send( void )
 	r_scifa_waiting_write_completed(3);
 	r_scifa_waiting_write_completed(4);
 	//
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-	r_scifa_waiting_read_completed(0);
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 #ifdef	USE_DEBUG_PRINTF_INFORMATION
 	fprintf(stdout,"send:%02lX", g_scifa_rxd[0][0]);
 	for(int i = 1; i < T_LEN; i++)
@@ -394,7 +374,6 @@ void	r_sample_servo_send( void )
 	}
 	fprintf(stdout,"\n");
 #endif	// USE_DEBUG_PRINTF_INFORMATION
-	r_nop();
 }
 
 /***********************************************************************************************************************
@@ -411,8 +390,6 @@ uint16_t	r_sample_servo_read(
 	uint16_u	sum;
 	uint16_u	retval;
 
-	r_nop();
-	//
 #undef	T_LEN
 #define	T_LEN	(14)
 	//
@@ -432,75 +409,52 @@ uint16_t	r_sample_servo_read(
 	g_scifa_txd[T_LEN-2]	= sum.b[0];
 	g_scifa_txd[T_LEN-1]	= sum.b[1];
 	//
-	r_scifa_read(0, T_LEN);
-	r_scifa_write(0, T_LEN+2);
-	r_scifa_read(1, T_LEN);
-	r_scifa_write(1, T_LEN+2);
-	r_scifa_write(2, T_LEN+2);
-	r_scifa_write(3, T_LEN+2);
-	r_scifa_write(4, T_LEN+2);
+	R_CACHE_L1DataCleanLine((uint8_t *)g_scifa_txd, T_LEN);
 	//
-	r_scifa_waiting_write_completed(0);
-	r_scifa_waiting_write_completed(1);
-	r_scifa_waiting_write_completed(2);
-	r_scifa_waiting_write_completed(3);
-	r_scifa_waiting_write_completed(4);
+	r_scifa_read(0, T_LEN + 1);
+	r_scifa_write(0, T_LEN);
+	r_scifa_read(1, T_LEN + 1);
+	r_scifa_write(1, T_LEN);
+	r_scifa_read(2, T_LEN * 2 + 1);
+	r_scifa_write(2, T_LEN);
+	r_scifa_read(3, T_LEN * 2 + 1);
+	r_scifa_write(3, T_LEN);
+	r_scifa_read(4, T_LEN * 2 + 1);
+	r_scifa_write(4, T_LEN);
 	//
 	r_scifa_waiting_read_completed(0);
 	r_scifa_waiting_read_completed(1);
-#ifdef	USE_DEBUG_PRINTF_INFORMATION
-	fprintf(stdout,"send:%02lX", g_scifa_rxd[0][0]);
-	for(int i = 1; i < T_LEN; i++)
-	{
-		fprintf(stdout,",%02lX", g_scifa_rxd[0][i]);
-	}
-	fprintf(stdout,"\n");
-#endif	// USE_DEBUG_PRINTF_INFORMATION
+	r_scifa_waiting_read_completed(2);
+	r_scifa_waiting_read_completed(3);
+	r_scifa_waiting_read_completed(4);
 	//
 	retval.w = 0;
 	//
 #ifdef CONNECT_SERVO_TO_SCIFA0
-	if((0 != g_scifa_rxd[0][9]) || (0 != g_scifa_rxd[0][10]))
-	{
-		retval.b[0] = g_scifa_rxd[0][ 9];
-		retval.b[1] = g_scifa_rxd[0][10];
-	}
+	R_CACHE_L1DataInvalidLine((uint8_t *)g_scifa_rxd[0], T_LEN + 1);
+	retval.b[0] = g_scifa_rxd[0][ 9];
+	retval.b[1] = g_scifa_rxd[0][10];
 #endif
 #ifdef CONNECT_SERVO_TO_SCIFA1
-	if((0 != g_scifa_rxd[1][9]) || (0 != g_scifa_rxd[1][10]))
-	{
-		retval.b[0] = g_scifa_rxd[1][ 9];
-		retval.b[1] = g_scifa_rxd[1][10];
-	}
+	R_CACHE_L1DataInvalidLine((uint8_t *)g_scifa_rxd[1], T_LEN + 1);
+	retval.b[0] = g_scifa_rxd[1][ 9];
+	retval.b[1] = g_scifa_rxd[1][10];
 #endif
 #ifdef CONNECT_SERVO_TO_SCIFA2
-	g_scifa_rxd[2][T_LEN + 9] = g_scifa_rxd[2][T_LEN + 10] = 0;
-	r_scifa_read(2, T_LEN + 15);
-	if((0 != g_scifa_rxd[2][T_LEN + 9]) || (0 != g_scifa_rxd[2][T_LEN + 10]))
-	{
-		retval.b[0] = g_scifa_rxd[2][T_LEN +  9];
-		retval.b[1] = g_scifa_rxd[2][T_LEN + 10];
-	}
+	R_CACHE_L1DataInvalidLine((uint8_t *)g_scifa_rxd[2], T_LEN * 2 + 1);
+	retval.b[0] = g_scifa_rxd[2][T_LEN +  9];
+	retval.b[1] = g_scifa_rxd[2][T_LEN + 10];
 #endif
 #ifdef CONNECT_SERVO_TO_SCIFA3
-	g_scifa_rxd[3][T_LEN + 9] = g_scifa_rxd[3][T_LEN + 10] = 0;
-	r_scifa_read(3, T_LEN + 15);
-	if((0 != g_scifa_rxd[3][T_LEN + 9]) || (0 != g_scifa_rxd[3][T_LEN + 10]))
-	{
-		retval.b[0] = g_scifa_rxd[3][T_LEN +  9];
-		retval.b[1] = g_scifa_rxd[3][T_LEN + 10];
-	}
+	R_CACHE_L1DataInvalidLine((uint8_t *)g_scifa_rxd[3], T_LEN * 2 + 1);
+	retval.b[0] = g_scifa_rxd[3][T_LEN +  9];
+	retval.b[1] = g_scifa_rxd[3][T_LEN + 10];
 #endif
 #ifdef CONNECT_SERVO_TO_SCIFA4
-	g_scifa_rxd[4][T_LEN + 9] = g_scifa_rxd[4][T_LEN + 10] = 0;
-	r_scifa_read(4, T_LEN + 15);
-	if((0 != g_scifa_rxd[4][T_LEN + 9]) || (0 != g_scifa_rxd[4][T_LEN + 10]))
-	{
-		retval.b[0] = g_scifa_rxd[4][T_LEN +  9];
-		retval.b[1] = g_scifa_rxd[4][T_LEN + 10];
-	}
+	R_CACHE_L1DataInvalidLine((uint8_t *)g_scifa_rxd[4], T_LEN * 2 + 1);
+	retval.b[0] = g_scifa_rxd[4][T_LEN +  9];
+	retval.b[1] = g_scifa_rxd[4][T_LEN + 10];
 #endif
-	r_nop();
 	return retval.w;
 }
 
@@ -531,7 +485,6 @@ int		r_sample_servo_get_positions(void)
  ***********************************************************************************************************************/
 void	r_sample_servo_goto_home_position(void)
 {
-#ifndef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 	if(0 < r_sample_servo_get_positions())
 	{
 		for(int j = 0; j < D_DIV_SLOWSETHOME; j++)
@@ -549,7 +502,6 @@ void	r_sample_servo_goto_home_position(void)
 			R_OS_TaskSleep(D_TIME_SLOWSETHOME);
 		}
 	}
-#endif
 	//
 	//	set initialize angle of servos
 	//

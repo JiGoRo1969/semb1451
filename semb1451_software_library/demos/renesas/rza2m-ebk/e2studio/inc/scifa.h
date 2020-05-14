@@ -21,19 +21,12 @@
  *****************************************************************************/
 
 //#define 	USE_DEBUG_PRINTF_INFORMATION
-//#define	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 
 //#define 	CONNECT_SERVO_TO_SCIFA0
 #define 	CONNECT_SERVO_TO_SCIFA1
 //#define 	CONNECT_SERVO_TO_SCIFA2
 //#define 	CONNECT_SERVO_TO_SCIFA3
 //#define 	CONNECT_SERVO_TO_SCIFA4
-
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-#undef 		CONNECT_SERVO_TO_SCIFA0
-#define 	CONNECT_SERVO_TO_SCIFA1
-#define 	USE_DEBUG_PRINTF_INFORMATION
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 
 /******************************************************************************
  * Macro definitions (Register bit)

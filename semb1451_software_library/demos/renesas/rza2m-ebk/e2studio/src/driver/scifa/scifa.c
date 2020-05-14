@@ -64,8 +64,9 @@ void	r_scifa_init(void);
  *****************************************************************************/
 
 int_t		g_handle_scifa[5];
-volatile uint8_t	g_scifa_txd[BUF_SIZE] __attribute__((aligned (32)));
-volatile uint8_t	g_scifa_rxd[5][BUF_SIZE] __attribute__((aligned (32)));
+
+volatile uint8_t	g_scifa_txd[BUF_SIZE]		__attribute__((aligned (32)));
+volatile uint8_t	g_scifa_rxd[5][BUF_SIZE]	__attribute__((aligned (32)));
 
 /******************************************************************************
  * Local functions
@@ -77,6 +78,9 @@ volatile uint8_t	g_scifa_rxd[5][BUF_SIZE] __attribute__((aligned (32)));
 
 static volatile uint8_t	gs_flg_scifa0_rxd = 0;
 static volatile uint8_t	gs_flg_scifa1_rxd = 0;
+static volatile uint8_t	gs_flg_scifa2_rxd = 0;
+static volatile uint8_t	gs_flg_scifa3_rxd = 0;
+static volatile uint8_t	gs_flg_scifa4_rxd = 0;
 static volatile uint8_t	gs_flg_scifa0_txd = 0;
 static volatile uint8_t	gs_flg_scifa1_txd = 0;
 static volatile uint8_t	gs_flg_scifa2_txd = 0;
@@ -134,14 +138,53 @@ void	r_callback_scifa1_reie(void)
  *****************************************************************************/
 
 /******************************************************************************
+ * Function Name: r_callback_scifa2_reie
+ * Arguments    : None
+ * Return Value : None
+ *****************************************************************************/
+void	r_callback_scifa2_reie(void)
+{
+	gs_flg_scifa2_rxd = 1;
+}
+/******************************************************************************
+ * End of function r_callback_scifa2_reie
+ *****************************************************************************/
+
+/******************************************************************************
+ * Function Name: r_callback_scifa3_reie
+ * Arguments    : None
+ * Return Value : None
+ *****************************************************************************/
+void	r_callback_scifa3_reie(void)
+{
+	gs_flg_scifa3_rxd = 1;
+}
+/******************************************************************************
+ * End of function r_callback_scifa3_reie
+ *****************************************************************************/
+
+/******************************************************************************
+ * Function Name: r_callback_scifa4_reie
+ * Arguments    : None
+ * Return Value : None
+ *****************************************************************************/
+void	r_callback_scifa4_reie(void)
+{
+	gs_flg_scifa4_rxd = 1;
+}
+/******************************************************************************
+ * End of function r_callback_scifa4_reie
+ *****************************************************************************/
+
+/******************************************************************************
  * Function Name: r_callback_scifa0_teie
  * Arguments    : None
  * Return Value : None
  *****************************************************************************/
 void	r_callback_scifa0_teie(void)
 {
-	gs_flg_scifa0_txd = 1;
 	SET_DIR0(D_DIR_READ);
+	gs_flg_scifa0_txd = 1;
 }
 /******************************************************************************
  * End of function r_callback_scifa0_teie
@@ -154,8 +197,8 @@ void	r_callback_scifa0_teie(void)
  *****************************************************************************/
 void	r_callback_scifa1_teie(void)
 {
-	gs_flg_scifa1_txd = 1;
 	SET_DIR1(D_DIR_READ);
+	gs_flg_scifa1_txd = 1;
 }
 /******************************************************************************
  * End of function r_callback_scifa1_teie
@@ -258,40 +301,45 @@ void	r_scifa_waiting_write_completed(uint8_t ch)
 	{
 #ifdef CONNECT_SERVO_TO_SCIFA0
 	case 0:
-		while(0 == gs_flg_scifa0_txd)
+		for(int i = 0; (0 == gs_flg_scifa0_txd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA0
 #ifdef CONNECT_SERVO_TO_SCIFA1
 	case 1:
-		while(0 == gs_flg_scifa1_txd)
+		for(int i = 0; (0 == gs_flg_scifa1_txd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA1
 #ifdef CONNECT_SERVO_TO_SCIFA2
 	case 2:
-		while(0 == gs_flg_scifa2_txd)
+		for(int i = 0; (0 == gs_flg_scifa2_txd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA2
 #ifdef CONNECT_SERVO_TO_SCIFA3
 	case 3:
-		while(0 == gs_flg_scifa3_txd)
+		for(int i = 0; (0 == gs_flg_scifa3_txd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA3
 #ifdef CONNECT_SERVO_TO_SCIFA4
 	case 4:
-		while(0 == gs_flg_scifa4_txd)
+		for(int i = 0; (0 == gs_flg_scifa4_txd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
@@ -309,10 +357,6 @@ void	r_scifa_waiting_write_completed(uint8_t ch)
  *****************************************************************************/
 void	r_scifa_read(uint8_t ch, uint16_t len)
 {
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-#define	CONNECT_SERVO_TO_SCIFA0		// tempolary only in r_scifa_read()
-#undef	CONNECT_SERVO_TO_SCIFA1		// tempolary only in r_scifa_read()
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 	switch(ch)
 	{
 #ifdef CONNECT_SERVO_TO_SCIFA0
@@ -329,27 +373,23 @@ void	r_scifa_read(uint8_t ch, uint16_t len)
 #endif	// CONNECT_SERVO_TO_SCIFA1
 #ifdef CONNECT_SERVO_TO_SCIFA2
 	case 2:
-	//	gs_flg_scifa2_rxd = 0;
+		gs_flg_scifa2_rxd = 0;
 		read(g_handle_scifa[2], (uint8_t *)g_scifa_rxd[2], len);
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA2
 #ifdef CONNECT_SERVO_TO_SCIFA3
 	case 3:
-	//	gs_flg_scifa3_rxd = 0;
+		gs_flg_scifa3_rxd = 0;
 		read(g_handle_scifa[3], (uint8_t *)g_scifa_rxd[3], len);
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA3
 #ifdef CONNECT_SERVO_TO_SCIFA4
 	case 4:
-	//	gs_flg_scifa4_rxd = 0;
+		gs_flg_scifa4_rxd = 0;
 		read(g_handle_scifa[4], (uint8_t *)g_scifa_rxd[4], len);
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA4
 	}
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-#undef	CONNECT_SERVO_TO_SCIFA0		// tempolary only in r_scifa_read()
-#define	CONNECT_SERVO_TO_SCIFA1		// tempolary only in r_scifa_read()
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 }
 /******************************************************************************
  * End of function r_scifa_read
@@ -363,61 +403,54 @@ void	r_scifa_read(uint8_t ch, uint16_t len)
  *****************************************************************************/
 void	r_scifa_waiting_read_completed(uint8_t ch)
 {
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-#define	CONNECT_SERVO_TO_SCIFA0		// tempolary only in r_scifa_waiting_read_completed()
-#undef	CONNECT_SERVO_TO_SCIFA1		// tempolary only in r_scifa_waiting_read_completed()
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 	switch(ch)
 	{
 #ifdef CONNECT_SERVO_TO_SCIFA0
 	case 0:
-		while(0 == gs_flg_scifa0_rxd)
+		for(int i = 0; (0 == gs_flg_scifa0_rxd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA0
 #ifdef CONNECT_SERVO_TO_SCIFA1
 	case 1:
-#if 1
-		for(volatile uint32_t i = 0; (i < D_LOOPLIMIT) && (0 == gs_flg_scifa1_rxd); i++)
-#else
-		while(0 == gs_flg_scifa1_rxd)
-#endif
+		for(int i = 0; (0 == gs_flg_scifa1_rxd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA1
 #ifdef CONNECT_SERVO_TO_SCIFA2
 	case 2:
-	//	while(0 == gs_flg_scifa2_rxd)
+		for(int i = 0; (0 == gs_flg_scifa2_rxd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA2
 #ifdef CONNECT_SERVO_TO_SCIFA3
 	case 3:
-	//	while(0 == gs_flg_scifa3_rxd)
+		for(int i = 0; (0 == gs_flg_scifa3_rxd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA3
 #ifdef CONNECT_SERVO_TO_SCIFA4
 	case 4:
-	//	while(0 == gs_flg_scifa4_rxd)
+		for(int i = 0; (0 == gs_flg_scifa4_rxd) && (i < 2); i++)
 		{
+			R_OS_TaskSleep(1);
 			r_nop();
 		}
 		break;
 #endif	// CONNECT_SERVO_TO_SCIFA4
 	}
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-#undef	CONNECT_SERVO_TO_SCIFA0		// tempolary only in r_scifa_waiting_read_completed()
-#define	CONNECT_SERVO_TO_SCIFA1		// tempolary only in r_scifa_waiting_read_completed()
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 }
 /******************************************************************************
  * End of function r_scifa_waiting_read_completed
@@ -432,10 +465,6 @@ void	r_scifa_init(void)
 {
 	static scifa_config_t	gs_set_cfg[5];
 
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-#define	CONNECT_SERVO_TO_SCIFA0		// tempolary only in r_scifa_init()
-//#define	CONNECT_SERVO_TO_SCIFA4		// tempolary only in r_scifa_init()
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 	//
 	// SCIF0 SEL0
 	//
@@ -466,11 +495,7 @@ void	r_scifa_init(void)
 	// SCIF2 SEL2
 	//
 #ifdef CONNECT_SERVO_TO_SCIFA2
-#if 1
-	SET_DUPLEX2(D_HALF_DUPLEX);
-#else
 	SET_DUPLEX2(D_FULL_DUPLEX);
-#endif
 	g_handle_scifa[2] = open("\\\\.\\scifa2", O_RDWR);
 	if(0 > g_handle_scifa[2])
 	{
@@ -478,16 +503,15 @@ void	r_scifa_init(void)
 	}
 	control(g_handle_scifa[2], CTL_SCIFA_GET_CONFIGURATION, &gs_set_cfg[2]);
 	control(g_handle_scifa[2], CTL_SCIFA_SET_CONFIGURATION, &gs_set_cfg[2]);
+#if 1
+	SET_DUPLEX2(D_HALF_DUPLEX);
+#endif
 #endif
 	//
 	// SCIF3 SEL3
 	//
 #ifdef CONNECT_SERVO_TO_SCIFA3
-#if 1
-	SET_DUPLEX3(D_HALF_DUPLEX);
-#else
 	SET_DUPLEX3(D_FULL_DUPLEX);
-#endif
 	g_handle_scifa[3] = open("\\\\.\\scifa3", O_RDWR);
 	if(0 > g_handle_scifa[3])
 	{
@@ -495,16 +519,15 @@ void	r_scifa_init(void)
 	}
 	control(g_handle_scifa[3], CTL_SCIFA_GET_CONFIGURATION, &gs_set_cfg[3]);
 	control(g_handle_scifa[3], CTL_SCIFA_SET_CONFIGURATION, &gs_set_cfg[3]);
+#if 1
+	SET_DUPLEX3(D_HALF_DUPLEX);
+#endif
 #endif
 	//
 	// SCIF4 SEL4
 	//
 #ifdef CONNECT_SERVO_TO_SCIFA4
-#if 1
-	SET_DUPLEX4(D_HALF_DUPLEX);
-#else
 	SET_DUPLEX4(D_FULL_DUPLEX);
-#endif
 	g_handle_scifa[4] = open("\\\\.\\scifa4", O_RDWR);
 	if(0 > g_handle_scifa[4])
 	{
@@ -512,17 +535,15 @@ void	r_scifa_init(void)
 	}
 	control(g_handle_scifa[4], CTL_SCIFA_GET_CONFIGURATION, &gs_set_cfg[4]);
 	control(g_handle_scifa[4], CTL_SCIFA_SET_CONFIGURATION, &gs_set_cfg[4]);
+#if 1
+	SET_DUPLEX4(D_HALF_DUPLEX);
+#endif
 #endif
 	//
 	//	Power Gate(PB0) ON(=1) to use SERVO MOTOR
 	//
     direct_control(g_handle_gpio, CTL_GPIO_PIN_WRITE, &gs_pB0[1]);
 	//
-#ifdef	USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
-	SET_DIR0(D_DIR_READ);
-#undef	CONNECT_SERVO_TO_SCIFA0		// tempolary only in r_scifa_init()
-//#undef	CONNECT_SERVO_TO_SCIFA4		// tempolary only in r_scifa_init()
-#endif	// USE_DEBUG_LOOPBACK_FROM_SCIFA1_TO_SCIFA0
 }
 /******************************************************************************
  * End of function r_ss_init_port

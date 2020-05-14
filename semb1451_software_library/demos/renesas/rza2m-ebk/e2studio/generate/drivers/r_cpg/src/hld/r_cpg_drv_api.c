@@ -205,7 +205,7 @@ static int_t cpg_control (st_stream_ptr_t stream_ptr, uint32_t ctrl_code, void *
             return (DRV_ERROR);
         }
     }
-
+#if 0	// commented out by JiGoRo
     /* check if handle has read access */
     if (0 == (stream_ptr->file_mode & __SRD))
     {
@@ -215,7 +215,7 @@ static int_t cpg_control (st_stream_ptr_t stream_ptr, uint32_t ctrl_code, void *
             return (DRV_ERROR);
         }
     }
-
+#endif	// commented out by JiGoRo
     switch (ctrl_code)
     {
         case CTL_CPG_SET_XTAL_KHZ:
