@@ -59,3 +59,5 @@ When you will do it, please check the user's manual for smart configulator.
 |USB Function         |USB1             | N.A.   | underdevelopment |
 |micro SD slot        |SDHI0            | ready  | |
 |CAN(FD) I/F          |CAN(FD)          | N.A.   | underdevelopment |
+  
+note) SCIFA0-3 is used with DMAC. (SCIFA4 is without DMAC for console)
