@@ -1,4 +1,4 @@
-# SEMB1451/1452 software library (rev.0.13)
+# SEMB1451/1452 software library (Rev.0.14)
 
 This is a C library for SEMB1451/1452 RZ/A2M Eva Lite board
 included with e2studio environment setting files and .scfg file
@@ -6,6 +6,8 @@ for Smart Configurator provided by Renesas Electronics Corp.
   
 This library is based on "software package version 7" provided by Renesas.
 So you can easily modify and add this codes with e2studio on Windows PC.
+cpg driver version 1.04 is included with unknown codes.
+This project codes has been repaired it for SCIFA open function.
   
 Let's enjoy it !
 
@@ -40,7 +42,6 @@ Please set Vertual COM port with Data 8bit, Non-Parity, Stop 1bit, and 1Mbps at 
 
 You can easly modify the peripheral function with Smart Configulator.
 When you will do it, please check the user's manual for smart configulator.
-Please don't change L1 cache setting for Internal memory (0x80000000-).
 
 ## Current Support Peripherals
 
