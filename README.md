@@ -1,4 +1,4 @@
-# SEMB1451/1452 software library (Rev.0.14)
+# SEMB1451/1452 software library (Rev.0.15)
 
 This is a C library for SEMB1451/1452 RZ/A2M Eva Lite board
 included with e2studio environment setting files and .scfg file
@@ -6,8 +6,8 @@ for Smart Configurator provided by Renesas Electronics Corp.
   
 This library is based on "software package version 7" provided by Renesas.
 So you can easily modify and add this codes with e2studio on Windows PC.
-cpg driver version 1.04 is included with unknown codes.
-This project codes has been repaired it for SCIFA open function.
+system/r_devlink_wrapper.[ch] driver is included with bug codes.
+This project codes has been repaired it.
   
 Let's enjoy it !
 
