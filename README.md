@@ -6,8 +6,7 @@ for Smart Configurator provided by Renesas Electronics Corp.
   
 This library is based on "software package version 7" provided by Renesas.
 So you can easily modify and add this codes with e2studio on Windows PC.
-system/r_devlink_wrapper.[ch] driver is included with bug codes.
-This project codes has been repaired it.
+
   
 Let's enjoy it !
 
